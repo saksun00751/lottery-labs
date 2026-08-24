@@ -33,6 +33,15 @@ export async function generateMetadata({
     description: t('appName'),
     applicationName: publicEnv.siteName,
     formatDetection: { telephone: false },
+    appleWebApp: {
+      capable: true,
+      title: publicEnv.siteName,
+      statusBarStyle: 'black-translucent',
+    },
+    icons: {
+      icon: '/icon.svg',
+      apple: '/icon.svg',
+    },
   };
 }
 
@@ -42,6 +51,10 @@ export const viewport = {
   // Members zoom to read slip numbers — never lock that away.
   maximumScale: 5,
   viewportFit: 'cover' as const,
+  themeColor: [
+    { media: '(prefers-color-scheme: dark)', color: '#08080a' },
+    { media: '(prefers-color-scheme: light)', color: '#f6f4ef' },
+  ],
 };
 
 export default async function LocaleLayout({
