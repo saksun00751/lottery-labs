@@ -11,16 +11,14 @@
 
 /// Theme that loads when the visitor has never chosen one.
 /// Must match NEXT_PUBLIC_DEFAULT_THEME.
-$default-theme: 'black-gold';
+$default-theme: 'royal-purple';
 
 $themes: (
   // -------------------------------------------------------------------
   //  1. BLACK & GOLD  — ธีมหลัก หรูหรา คลาสสิก
   // -------------------------------------------------------------------
-  'black-gold': (
-    enabled: true,
-    dark: (
-      bg: #08080a,
+  'black-gold': (enabled: true,
+    dark: (bg: #08080a,
       s1: #111114,
       s2: #191920,
       s3: #22222b,
@@ -32,8 +30,7 @@ $themes: (
       accent-2: #f4dc8b,
       on-accent: #16120a,
     ),
-    light: (
-      bg: #f6f4ef,
+    light: (bg: #f6f4ef,
       s1: #ffffff,
       s2: #f1eee6,
       s3: #e7e3d8,
@@ -50,10 +47,8 @@ $themes: (
   // -------------------------------------------------------------------
   //  2. ROYAL PURPLE — ม่วงราชวงศ์ ตัดแชมเปญ
   // -------------------------------------------------------------------
-  'royal-purple': (
-    enabled: true,
-    dark: (
-      bg: #0a0713,
+  'royal-purple': (enabled: true,
+    dark: (bg: #0a0713,
       s1: #14101f,
       s2: #1d1730,
       s3: #271f3f,
@@ -65,8 +60,7 @@ $themes: (
       accent-2: #e0c8ff,
       on-accent: #150c26,
     ),
-    light: (
-      bg: #f7f5fd,
+    light: (bg: #f7f5fd,
       s1: #ffffff,
       s2: #f2eefb,
       s3: #e7e0f7,
@@ -83,10 +77,8 @@ $themes: (
   // -------------------------------------------------------------------
   //  3. EMERALD JADE — เขียวมรกต สดใหม่ สะอาดตา
   // -------------------------------------------------------------------
-  'emerald-jade': (
-    enabled: true,
-    dark: (
-      bg: #05100c,
+  'emerald-jade': (enabled: true,
+    dark: (bg: #05100c,
       s1: #0c1a15,
       s2: #12241d,
       s3: #1a3128,
@@ -98,8 +90,7 @@ $themes: (
       accent-2: #a7f3d0,
       on-accent: #042115,
     ),
-    light: (
-      bg: #f2f9f5,
+    light: (bg: #f2f9f5,
       s1: #ffffff,
       s2: #eaf6ef,
       s3: #dcefe4,
@@ -116,10 +107,8 @@ $themes: (
   // -------------------------------------------------------------------
   //  4. RUBY NOIR — แดงทับทิม เข้ม ดุดัน
   // -------------------------------------------------------------------
-  'ruby-noir': (
-    enabled: true,
-    dark: (
-      bg: #0d0507,
+  'ruby-noir': (enabled: true,
+    dark: (bg: #0d0507,
       s1: #17090d,
       s2: #211014,
       s3: #2d171d,
@@ -131,8 +120,7 @@ $themes: (
       accent-2: #fda4af,
       on-accent: #2a0510,
     ),
-    light: (
-      bg: #fdf5f6,
+    light: (bg: #fdf5f6,
       s1: #ffffff,
       s2: #fbeced,
       s3: #f6dcdf,
@@ -149,10 +137,8 @@ $themes: (
   // -------------------------------------------------------------------
   //  5. SAPPHIRE ICE — น้ำเงินไพลิน โมเดิร์น
   // -------------------------------------------------------------------
-  'sapphire-ice': (
-    enabled: true,
-    dark: (
-      bg: #050a14,
+  'sapphire-ice': (enabled: true,
+    dark: (bg: #050a14,
       s1: #0b1220,
       s2: #111a2c,
       s3: #18243c,
@@ -164,8 +150,7 @@ $themes: (
       accent-2: #bae6fd,
       on-accent: #041524,
     ),
-    light: (
-      bg: #f3f7fd,
+    light: (bg: #f3f7fd,
       s1: #ffffff,
       s2: #ebf2fb,
       s3: #dde8f7,
@@ -182,10 +167,8 @@ $themes: (
   // -------------------------------------------------------------------
   //  6. ROSE PLATINUM — โรสโกลด์ นุ่มนวล พรีเมียม
   // -------------------------------------------------------------------
-  'rose-platinum': (
-    enabled: true,
-    dark: (
-      bg: #0c0908,
+  'rose-platinum': (enabled: true,
+    dark: (bg: #0c0908,
       s1: #16110f,
       s2: #201917,
       s3: #2b2320,
@@ -197,8 +180,7 @@ $themes: (
       accent-2: #f7d9cc,
       on-accent: #22120b,
     ),
-    light: (
-      bg: #faf6f4,
+    light: (bg: #faf6f4,
       s1: #ffffff,
       s2: #f5eeea,
       s3: #ece0da,
@@ -218,14 +200,12 @@ $themes: (
 //  mean the same thing no matter which palette is active.
 // ---------------------------------------------------------------------------
 $status: (
-  dark: (
-    success: #34d399,
+  dark: (success: #34d399,
     danger: #fb7185,
     warning: #fbbf24,
     info: #60a5fa,
   ),
-  light: (
-    success: #067a55,
+  light: (success: #067a55,
     danger: #dc2626,
     warning: #b45309,
     info: #1d4ed8,

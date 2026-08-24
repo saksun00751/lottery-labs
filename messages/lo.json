@@ -151,8 +151,8 @@
       "odd": "ເລກຄີກ",
       "even": "ເລກຄູ່",
       "clearSelection": "ລ້າງທີ່ເລືອກ",
-      "manualEntry": "ພິມເລກເອງ",
-      "manualHint": "ປ້ອນເລກ {digits} ຫຼັກ ແລ້ວກົດ Enter"
+      "manualEntry": "ປ້ອນເລກ",
+      "manualHint": "ປ້ອນເລກ {digits} ຫຼັກ"
     },
     "slip": {
       "title": "ໃບຫວຍ",

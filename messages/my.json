@@ -151,8 +151,8 @@
       "odd": "မ ဂဏန်း",
       "even": "စုံ ဂဏန်း",
       "clearSelection": "ရွေးထားသည်များ ဖျက်ရန်",
-      "manualEntry": "ဂဏန်းရိုက်ထည့်ရန်",
-      "manualHint": "ဂဏန်း {digits} လုံး ရိုက်ပြီး Enter နှိပ်ပါ"
+      "manualEntry": "ဂဏန်းထည့်ရန်",
+      "manualHint": "ဂဏန်း {digits} လုံး ထည့်ပါ"
     },
     "slip": {
       "title": "ထီစလစ်",

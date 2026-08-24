@@ -227,14 +227,89 @@
   opacity: 0.6;
 }
 
-/* ------------------------------ manual entry ----------------------------- */
+/* -------------------------------- numpad --------------------------------- */
 
-.manual {
+.numpad {
   display: flex;
-  gap: var(--sp-2);
-  align-items: flex-end;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
 }
 
-.manualInput {
-  flex: 1;
+.numpadDisplay {
+  display: flex;
+  gap: var(--sp-3);
+  justify-content: center;
+}
+
+.numpadSlot {
+  @include numeric;
+  width: 56px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--border);
+  background: var(--surface-inset);
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-bold);
+  color: var(--text-3);
+  @include transition(border-color, color, background);
+}
+
+.numpadSlotFilled {
+  border-color: var(--accent);
+  color: var(--text);
+  background: var(--accent-tint);
+}
+
+.numpadError {
+  font-size: var(--fs-xs);
+  color: var(--error);
+  text-align: center;
+  margin: 0;
+}
+
+.numpadGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-2);
+  width: 100%;
+  max-width: 260px;
+}
+
+.numpadKey {
+  @include tappable;
+  @include numeric;
+  @include transition(background, border-color, color, transform);
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface-1);
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-semibold);
+  color: var(--text);
+
+  &:hover:not(:disabled) {
+    background: var(--surface-2);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.92);
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+}
+
+.numpadKeyAction {
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: var(--fs-base);
 }

@@ -1,11 +1,5 @@
 import { publicEnv } from '@/config/env.public';
 
-/**
- * Runs before first paint so the page never flashes the default palette.
- *
- * Kept as a raw string on purpose: a React component would only run after
- * hydration, which is exactly the flash we are avoiding.
- */
 export function ThemeScript() {
   const script = `
 (function () {
@@ -21,5 +15,8 @@ export function ThemeScript() {
   }
 })();`.trim();
 
+  // React 19 warns that inline <script> tags in components won't re-execute
+  // during client navigation. That is intentional here — this script only needs
+  // to run once from the SSR HTML to prevent a theme flash before hydration.
   return <script dangerouslySetInnerHTML={{ __html: script }} />;
 }

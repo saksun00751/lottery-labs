@@ -1,11 +1,9 @@
 'use client';
 
-import { Coins, Plus } from 'lucide-react';
+import { Coins, Delete } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { memo, useMemo, useState, type KeyboardEvent } from 'react';
+import { memo, useMemo, useState } from 'react';
 
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Field';
 import { cn } from '@/lib/utils/cn';
 import {
   allNumbers,
@@ -124,21 +122,25 @@ export function NumberBoard({
     }
   };
 
-  const submitManual = () => {
-    const value = manual.replace(/\D/g, '');
-    if (value.length !== betType.digits) {
+  const submitManual = (value: string) => {
+    const cleaned = value.replace(/\D/g, '');
+    if (cleaned.length !== betType.digits) {
       setManualError(t('manualHint', { digits: betType.digits }));
       return;
     }
     setManualError(null);
     setManual('');
-    onToggle(value);
+    onToggle(cleaned);
   };
 
-  const onManualKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      submitManual();
+  const handleNumpadPress = (digit: string) => {
+    if (manual.length >= betType.digits) return;
+    const next = manual + digit;
+    if (next.length === betType.digits) {
+      submitManual(next);
+    } else {
+      setManual(next);
+      setManualError(null);
     }
   };
 
@@ -162,29 +164,13 @@ export function NumberBoard({
         }}
       />
 
-      <div className={styles.manual}>
-        <Input
-          className={styles.manualInput}
-          value={manual}
-          onChange={(event) =>
-            setManual(event.target.value.replace(/\D/g, '').slice(0, betType.digits))
-          }
-          onKeyDown={onManualKeyDown}
-          label={t('manualEntry')}
-          placeholder={'0'.repeat(betType.digits)}
-          inputMode="numeric"
-          maxLength={betType.digits}
-          error={manualError ?? undefined}
-        />
-        <Button
-          size="lg"
-          variant="secondary"
-          onClick={submitManual}
-          aria-label={t('manualEntry')}
-        >
-          <Plus size={19} />
-        </Button>
-      </div>
+      <Numpad
+        digits={betType.digits}
+        value={manual}
+        error={manualError}
+        onPress={handleNumpadPress}
+        onBackspace={() => { setManual((v) => v.slice(0, -1)); setManualError(null); }}
+      />
 
       <div className={styles.legend}>
         <span className={styles.legendItem}>
@@ -223,6 +209,76 @@ export function NumberBoard({
             })}
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+/* --------------------------------- numpad -------------------------------- */
+
+const NUMPAD_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'backspace', '0', 'none'] as const;
+
+function Numpad({
+  digits,
+  value,
+  error,
+  onPress,
+  onBackspace,
+}: {
+  digits: number;
+  value: string;
+  error: string | null;
+  onPress: (digit: string) => void;
+  onBackspace: () => void;
+}) {
+  const t = useTranslations('lottery.board');
+
+  return (
+    <div className={styles.numpad}>
+      <div className={styles.numpadDisplay} aria-label={t('manualEntry')}>
+        {Array.from({ length: digits }).map((_, i) => (
+          <span
+            key={i}
+            className={cn(styles.numpadSlot, value[i] !== undefined && styles.numpadSlotFilled)}
+          >
+            {value[i] ?? ''}
+          </span>
+        ))}
+      </div>
+
+      {error && <p className={styles.numpadError} role="alert">{error}</p>}
+
+      <div className={styles.numpadGrid}>
+        {NUMPAD_KEYS.map((key, i) => {
+          if (key === 'backspace') {
+            return (
+              <button
+                key="backspace"
+                type="button"
+                className={cn(styles.numpadKey, styles.numpadKeyAction)}
+                onClick={onBackspace}
+                disabled={value.length === 0}
+                aria-label="delete"
+              >
+                <Delete size={20} />
+              </button>
+            );
+          }
+          if (key === 'none') {
+            return <span key="none" />;
+          }
+          return (
+            <button
+              key={key}
+              type="button"
+              className={styles.numpadKey}
+              onClick={() => onPress(key)}
+              disabled={value.length >= digits}
+            >
+              {key}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

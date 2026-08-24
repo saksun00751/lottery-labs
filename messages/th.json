@@ -151,8 +151,8 @@
       "odd": "เลขคี่",
       "even": "เลขคู่",
       "clearSelection": "ล้างที่เลือก",
-      "manualEntry": "พิมพ์เลขเอง",
-      "manualHint": "กรอกเลข {digits} หลัก แล้วกด Enter"
+      "manualEntry": "กรอกเลข",
+      "manualHint": "กรอกให้ครบ {digits} หลัก"
     },
     "slip": {
       "title": "โพยหวย",

@@ -151,8 +151,8 @@
       "odd": "Odd",
       "even": "Even",
       "clearSelection": "Clear selection",
-      "manualEntry": "Type a number",
-      "manualHint": "Enter {digits} digits and press Enter"
+      "manualEntry": "Enter number",
+      "manualHint": "Enter {digits} digits"
     },
     "slip": {
       "title": "Bet slip",

@@ -151,8 +151,8 @@
       "odd": "លេខសេស",
       "even": "លេខគូ",
       "clearSelection": "សម្អាតការជ្រើសរើស",
-      "manualEntry": "វាយលេខដោយខ្លួនឯង",
-      "manualHint": "បញ្ចូលលេខ {digits} ខ្ទង់ រួចចុច Enter"
+      "manualEntry": "បញ្ចូលលេខ",
+      "manualHint": "បញ្ចូលលេខ {digits} ខ្ទង់"
     },
     "slip": {
       "title": "សន្លឹកឆ្នោត",
