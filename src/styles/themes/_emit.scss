@@ -1,0 +1,146 @@
+@use 'sass:map';
+@use 'sass:color';
+@use 'sass:list';
+@use 'sass:string';
+@use 'config' as cfg;
+
+// ---------------------------------------------------------------------------
+// Turns one palette map into the full set of CSS custom properties used by the
+// components. Everything derived (tints, gradients, shadows, hairlines) is
+// computed here so a theme only has to declare ~11 base colours.
+// ---------------------------------------------------------------------------
+
+@mixin palette($p, $mode) {
+  $accent: map.get($p, accent);
+  $accent-2: map.get($p, accent-2);
+  $bg: map.get($p, bg);
+  $status: map.get(cfg.$status, $mode);
+
+  color-scheme: #{$mode};
+
+  // --- Backgrounds -------------------------------------------------------
+  --bg: #{$bg};
+  --surface-1: #{map.get($p, s1)};
+  --surface-2: #{map.get($p, s2)};
+  --surface-3: #{map.get($p, s3)};
+  --surface-inset: #{color.mix($bg, map.get($p, s1), 55%)};
+
+  // --- Borders -----------------------------------------------------------
+  --border: #{map.get($p, border)};
+  --border-strong: #{color.mix(map.get($p, border), map.get($p, text), 78%)};
+  --border-subtle: #{color.mix(map.get($p, border), $bg, 45%)};
+
+  // --- Text --------------------------------------------------------------
+  --text: #{map.get($p, text)};
+  --text-2: #{map.get($p, text-2)};
+  --text-3: #{map.get($p, text-3)};
+  --text-on-accent: #{map.get($p, on-accent)};
+
+  // --- Accent ------------------------------------------------------------
+  --accent: #{$accent};
+  --accent-2: #{$accent-2};
+  --accent-hover: #{color.mix($accent, $accent-2, 65%)};
+  --accent-tint: #{rgba($accent, 0.14)};
+  --accent-tint-strong: #{rgba($accent, 0.26)};
+  --accent-hairline: linear-gradient(
+    90deg,
+    #{rgba($accent, 0)} 0%,
+    #{rgba($accent, 0.55)} 50%,
+    #{rgba($accent, 0)} 100%
+  );
+  --accent-gradient: linear-gradient(135deg, #{$accent} 0%, #{$accent-2} 100%);
+  --accent-gradient-soft: linear-gradient(
+    135deg,
+    #{rgba($accent, 0.18)} 0%,
+    #{rgba($accent-2, 0.06)} 100%
+  );
+
+  // --- Status ------------------------------------------------------------
+  --success: #{map.get($status, success)};
+  --success-tint: #{rgba(map.get($status, success), 0.14)};
+  --danger: #{map.get($status, danger)};
+  --danger-tint: #{rgba(map.get($status, danger), 0.14)};
+  --warning: #{map.get($status, warning)};
+  --warning-tint: #{rgba(map.get($status, warning), 0.14)};
+  --info: #{map.get($status, info)};
+  --info-tint: #{rgba(map.get($status, info), 0.14)};
+
+  --focus: #{$accent};
+
+  // --- Depth -------------------------------------------------------------
+  @if $mode == dark {
+    --shadow-card: 0 1px 2px #{rgba(#000, 0.5)}, 0 8px 24px -12px #{rgba(#000, 0.7)};
+    --shadow-pop: 0 12px 40px -8px #{rgba(#000, 0.75)};
+    --shadow-accent: 0 6px 24px -8px #{rgba($accent, 0.55)};
+    --glow: 0 0 0 1px #{rgba($accent, 0.28)}, 0 0 28px -6px #{rgba($accent, 0.4)};
+    --scrim: #{rgba(#000, 0.62)};
+    --sheen: linear-gradient(
+      160deg,
+      #{rgba(#fff, 0.05)} 0%,
+      #{rgba(#fff, 0)} 42%
+    );
+  } @else {
+    --shadow-card: 0 1px 2px #{rgba(#0b1020, 0.05)},
+      0 10px 26px -14px #{rgba(#0b1020, 0.22)};
+    --shadow-pop: 0 16px 44px -12px #{rgba(#0b1020, 0.24)};
+    --shadow-accent: 0 8px 24px -10px #{rgba($accent, 0.45)};
+    --glow: 0 0 0 1px #{rgba($accent, 0.22)}, 0 0 24px -8px #{rgba($accent, 0.3)};
+    --scrim: #{rgba(#0b1020, 0.42)};
+    --sheen: linear-gradient(
+      160deg,
+      #{rgba(#fff, 0.9)} 0%,
+      #{rgba(#fff, 0)} 55%
+    );
+  }
+}
+
+/// Space separated list of enabled theme ids, exposed to JS via
+/// `getComputedStyle(document.documentElement).getPropertyValue('--themes-enabled')`.
+@function enabled-ids() {
+  $ids: ();
+  @each $id, $theme in cfg.$themes {
+    @if map.get($theme, enabled) {
+      $ids: list.append($ids, $id, $separator: space);
+    }
+  }
+  @return $ids;
+}
+
+@mixin emit-all {
+  :root {
+    --themes-enabled: '#{enabled-ids()}';
+    --theme-default: '#{cfg.$default-theme}';
+  }
+
+  @each $id, $theme in cfg.$themes {
+    @if map.get($theme, enabled) {
+      $dark: map.get($theme, dark);
+      $light: map.get($theme, light);
+
+      // Dark is the baseline: `[data-theme]` alone, or with data-mode="dark".
+      [data-theme='#{$id}'],
+      [data-theme='#{$id}'][data-mode='dark'] {
+        @include palette($dark, dark);
+      }
+
+      // Explicit light choice always wins.
+      [data-theme='#{$id}'][data-mode='light'] {
+        @include palette($light, light);
+      }
+
+      // "system" mode: follow the OS unless the user pinned a mode.
+      @media (prefers-color-scheme: light) {
+        [data-theme='#{$id}'][data-mode='system'] {
+          @include palette($light, light);
+        }
+      }
+
+      // The default theme also answers to a bare document (pre-hydration).
+      @if $id == cfg.$default-theme {
+        :root:not([data-theme]) {
+          @include palette($dark, dark);
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,142 @@
+@use 'styles/abstracts' as *;
+
+.button {
+  @include tappable;
+  @include transition(background, border-color, color, box-shadow, transform);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  padding-inline: var(--sp-5);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-semibold);
+  line-height: 1;
+  white-space: nowrap;
+  position: relative;
+  isolation: isolate;
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+}
+
+/* ------------------------------- variants ------------------------------- */
+
+.primary {
+  background: var(--accent-gradient);
+  color: var(--text-on-accent);
+  box-shadow: var(--shadow-accent);
+
+  &:hover:not(:disabled) {
+    filter: brightness(1.06);
+  }
+}
+
+.secondary {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+
+  &:hover:not(:disabled) {
+    background: var(--surface-3);
+    border-color: var(--border-strong);
+  }
+}
+
+.outline {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+
+  &:hover:not(:disabled) {
+    background: var(--accent-tint);
+  }
+}
+
+.ghost {
+  background: transparent;
+  color: var(--text-2);
+
+  &:hover:not(:disabled) {
+    background: var(--surface-2);
+    color: var(--text);
+  }
+}
+
+.danger {
+  background: var(--danger);
+  color: #fff;
+
+  &:hover:not(:disabled) {
+    filter: brightness(1.08);
+  }
+}
+
+/* -------------------------------- sizes --------------------------------- */
+
+.sm {
+  min-height: 38px;
+  padding-inline: var(--sp-3);
+  font-size: var(--fs-xs);
+  border-radius: var(--radius-sm);
+}
+
+.md {
+  min-height: var(--tap);
+}
+
+.lg {
+  min-height: 54px;
+  font-size: var(--fs-md);
+  padding-inline: var(--sp-6);
+  border-radius: var(--radius-lg);
+}
+
+.block {
+  width: 100%;
+}
+
+/* ------------------------------- loading -------------------------------- */
+
+.loading {
+  color: transparent !important;
+  pointer-events: none;
+}
+
+.spinner {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+
+  &::after {
+    content: '';
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    animation: spin 720ms linear infinite;
+  }
+}
+
+.primary .spinner::after {
+  color: var(--text-on-accent);
+}
+.secondary .spinner::after,
+.ghost .spinner::after {
+  color: var(--text);
+}
+.outline .spinner::after {
+  color: var(--accent);
+}
+.danger .spinner::after {
+  color: #fff;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

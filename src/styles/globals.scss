@@ -1,0 +1,205 @@
+@use 'styles/abstracts' as *;
+@use 'styles/themes';
+
+/* ==========================================================================
+   Reset
+   ========================================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-behavior: smooth;
+
+  @include reduced-motion {
+    scroll-behavior: auto;
+  }
+}
+
+:root {
+  @include base-tokens;
+
+  /* Script-aware font stacks. `--font-ui` is re-pointed per <html lang>. */
+  --font-latin: var(--f-inter), 'Inter', system-ui, -apple-system, sans-serif;
+  --font-thai: var(--f-thai), 'Noto Sans Thai', var(--font-latin);
+  --font-myanmar: var(--f-myanmar), 'Noto Sans Myanmar', 'Padauk',
+    var(--font-latin);
+  --font-lao: var(--f-lao), 'Noto Sans Lao', var(--font-latin);
+  --font-khmer: var(--f-khmer), 'Noto Sans Khmer', var(--font-latin);
+  --font-ui: var(--font-latin);
+}
+
+/* Burmese / Lao / Khmer need their own face or the glyph stacking breaks.
+   Setting it on <html lang> means nested content inherits the right script. */
+html[lang='th'] {
+  --font-ui: var(--font-thai);
+}
+html[lang='my'] {
+  --font-ui: var(--font-myanmar);
+  /* Myanmar glyphs stack vertically — they need more room per line. */
+  --lh-base: 1.85;
+  --lh-snug: 1.6;
+}
+html[lang='lo'] {
+  --font-ui: var(--font-lao);
+  --lh-base: 1.75;
+}
+html[lang='km'] {
+  --font-ui: var(--font-khmer);
+  /* Khmer has no spaces between words; let the browser break anywhere. */
+  --lh-base: 1.85;
+}
+
+html[lang='km'] body {
+  line-break: loose;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+body {
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: var(--fs-base);
+  line-height: var(--lh-base);
+  font-weight: var(--fw-regular);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  @include scrollbar;
+}
+
+/* Ambient accent wash — a big part of the "premium" feel, costs one element. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(
+      1100px 520px at 12% -8%,
+      var(--accent-tint) 0%,
+      transparent 62%
+    ),
+    radial-gradient(
+      900px 480px at 105% 8%,
+      var(--accent-tint) 0%,
+      transparent 58%
+    );
+  opacity: 0.55;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-tight);
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--fs-2xl);
+}
+h2 {
+  font-size: var(--fs-xl);
+}
+h3 {
+  font-size: var(--fs-lg);
+}
+
+p {
+  text-wrap: pretty;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: none;
+  border: none;
+}
+
+/* 16px minimum kills the iOS focus-zoom. */
+input,
+select,
+textarea {
+  font-size: max(var(--fs-base), 16px);
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+:focus-visible {
+  @include focus-ring;
+}
+
+::selection {
+  background: var(--accent-tint-strong);
+  color: var(--text);
+}
+
+/* ==========================================================================
+   Utilities
+   ========================================================================== */
+.sr-only {
+  @include visually-hidden;
+}
+
+.numeric {
+  @include numeric;
+}
+
+.container {
+  @include container;
+}
+
+/* Prevent background scroll while a drawer/modal is open. */
+body[data-scroll-locked='true'] {
+  overflow: hidden;
+  touch-action: none;
+}
+
+@include reduced-motion {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}

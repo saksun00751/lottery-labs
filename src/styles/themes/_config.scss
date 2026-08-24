@@ -1,0 +1,233 @@
+// ===========================================================================
+//  THEME REGISTRY  —  แก้ไฟล์นี้ไฟล์เดียวเพื่อ เปิด / ปิด แต่ละธีม
+//  ---------------------------------------------------------------------
+//  ตั้ง `enabled: false` แล้วธีมนั้นจะหายไปทั้งจาก CSS ที่ build ออกมา
+//  และจากปุ่มเลือกธีมบนหน้าเว็บ (ตัวสลับธีมอ่านรายชื่อธีมที่เปิดอยู่
+//  จาก custom property `--themes-enabled` ที่ไฟล์นี้สร้างให้ ไม่ต้องไปแก้ TS)
+//
+//  Set `enabled: false` and the theme disappears from both the compiled CSS
+//  and the in-app switcher — this file is the single source of truth.
+// ===========================================================================
+
+/// Theme that loads when the visitor has never chosen one.
+/// Must match NEXT_PUBLIC_DEFAULT_THEME.
+$default-theme: 'black-gold';
+
+$themes: (
+  // -------------------------------------------------------------------
+  //  1. BLACK & GOLD  — ธีมหลัก หรูหรา คลาสสิก
+  // -------------------------------------------------------------------
+  'black-gold': (
+    enabled: true,
+    dark: (
+      bg: #08080a,
+      s1: #111114,
+      s2: #191920,
+      s3: #22222b,
+      border: #2a2a34,
+      text: #f7f5ef,
+      text-2: #aba79c,
+      text-3: #737068,
+      accent: #d4af37,
+      accent-2: #f4dc8b,
+      on-accent: #16120a,
+    ),
+    light: (
+      bg: #f6f4ef,
+      s1: #ffffff,
+      s2: #f1eee6,
+      s3: #e7e3d8,
+      border: #ddd8ca,
+      text: #16150f,
+      text-2: #57534a,
+      text-3: #868175,
+      accent: #8a6a15,
+      accent-2: #b08a22,
+      on-accent: #ffffff,
+    ),
+  ),
+
+  // -------------------------------------------------------------------
+  //  2. ROYAL PURPLE — ม่วงราชวงศ์ ตัดแชมเปญ
+  // -------------------------------------------------------------------
+  'royal-purple': (
+    enabled: true,
+    dark: (
+      bg: #0a0713,
+      s1: #14101f,
+      s2: #1d1730,
+      s3: #271f3f,
+      border: #332a4d,
+      text: #f4f1fb,
+      text-2: #aaa1c4,
+      text-3: #746b8e,
+      accent: #a78bfa,
+      accent-2: #e0c8ff,
+      on-accent: #150c26,
+    ),
+    light: (
+      bg: #f7f5fd,
+      s1: #ffffff,
+      s2: #f2eefb,
+      s3: #e7e0f7,
+      border: #ded5f0,
+      text: #17102a,
+      text-2: #574d70,
+      text-3: #837a99,
+      accent: #6d3fd6,
+      accent-2: #8b5cf6,
+      on-accent: #ffffff,
+    ),
+  ),
+
+  // -------------------------------------------------------------------
+  //  3. EMERALD JADE — เขียวมรกต สดใหม่ สะอาดตา
+  // -------------------------------------------------------------------
+  'emerald-jade': (
+    enabled: true,
+    dark: (
+      bg: #05100c,
+      s1: #0c1a15,
+      s2: #12241d,
+      s3: #1a3128,
+      border: #234034,
+      text: #eff8f3,
+      text-2: #9db8ac,
+      text-3: #688076,
+      accent: #34d399,
+      accent-2: #a7f3d0,
+      on-accent: #042115,
+    ),
+    light: (
+      bg: #f2f9f5,
+      s1: #ffffff,
+      s2: #eaf6ef,
+      s3: #dcefe4,
+      border: #cfe6d8,
+      text: #082117,
+      text-2: #3f5c50,
+      text-3: #6d8a7c,
+      accent: #067a55,
+      accent-2: #10a271,
+      on-accent: #ffffff,
+    ),
+  ),
+
+  // -------------------------------------------------------------------
+  //  4. RUBY NOIR — แดงทับทิม เข้ม ดุดัน
+  // -------------------------------------------------------------------
+  'ruby-noir': (
+    enabled: true,
+    dark: (
+      bg: #0d0507,
+      s1: #17090d,
+      s2: #211014,
+      s3: #2d171d,
+      border: #3b2026,
+      text: #fbf1f2,
+      text-2: #bfa1a6,
+      text-3: #866a70,
+      accent: #f43f5e,
+      accent-2: #fda4af,
+      on-accent: #2a0510,
+    ),
+    light: (
+      bg: #fdf5f6,
+      s1: #ffffff,
+      s2: #fbeced,
+      s3: #f6dcdf,
+      border: #f0ccd1,
+      text: #260a0f,
+      text-2: #6b4148,
+      text-3: #966a71,
+      accent: #be123c,
+      accent-2: #e11d48,
+      on-accent: #ffffff,
+    ),
+  ),
+
+  // -------------------------------------------------------------------
+  //  5. SAPPHIRE ICE — น้ำเงินไพลิน โมเดิร์น
+  // -------------------------------------------------------------------
+  'sapphire-ice': (
+    enabled: true,
+    dark: (
+      bg: #050a14,
+      s1: #0b1220,
+      s2: #111a2c,
+      s3: #18243c,
+      border: #21304d,
+      text: #eef4fd,
+      text-2: #9db0cc,
+      text-3: #687b96,
+      accent: #38bdf8,
+      accent-2: #bae6fd,
+      on-accent: #041524,
+    ),
+    light: (
+      bg: #f3f7fd,
+      s1: #ffffff,
+      s2: #ebf2fb,
+      s3: #dde8f7,
+      border: #cfdff2,
+      text: #08172b,
+      text-2: #3d5573,
+      text-3: #6b829e,
+      accent: #0369a1,
+      accent-2: #0284c7,
+      on-accent: #ffffff,
+    ),
+  ),
+
+  // -------------------------------------------------------------------
+  //  6. ROSE PLATINUM — โรสโกลด์ นุ่มนวล พรีเมียม
+  // -------------------------------------------------------------------
+  'rose-platinum': (
+    enabled: true,
+    dark: (
+      bg: #0c0908,
+      s1: #16110f,
+      s2: #201917,
+      s3: #2b2320,
+      border: #3a2f2b,
+      text: #faf4f1,
+      text-2: #bda9a1,
+      text-3: #83726b,
+      accent: #e8b4a0,
+      accent-2: #f7d9cc,
+      on-accent: #22120b,
+    ),
+    light: (
+      bg: #faf6f4,
+      s1: #ffffff,
+      s2: #f5eeea,
+      s3: #ece0da,
+      border: #e2d3cb,
+      text: #1d1310,
+      text-2: #63514a,
+      text-3: #8f7d75,
+      accent: #a4573a,
+      accent-2: #c26b48,
+      on-accent: #ffffff,
+    ),
+  )
+);
+
+// ---------------------------------------------------------------------------
+//  Semantic status colours — shared by every theme so success/danger always
+//  mean the same thing no matter which palette is active.
+// ---------------------------------------------------------------------------
+$status: (
+  dark: (
+    success: #34d399,
+    danger: #fb7185,
+    warning: #fbbf24,
+    info: #60a5fa,
+  ),
+  light: (
+    success: #067a55,
+    danger: #dc2626,
+    warning: #b45309,
+    info: #1d4ed8,
+  ),
+);
