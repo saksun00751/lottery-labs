@@ -1,0 +1,48 @@
+@use 'styles/abstracts' as *;
+
+.money {
+  @include numeric;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35ch;
+  font-weight: var(--fw-semibold);
+}
+
+.sm {
+  font-size: var(--fs-sm);
+}
+.md {
+  font-size: var(--fs-md);
+}
+.lg {
+  font-size: var(--fs-xl);
+}
+.xl {
+  font-size: var(--fs-3xl);
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.03em;
+}
+
+.default {
+  color: var(--text);
+}
+.accent {
+  @include accent-text;
+}
+.success {
+  color: var(--success);
+}
+.danger {
+  color: var(--danger);
+}
+.muted {
+  color: var(--text-2);
+}
+
+.suffix {
+  font-family: var(--font-ui);
+  font-size: 0.62em;
+  font-weight: var(--fw-medium);
+  color: var(--text-3);
+  letter-spacing: 0;
+}

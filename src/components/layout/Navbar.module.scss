@@ -1,0 +1,225 @@
+@use 'styles/abstracts' as *;
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-navbar);
+  height: var(--nav-height);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding-inline: var(--sp-4);
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+
+  @include up('md') {
+    padding-inline: var(--sp-6);
+  }
+}
+
+.menuButton {
+  @include tappable;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  color: var(--text-2);
+
+  &:hover {
+    background: var(--surface-2);
+    color: var(--text);
+  }
+
+  @include desktop {
+    display: none;
+  }
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-width: 0;
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-sm);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+
+  @include desktop {
+    display: none;
+  }
+}
+
+/* On a narrow phone the balance pill and the controls matter more than the
+   wordmark — the logo tile alone keeps the header on one line. */
+.brandText {
+  @include truncate;
+
+  @include down('sm') {
+    display: none;
+  }
+}
+
+.brandMark {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-xs);
+  background: var(--accent-gradient);
+  color: var(--text-on-accent);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-bold);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.balance {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  height: 40px;
+  padding-inline: var(--sp-3);
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  @include transition(border-color);
+
+  &:hover {
+    border-color: var(--accent-tint-strong);
+  }
+}
+
+.balanceIcon {
+  display: flex;
+  color: var(--accent);
+}
+
+.balanceValue {
+  @include numeric;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+}
+
+.depositButton {
+  display: none;
+
+  @include up('sm') {
+    display: inline-flex;
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+}
+
+.iconButton {
+  @include tappable;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  color: var(--text-2);
+
+  &:hover {
+    background: var(--surface-2);
+    color: var(--text);
+  }
+}
+
+.popWrap {
+  position: relative;
+}
+
+.pop {
+  position: absolute;
+  top: calc(100% + var(--sp-2));
+  inset-inline-end: 0;
+  min-width: 232px;
+  padding: var(--sp-2);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-pop);
+  animation: pop 160ms var(--ease-out);
+  z-index: var(--z-overlay);
+}
+
+.popTitle {
+  padding: var(--sp-2) var(--sp-3);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.popItem {
+  @include tappable;
+  @include transition(background, color);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  width: 100%;
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+  text-align: start;
+
+  &:hover {
+    background: var(--surface-3);
+    color: var(--text);
+  }
+}
+
+.popItemActive {
+  color: var(--accent);
+  font-weight: var(--fw-semibold);
+  background: var(--accent-tint);
+}
+
+.swatch {
+  display: flex;
+  width: 30px;
+  height: 20px;
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  flex-shrink: 0;
+
+  span {
+    flex: 1;
+  }
+}
+
+.flag {
+  font-size: var(--fs-md);
+  line-height: 1;
+}
+
+.check {
+  margin-inline-start: auto;
+  display: flex;
+  color: var(--accent);
+}
+
+.divider {
+  height: 1px;
+  margin: var(--sp-2) var(--sp-1);
+  background: var(--border);
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}

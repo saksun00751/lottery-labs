@@ -1,0 +1,155 @@
+@use 'styles/abstracts' as *;
+
+.card {
+  @include card;
+  position: relative;
+  padding: var(--sp-5);
+  background: var(--accent-gradient-soft), var(--surface-1);
+
+  @include up('md') {
+    padding: var(--sp-6);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--sheen);
+    pointer-events: none;
+  }
+}
+
+.top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  position: relative;
+  z-index: 1;
+}
+
+.name {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.02em;
+}
+
+.greeting {
+  margin-top: 2px;
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+}
+
+.balanceBlock {
+  margin-top: var(--sp-5);
+  position: relative;
+  z-index: 1;
+}
+
+.balanceLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.balanceValue {
+  margin-top: var(--sp-2);
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+}
+
+.actions {
+  display: flex;
+  gap: var(--sp-3);
+  margin-top: var(--sp-5);
+  position: relative;
+  z-index: 1;
+
+  > * {
+    flex: 1;
+  }
+}
+
+/* --------------------------------- Stats -------------------------------- */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-3);
+  margin-top: var(--sp-5);
+
+  @include up('md') {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-4);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  min-width: 0;
+}
+
+.statHead {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  color: var(--text-2);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+}
+
+.statIcon {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: var(--radius-xs);
+  background: var(--accent-tint);
+  color: var(--accent);
+}
+
+.statLabel {
+  @include truncate;
+}
+
+.statValue {
+  @include numeric;
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.02em;
+}
+
+.statFoot {
+  font-size: var(--fs-2xs);
+  color: var(--text-3);
+}
+
+.claim {
+  margin-top: var(--sp-1);
+}
+
+/* Separate accent per stat so the row does not read as one flat block. */
+.diamond .statIcon {
+  background: var(--info-tint);
+  color: var(--info);
+}
+.cashback .statIcon {
+  background: var(--success-tint);
+  color: var(--success);
+}
+.turnover .statIcon {
+  background: var(--warning-tint);
+  color: var(--warning);
+}

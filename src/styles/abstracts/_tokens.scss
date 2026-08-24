@@ -1,0 +1,77 @@
+// ---------------------------------------------------------------------------
+// Non-colour design tokens.
+//
+// Colours live in src/styles/themes/* because they change per theme; anything
+// that stays constant across themes is defined here and emitted once on :root.
+// ---------------------------------------------------------------------------
+
+@mixin base-tokens {
+  // --- Type scale --------------------------------------------------------
+  // Deliberately generous: the smallest text in the product is 13px and body
+  // copy never drops below 16px, which also stops iOS Safari zooming inputs.
+  --fs-2xs: 0.8125rem; // 13px – timestamps, table meta only
+  --fs-xs: 0.875rem; // 14px – secondary labels
+  --fs-sm: 0.9375rem; // 15px – dense UI
+  --fs-base: 1rem; // 16px – body
+  --fs-md: 1.0625rem; // 17px
+  --fs-lg: 1.1875rem; // 19px
+  --fs-xl: clamp(1.375rem, 1.2rem + 0.8vw, 1.625rem);
+  --fs-2xl: clamp(1.625rem, 1.35rem + 1.3vw, 2.125rem);
+  --fs-3xl: clamp(2rem, 1.6rem + 2vw, 2.75rem);
+
+  --lh-tight: 1.25;
+  --lh-snug: 1.4;
+  --lh-base: 1.6;
+  --lh-loose: 1.8;
+
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  // Tabular figures for every money/lottery number in the app.
+  --numeric: 'Inter', 'SF Mono', ui-monospace, monospace;
+
+  // --- Spacing (4px base) ------------------------------------------------
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.25rem;
+  --sp-6: 1.5rem;
+  --sp-8: 2rem;
+  --sp-10: 2.5rem;
+  --sp-12: 3rem;
+  --sp-16: 4rem;
+
+  // --- Radii -------------------------------------------------------------
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-pill: 999px;
+
+  // --- Layout ------------------------------------------------------------
+  --nav-height: 60px;
+  --sidebar-width: 268px;
+  --sidebar-width-collapsed: 76px;
+  --bottom-nav-height: 64px;
+  --content-max: 1320px;
+
+  // Minimum comfortable touch target.
+  --tap: 44px;
+
+  // --- Motion ------------------------------------------------------------
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 340ms;
+
+  --z-sidebar: 40;
+  --z-navbar: 50;
+  --z-overlay: 60;
+  --z-modal: 70;
+  --z-toast: 80;
+}

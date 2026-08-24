@@ -1,0 +1,147 @@
+@use 'styles/abstracts' as *;
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--text-2);
+}
+
+.optional {
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-regular);
+  color: var(--text-3);
+}
+
+.control {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input,
+.select {
+  @include transition(border-color, background, box-shadow);
+  width: 100%;
+  min-height: 52px;
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--surface-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  outline: none;
+
+  &::placeholder {
+    color: var(--text-3);
+  }
+
+  &:hover:not(:disabled) {
+    border-color: var(--border-strong);
+  }
+
+  &:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    background: var(--surface-1);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+.select {
+  appearance: none;
+  cursor: pointer;
+  padding-inline-end: var(--sp-10);
+}
+
+.selectChevron {
+  position: absolute;
+  inset-inline-end: var(--sp-4);
+  pointer-events: none;
+  color: var(--text-3);
+  display: flex;
+}
+
+.withPrefix {
+  padding-inline-start: var(--sp-10);
+}
+
+.withSuffix {
+  padding-inline-end: 52px;
+}
+
+.prefix {
+  position: absolute;
+  inset-inline-start: var(--sp-4);
+  color: var(--text-3);
+  pointer-events: none;
+  display: flex;
+  font-size: var(--fs-sm);
+}
+
+.suffix {
+  position: absolute;
+  inset-inline-end: var(--sp-2);
+  display: flex;
+}
+
+.iconButton {
+  @include tappable;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: var(--radius-sm);
+  color: var(--text-3);
+
+  &:hover {
+    color: var(--text);
+    background: var(--surface-2);
+  }
+}
+
+.error {
+  border-color: var(--danger) !important;
+
+  &:focus {
+    box-shadow: 0 0 0 3px var(--danger-tint);
+  }
+}
+
+.message {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-snug);
+  color: var(--danger);
+}
+
+.hint {
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+  line-height: var(--lh-snug);
+}
+
+/* Amount input — big and unmistakable. */
+.amount {
+  @include numeric;
+  min-height: 68px;
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-semibold);
+  text-align: center;
+  letter-spacing: -0.02em;
+}

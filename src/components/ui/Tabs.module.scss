@@ -1,0 +1,80 @@
+@use 'styles/abstracts' as *;
+
+.tabs {
+  @include scrollbar;
+  display: flex;
+  gap: var(--sp-2);
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.pillList {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 4px;
+  gap: 2px;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.tab {
+  @include tappable;
+  @include transition(background, color, border-color);
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4);
+  min-height: 40px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--text-2);
+  white-space: nowrap;
+
+  &:hover:not(.active) {
+    color: var(--text);
+    background: var(--surface-3);
+  }
+}
+
+.bordered .tab {
+  border: 1px solid var(--border);
+  background: var(--surface-1);
+}
+
+/* `.tab.active` so it outranks `.bordered .tab` — otherwise the bordered
+   variant keeps its surface background and the dark on-accent label goes
+   invisible against it. */
+.tab.active,
+.bordered .tab.active {
+  background: var(--accent-gradient);
+  color: var(--text-on-accent);
+  font-weight: var(--fw-semibold);
+  border-color: transparent;
+  box-shadow: var(--shadow-accent);
+
+  &:hover {
+    color: var(--text-on-accent);
+  }
+}
+
+.count {
+  @include numeric;
+  font-size: var(--fs-2xs);
+  padding: 1px 7px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-3);
+  color: var(--text-2);
+}
+
+.active .count {
+  background: rgb(0 0 0 / 0.18);
+  color: inherit;
+}

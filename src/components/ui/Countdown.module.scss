@@ -1,0 +1,55 @@
+@use 'styles/abstracts' as *;
+
+.countdown {
+  @include numeric;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-sm);
+  color: var(--text);
+}
+
+.lg {
+  font-size: var(--fs-lg);
+}
+
+.segment {
+  min-width: 2ch;
+  padding: 3px 6px;
+  border-radius: var(--radius-xs);
+  background: var(--surface-3);
+  text-align: center;
+}
+
+.unit {
+  font-family: var(--font-ui);
+  font-size: 0.72em;
+  font-weight: var(--fw-medium);
+  color: var(--text-3);
+  margin-inline-start: 1px;
+}
+
+.urgent {
+  color: var(--danger);
+
+  .segment {
+    background: var(--danger-tint);
+    animation: blink 1s steps(2, start) infinite;
+  }
+}
+
+.expired {
+  color: var(--text-3);
+  font-weight: var(--fw-medium);
+}
+
+.placeholder {
+  color: var(--text-3);
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.55;
+  }
+}

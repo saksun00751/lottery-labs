@@ -1,0 +1,124 @@
+@use 'styles/abstracts' as *;
+
+.card {
+  @include card;
+  padding: 0;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.headInfo {
+  flex: 1;
+  min-width: 140px;
+}
+
+.roundName {
+  @include truncate;
+  font-size: var(--fs-base);
+  font-weight: var(--fw-semibold);
+}
+
+.meta {
+  @include numeric;
+  margin-top: 2px;
+  font-size: var(--fs-2xs);
+  color: var(--text-3);
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+
+  & + & {
+    border-top: 1px dashed var(--border-subtle);
+  }
+}
+
+.number {
+  @include numeric;
+  display: grid;
+  place-items: center;
+  min-width: 54px;
+  height: 38px;
+  border-radius: var(--radius-xs);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.numberWon {
+  background: var(--success-tint);
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.itemInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.itemType {
+  @include truncate;
+  font-size: var(--fs-xs);
+  color: var(--text-2);
+}
+
+.itemRate {
+  @include numeric;
+  margin-top: 2px;
+  font-size: var(--fs-2xs);
+  color: var(--text-3);
+}
+
+.itemAmounts {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  border-top: 1px solid var(--border);
+  background: var(--surface-2);
+  flex-wrap: wrap;
+}
+
+.footBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.footLabel {
+  font-size: var(--fs-2xs);
+  color: var(--text-2);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}

@@ -1,0 +1,128 @@
+@use 'styles/abstracts' as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: var(--scrim);
+  backdrop-filter: blur(6px);
+  animation: fade-in 180ms var(--ease-out);
+  padding: 0;
+
+  @include up('md') {
+    align-items: center;
+    padding: var(--sp-6);
+  }
+}
+
+.panel {
+  @include scrollbar;
+  width: 100%;
+  max-height: 88dvh;
+  overflow-y: auto;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  box-shadow: var(--shadow-pop);
+  padding: var(--sp-5);
+  padding-bottom: calc(var(--sp-5) + env(safe-area-inset-bottom));
+  animation: sheet-up 260ms var(--ease-out);
+
+  @include up('md') {
+    max-width: 520px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: var(--sp-6);
+    animation: pop-in 200ms var(--ease-out);
+  }
+}
+
+.wide {
+  @include up('md') {
+    max-width: 720px;
+  }
+}
+
+/* Grab handle on the mobile sheet. */
+.handle {
+  width: 42px;
+  height: 4px;
+  margin: 0 auto var(--sp-4);
+  border-radius: var(--radius-pill);
+  background: var(--border-strong);
+
+  @include up('md') {
+    display: none;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-4);
+}
+
+.title {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
+}
+
+.description {
+  margin-top: var(--sp-1);
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+  line-height: var(--lh-snug);
+}
+
+.close {
+  @include tappable;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  min-height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-sm);
+  color: var(--text-3);
+
+  &:hover {
+    background: var(--surface-2);
+    color: var(--text);
+  }
+}
+
+.footer {
+  display: flex;
+  gap: var(--sp-3);
+  margin-top: var(--sp-6);
+
+  > * {
+    flex: 1;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
