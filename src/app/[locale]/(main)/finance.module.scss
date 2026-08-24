@@ -1,0 +1,237 @@
+@use 'styles/abstracts' as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+.layout {
+  display: grid;
+  gap: var(--sp-5);
+  align-items: start;
+
+  @include up('lg') {
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  }
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  min-width: 0;
+}
+
+.card {
+  @include card;
+  padding: var(--sp-5);
+}
+
+.cardTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+}
+
+.cardIcon {
+  display: flex;
+  color: var(--accent);
+}
+
+.balanceCard {
+  @include card;
+  padding: var(--sp-5);
+  background: var(--accent-gradient-soft), var(--surface-1);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.balanceLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.subLabel {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--text-2);
+  margin-bottom: var(--sp-2);
+}
+
+.warning {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius-sm);
+  background: var(--warning-tint);
+  color: var(--warning);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-snug);
+}
+
+.channelList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.promoOptions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.promoOption {
+  @include tappable;
+  @include transition(border-color, background);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  text-align: start;
+  width: 100%;
+
+  &:hover {
+    border-color: var(--accent);
+  }
+}
+
+.promoActive {
+  border-color: var(--accent);
+  background: var(--accent-tint);
+}
+
+.promoRadio {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  display: grid;
+  place-items: center;
+}
+
+.promoActive .promoRadio {
+  border-color: var(--accent);
+
+  &::after {
+    content: '';
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+}
+
+.promoText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.promoTitle {
+  @include truncate;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+}
+
+.promoMeta {
+  @include truncate;
+  font-size: var(--fs-2xs);
+  color: var(--text-3);
+}
+
+/* -------------------------------- history -------------------------------- */
+
+.txList {
+  display: flex;
+  flex-direction: column;
+}
+
+.tx {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-4) 0;
+
+  & + & {
+    border-top: 1px solid var(--border-subtle);
+  }
+}
+
+.txIcon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  background: var(--surface-3);
+  color: var(--text-2);
+}
+
+.txDeposit {
+  background: var(--success-tint);
+  color: var(--success);
+}
+.txWithdraw {
+  background: var(--danger-tint);
+  color: var(--danger);
+}
+.txBonus {
+  background: var(--accent-tint);
+  color: var(--accent);
+}
+
+.txInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.txTitle {
+  @include truncate;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+}
+
+.txMeta {
+  @include numeric;
+  @include truncate;
+  margin-top: 2px;
+  font-size: var(--fs-2xs);
+  color: var(--text-3);
+}
+
+.txAmounts {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--sp-1);
+  flex-shrink: 0;
+}

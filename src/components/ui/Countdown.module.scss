@@ -22,9 +22,12 @@
   text-align: center;
 }
 
-.separator {
+.unit {
+  font-family: var(--font-ui);
+  font-size: 0.72em;
+  font-weight: var(--fw-medium);
   color: var(--text-3);
-  padding-inline: 1px;
+  margin-inline-start: 1px;
 }
 
 .urgent {

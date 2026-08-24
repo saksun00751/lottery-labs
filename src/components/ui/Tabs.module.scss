@@ -49,12 +49,20 @@
   background: var(--surface-1);
 }
 
-.active {
+/* `.tab.active` so it outranks `.bordered .tab` — otherwise the bordered
+   variant keeps its surface background and the dark on-accent label goes
+   invisible against it. */
+.tab.active,
+.bordered .tab.active {
   background: var(--accent-gradient);
   color: var(--text-on-accent);
   font-weight: var(--fw-semibold);
-  border-color: transparent !important;
+  border-color: transparent;
   box-shadow: var(--shadow-accent);
+
+  &:hover {
+    color: var(--text-on-accent);
+  }
 }
 
 .count {

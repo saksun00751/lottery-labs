@@ -27,8 +27,11 @@ export function Countdown({
     return <span className={cn(styles.countdown, styles.expired)}>{t('closed')}</span>;
   }
 
-  const segments = countdown.days > 0
-    ? [countdown.days, countdown.hours, countdown.minutes]
+  // Past 24h the seconds are noise — show days instead, marked so nobody
+  // reads "02 23 59" as two hours.
+  const showDays = countdown.days > 0;
+  const segments = showDays
+    ? [countdown.hours, countdown.minutes]
     : [countdown.hours, countdown.minutes, countdown.seconds];
 
   return (
@@ -40,6 +43,12 @@ export function Countdown({
       )}
       aria-live={countdown.urgent ? 'polite' : 'off'}
     >
+      {showDays && (
+        <span className={styles.segment}>
+          {countdown.days}
+          <span className={styles.unit}>d</span>
+        </span>
+      )}
       {segments.map((segment, index) => (
         <span key={index} className={styles.segment}>
           {pad2(segment)}

@@ -1,0 +1,91 @@
+@use 'styles/abstracts' as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+.grid {
+  display: grid;
+  gap: var(--sp-4);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+}
+
+/* ------------------------------ betting page ----------------------------- */
+
+.roundHeader {
+  @include card;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-4) var(--sp-5);
+  flex-wrap: wrap;
+}
+
+.roundEmblem {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  background: var(--accent-gradient);
+  color: var(--text-on-accent);
+  box-shadow: var(--shadow-accent);
+}
+
+.roundInfo {
+  flex: 1;
+  min-width: 160px;
+}
+
+.roundName {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.02em;
+}
+
+.roundLabel {
+  margin-top: 2px;
+  font-size: var(--fs-xs);
+  color: var(--text-2);
+}
+
+.roundTimer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--sp-2);
+}
+
+.roundTimerLabel {
+  font-size: var(--fs-2xs);
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.closedNotice {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-4);
+  border-radius: var(--radius-md);
+  background: var(--warning-tint);
+  color: var(--warning);
+  font-size: var(--fs-sm);
+}
+
+.boardArea {
+  @include card;
+  padding: var(--sp-4);
+
+  @include up('md') {
+    padding: var(--sp-5);
+  }
+}
+
+.betTabs {
+  margin-bottom: var(--sp-4);
+}

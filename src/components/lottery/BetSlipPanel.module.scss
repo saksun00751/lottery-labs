@@ -1,0 +1,226 @@
+@use 'styles/abstracts' as *;
+
+/* Sticky summary bar that follows the player down the betting board. */
+.bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  margin-top: var(--sp-4);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface-2) 94%, transparent);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-pop);
+
+  @include mobile {
+    position: fixed;
+    inset-inline: var(--sp-3);
+    bottom: calc(var(--bottom-nav-height) + var(--sp-3) + env(safe-area-inset-bottom));
+    margin-top: 0;
+  }
+}
+
+.barInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.barLabel {
+  font-size: var(--fs-2xs);
+  color: var(--text-2);
+}
+
+.barValue {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+}
+
+.count {
+  @include numeric;
+  display: grid;
+  place-items: center;
+  min-width: 30px;
+  height: 30px;
+  padding-inline: var(--sp-2);
+  border-radius: var(--radius-pill);
+  background: var(--accent-gradient);
+  color: var(--text-on-accent);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  flex-shrink: 0;
+}
+
+/* --------------------------------- panel --------------------------------- */
+
+.stakeRow {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: flex-end;
+  margin-bottom: var(--sp-4);
+}
+
+.stakeInput {
+  flex: 1;
+}
+
+.quickStakes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
+}
+
+.quickStake {
+  @include tappable;
+  @include numeric;
+  min-height: 38px;
+  padding-inline: var(--sp-4);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+
+  &:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+}
+
+.list {
+  @include scrollbar;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  max-height: 42vh;
+  overflow-y: auto;
+  padding-inline-end: var(--sp-1);
+}
+
+.entry {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+
+.entryNumber {
+  @include numeric;
+  display: grid;
+  place-items: center;
+  min-width: 56px;
+  height: 40px;
+  border-radius: var(--radius-xs);
+  background: var(--accent-tint);
+  color: var(--accent);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.entryInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.entryType {
+  @include truncate;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+}
+
+.entryPayout {
+  @include numeric;
+  margin-top: 2px;
+  font-size: var(--fs-2xs);
+  color: var(--text-3);
+}
+
+.entryStake {
+  width: 96px;
+  flex-shrink: 0;
+}
+
+.entryStakeInput {
+  @include numeric;
+  width: 100%;
+  min-height: 40px;
+  padding: var(--sp-2);
+  text-align: end;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border);
+  background: var(--surface-inset);
+  font-weight: var(--fw-semibold);
+  outline: none;
+
+  &:focus {
+    border-color: var(--accent);
+  }
+}
+
+.entryRemove {
+  @include tappable;
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  min-height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-xs);
+  color: var(--text-3);
+  flex-shrink: 0;
+
+  &:hover {
+    background: var(--danger-tint);
+    color: var(--danger);
+  }
+}
+
+.totals {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
+  padding-top: var(--sp-4);
+  border-top: 1px dashed var(--border-strong);
+}
+
+.totalRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+}
+
+.totalStrong {
+  font-size: var(--fs-md);
+  color: var(--text);
+  font-weight: var(--fw-semibold);
+}
+
+.warning {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+  padding: var(--sp-3);
+  border-radius: var(--radius-sm);
+  background: var(--danger-tint);
+  color: var(--danger);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-snug);
+}

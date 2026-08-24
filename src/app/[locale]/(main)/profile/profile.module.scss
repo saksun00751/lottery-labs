@@ -1,0 +1,95 @@
+@use 'styles/abstracts' as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+.layout {
+  display: grid;
+  gap: var(--sp-5);
+  align-items: start;
+
+  @include up('lg') {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+.card {
+  @include card;
+  padding: var(--sp-5);
+}
+
+.cardTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+}
+
+.cardIcon {
+  display: flex;
+  color: var(--accent);
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-3) 0;
+
+  & + & {
+    border-top: 1px solid var(--border-subtle);
+  }
+}
+
+.rowLabel {
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+  flex-shrink: 0;
+}
+
+.rowValue {
+  @include truncate;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  text-align: end;
+}
+
+.mono {
+  @include numeric;
+  letter-spacing: 0.04em;
+}
+
+.accountList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  max-width: 480px;
+}
+
+.formError {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius-sm);
+  background: var(--danger-tint);
+  color: var(--danger);
+  font-size: var(--fs-sm);
+}

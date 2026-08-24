@@ -3,12 +3,13 @@ import type { ReactNode } from 'react';
 import styles from './PageHeader.module.scss';
 
 export function PageHeader({
-  eyebrow,
+  icon,
   title,
   subtitle,
   actions,
 }: {
-  eyebrow?: ReactNode;
+  /** Rendered inside an accent tile beside the title. */
+  icon?: ReactNode;
   title: ReactNode;
   subtitle?: ReactNode;
   actions?: ReactNode;
@@ -16,9 +17,15 @@ export function PageHeader({
   return (
     <div className={styles.header}>
       <div className={styles.titleGroup}>
-        {eyebrow && <div className={styles.eyebrow}>{eyebrow}</div>}
-        <h1 className={styles.title}>{title}</h1>
-        {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
+        {icon && (
+          <span className={styles.icon} aria-hidden>
+            {icon}
+          </span>
+        )}
+        <div className={styles.titleText}>
+          <h1 className={styles.title}>{title}</h1>
+          {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
+        </div>
       </div>
       {actions && <div className={styles.actions}>{actions}</div>}
     </div>

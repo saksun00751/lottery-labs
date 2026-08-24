@@ -1,0 +1,166 @@
+@use 'styles/abstracts' as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+.hero {
+  @include card;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  padding: var(--sp-5);
+  background: var(--accent-gradient-soft), var(--surface-1);
+}
+
+.heroTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+.heroLabel {
+  font-size: var(--fs-xs);
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: var(--sp-2);
+}
+
+.code {
+  @include numeric;
+  font-size: var(--fs-3xl);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.12em;
+  @include accent-text;
+}
+
+.linkRow {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--radius-sm);
+  background: var(--surface-inset);
+  border: 1px solid var(--border);
+}
+
+.linkIcon {
+  display: flex;
+  color: var(--text-3);
+  flex-shrink: 0;
+}
+
+.link {
+  @include truncate;
+  flex: 1;
+  font-size: var(--fs-xs);
+  color: var(--text-2);
+}
+
+.rate {
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+  text-align: center;
+}
+
+/* --------------------------------- stats --------------------------------- */
+
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-3);
+
+  @include up('lg') {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.stat {
+  @include card;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-4);
+}
+
+.statLabel {
+  font-size: var(--fs-xs);
+  color: var(--text-2);
+}
+
+.statValue {
+  @include numeric;
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.02em;
+}
+
+/* --------------------------------- cards --------------------------------- */
+
+.card {
+  @include card;
+  padding: var(--sp-5);
+}
+
+.cardTitle {
+  margin-bottom: var(--sp-4);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding-inline-start: var(--sp-5);
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+  line-height: var(--lh-snug);
+}
+
+/* --------------------------------- table --------------------------------- */
+
+.tableWrap {
+  @include scrollbar;
+  overflow-x: auto;
+}
+
+.table {
+  min-width: 480px;
+  font-size: var(--fs-sm);
+
+  th {
+    padding: var(--sp-2) var(--sp-3);
+    font-size: var(--fs-2xs);
+    font-weight: var(--fw-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-3);
+    text-align: start;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: var(--sp-3);
+    border-bottom: 1px solid var(--border-subtle);
+    white-space: nowrap;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+.alignEnd {
+  text-align: end;
+}
+
+.muted {
+  color: var(--text-3);
+}

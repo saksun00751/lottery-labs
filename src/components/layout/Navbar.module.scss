@@ -41,11 +41,23 @@
   display: flex;
   align-items: center;
   gap: var(--sp-2);
+  min-width: 0;
   font-weight: var(--fw-semibold);
-  font-size: var(--fs-base);
+  font-size: var(--fs-sm);
   letter-spacing: -0.02em;
+  white-space: nowrap;
 
   @include desktop {
+    display: none;
+  }
+}
+
+/* On a narrow phone the balance pill and the controls matter more than the
+   wordmark — the logo tile alone keeps the header on one line. */
+.brandText {
+  @include truncate;
+
+  @include down('sm') {
     display: none;
   }
 }

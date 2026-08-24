@@ -128,15 +128,9 @@ export function WalletSummary({ showActions = true }: { showActions?: boolean })
         </div>
       )}
 
+      {/* The balance is the hero above, so the stat row carries the other
+          three figures rather than repeating it. */}
       <div className={styles.stats}>
-        <Stat icon={<WalletIcon size={15} />} label={t('balance')}>
-          {isLoading ? (
-            <Skeleton width={90} height={22} />
-          ) : (
-            <Money value={wallet?.balance ?? 0} size="lg" />
-          )}
-        </Stat>
-
         {publicEnv.features.diamond && (
           <Stat icon={<Gem size={15} />} label={t('diamond')} variant="diamond">
             {isLoading ? (

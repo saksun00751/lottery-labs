@@ -57,11 +57,14 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
 
   return (
-    <html lang={locale} suppressHydrationWarning>
+    // The font variables must sit on <html>: globals.scss resolves
+    // `--font-ui` there, and a var() defined further down the tree would make
+    // that whole declaration invalid.
+    <html lang={locale} className={fontVariables} suppressHydrationWarning>
       <head>
         <ThemeScript />
       </head>
-      <body className={fontVariables}>
+      <body>
         <NextIntlClientProvider>
           <Providers>{children}</Providers>
         </NextIntlClientProvider>

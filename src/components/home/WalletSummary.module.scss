@@ -84,8 +84,8 @@
   gap: var(--sp-3);
   margin-top: var(--sp-5);
 
-  @include up('lg') {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+  @include up('md') {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

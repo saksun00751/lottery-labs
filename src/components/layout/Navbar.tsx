@@ -44,7 +44,7 @@ export function Navbar() {
         <span className={styles.brandMark} aria-hidden>
           LL
         </span>
-        {publicEnv.siteName}
+        <span className={styles.brandText}>{publicEnv.siteName}</span>
       </Link>
 
       <div className={styles.spacer} />
