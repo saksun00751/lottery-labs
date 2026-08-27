@@ -25,8 +25,10 @@ export function SlipView() {
   const router = useRouter();
   const [filter, setFilter] = useState<Filter>('all');
 
-  const { data, isLoading } = useTickets(filter === 'all' ? undefined : filter);
-  const tickets = (data as Paginated<Ticket> | undefined)?.items ?? [];
+  const { data, isLoading } = useTickets();
+  const allTickets = (data as Paginated<Ticket> | undefined)?.items ?? [];
+  const tickets =
+    filter === 'all' ? allTickets : allTickets.filter((ticket) => ticket.status === filter);
 
   return (
     <div className={styles.page}>

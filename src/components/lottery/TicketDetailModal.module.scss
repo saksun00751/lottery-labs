@@ -1,56 +1,17 @@
 @use 'styles/abstracts' as *;
 
-.card {
-  @include card;
-  padding: 0;
-}
-
-.head {
+.loading {
   display: flex;
-  align-items: center;
-  gap: var(--sp-3);
-  width: 100%;
+  flex-direction: column;
+  gap: var(--sp-2);
   padding: var(--sp-4);
-  border: none;
-  border-bottom: 1px solid var(--border);
-  background: none;
-  flex-wrap: wrap;
-  text-align: left;
-  cursor: pointer;
-  color: inherit;
-  font: inherit;
-
-  &:hover {
-    background: var(--surface-2);
-  }
-}
-
-.chevron {
-  color: var(--text-3);
-  flex-shrink: 0;
-}
-
-.headInfo {
-  flex: 1;
-  min-width: 140px;
-}
-
-.roundName {
-  @include truncate;
-  font-size: var(--fs-base);
-  font-weight: var(--fw-semibold);
-}
-
-.meta {
-  @include numeric;
-  margin-top: 2px;
-  font-size: var(--fs-2xs);
-  color: var(--text-3);
 }
 
 .items {
   display: flex;
   flex-direction: column;
+  max-height: 50vh;
+  overflow-y: auto;
 }
 
 .item {
@@ -111,30 +72,25 @@
   flex-shrink: 0;
 }
 
-.foot {
+.summary {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-3);
+  flex-direction: column;
+  gap: var(--sp-2);
   padding: var(--sp-4);
   border-top: 1px solid var(--border);
   background: var(--surface-2);
-  flex-wrap: wrap;
 }
 
-.footBlock {
+.summaryRow {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.footLabel {
-  font-size: var(--fs-2xs);
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--fs-sm);
   color: var(--text-2);
 }
 
-.list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-4);
+.summaryTotal {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+  color: var(--text);
 }
