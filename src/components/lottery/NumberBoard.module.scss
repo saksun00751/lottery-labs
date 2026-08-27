@@ -6,46 +6,37 @@
   gap: var(--sp-4);
 }
 
-.rateBar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-3);
-  flex-wrap: wrap;
-  padding: var(--sp-3) var(--sp-4);
+/* ----------------------------- special mode ------------------------------ */
+
+.specialCard {
   border-radius: var(--radius-md);
-  background: var(--surface-2);
   border: 1px solid var(--border);
+  overflow: hidden;
 }
 
-.rateLabel {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-  font-size: var(--fs-xs);
-  color: var(--text-2);
-}
-
-.rateValue {
-  @include numeric;
-  font-size: var(--fs-md);
+.specialHead {
+  padding: var(--sp-2) var(--sp-4);
+  background: var(--accent-gradient);
+  color: var(--text-on-accent);
+  font-size: var(--fs-2xs);
   font-weight: var(--fw-bold);
-  @include accent-text;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.specialGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  background: var(--surface-1);
+
+  .helperChip {
+    justify-content: center;
+  }
 }
 
 /* -------------------------------- helpers -------------------------------- */
-
-.helpers {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-3);
-}
-
-.helperRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-2);
-}
 
 .helperChip {
   @include tappable;
@@ -69,162 +60,24 @@
   }
 }
 
-.digitPicker {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-  flex-wrap: wrap;
-}
-
-.digitLabel {
-  font-size: var(--fs-xs);
-  color: var(--text-3);
-}
-
-.digit {
-  @include tappable;
-  @include numeric;
-  width: 40px;
-  min-width: 40px;
-  height: 40px;
-  min-height: 40px;
-  display: grid;
-  place-items: center;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--surface-1);
-  font-weight: var(--fw-semibold);
+.helperChipActive {
+  background: var(--accent-gradient);
+  color: var(--text-on-accent);
+  border-color: transparent;
 
   &:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-}
-
-.digitActive {
-  background: var(--accent-gradient);
-  color: var(--text-on-accent);
-  border-color: transparent;
-}
-
-/* --------------------------------- grid ---------------------------------- */
-
-.gridWrap {
-  @include scrollbar;
-  max-height: 62vh;
-  overflow-y: auto;
-  padding: var(--sp-1);
-  border-radius: var(--radius-md);
-  background: var(--surface-inset);
-  border: 1px solid var(--border-subtle);
-}
-
-/* Rows are virtualised by the browser: off-screen rows skip layout+paint,
-   which is what keeps the 1,000-button 3-digit board usable on a phone. */
-.row {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: var(--sp-2);
-  padding: var(--sp-1);
-  content-visibility: auto;
-  contain-intrinsic-size: auto 52px;
-
-  @include up('xs') {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-  @include up('sm') {
-    grid-template-columns: repeat(10, minmax(0, 1fr));
-  }
-}
-
-.cell {
-  @include tappable;
-  @include numeric;
-  @include transition(background, border-color, color, transform);
-  position: relative;
-  min-height: 46px;
-  display: grid;
-  place-items: center;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--surface-1);
-  font-size: var(--fs-base);
-  font-weight: var(--fw-semibold);
-  letter-spacing: 0.02em;
-
-  &:hover:not(:disabled) {
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-}
-
-.selected {
-  background: var(--accent-gradient);
-  color: var(--text-on-accent);
-  border-color: transparent;
-  box-shadow: var(--shadow-accent);
-
-  &:hover:not(:disabled) {
     color: var(--text-on-accent);
+    background: var(--accent-gradient);
   }
 }
 
-/* เลขอั้น — reduced payout. */
-.reduced {
-  border-color: var(--warning);
-  color: var(--warning);
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 3px;
-    inset-inline-end: 3px;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--warning);
-  }
-}
-
-/* ปิดรับ — closed for betting. */
-.closed {
-  opacity: 0.42;
-  text-decoration: line-through;
-  cursor: not-allowed;
-  border-style: dashed;
-}
-
-.selected.reduced::after {
-  background: var(--text-on-accent);
-}
-
-/* -------------------------------- legend --------------------------------- */
-
-.legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-4);
+.runHint {
+  margin: 0;
+  padding: 0 var(--sp-3) var(--sp-3);
+  background: var(--surface-1);
   font-size: var(--fs-2xs);
-  color: var(--text-3);
-}
-
-.legendItem {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-}
-
-.legendSwatch {
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
-  border: 1px solid var(--warning);
-}
-
-.legendSwatchClosed {
-  border-style: dashed;
-  border-color: var(--text-3);
-  opacity: 0.6;
+  color: var(--accent);
+  text-align: center;
 }
 
 /* -------------------------------- numpad --------------------------------- */

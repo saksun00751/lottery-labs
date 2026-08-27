@@ -43,7 +43,7 @@ export const useBetSlipStore = create<BetSlipState>()(
     (set, get) => ({
       roundId: null,
       entries: [],
-      defaultStake: 1_000, // 10.00 ฿
+      defaultStake: 500, // 5.00 ฿
 
       setRound: (roundId) =>
         set((state) =>

@@ -1,5 +1,74 @@
 @use 'styles/abstracts' as *;
 
+/* ------------------------------- sidebar ---------------------------------- */
+/* Persistent bet slip — desktop only. Mirrors the app shell's own
+   sidebar/bottom-nav split (see AppShell.module.scss). */
+
+.sidebar {
+  @include card;
+  display: none;
+  flex-direction: column;
+  padding: 0;
+  position: sticky;
+  top: var(--sp-4);
+  max-height: calc(100vh - var(--sp-8));
+
+  @include desktop {
+    display: flex;
+  }
+}
+
+.sidebarHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--accent-gradient);
+  color: var(--text-on-accent);
+}
+
+.sidebarTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  color: var(--text-on-accent);
+}
+
+.headCount {
+  flex-shrink: 0;
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semibold);
+  color: var(--text-on-accent);
+  background: color-mix(in srgb, var(--text-on-accent) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text-on-accent) 30%, transparent);
+  border-radius: var(--radius-pill);
+  padding: 2px var(--sp-2);
+  white-space: nowrap;
+}
+
+.sidebarBody {
+  @include scrollbar;
+  flex: 1;
+  min-height: 0;
+  padding: var(--sp-4);
+  overflow-y: auto;
+}
+
+.sidebarFooter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4) var(--sp-4);
+  border-top: 1px solid var(--border-subtle);
+
+  > * {
+    width: 100%;
+  }
+}
+
 /* Sticky summary bar that follows the player down the betting board. */
 .bar {
   position: sticky;
@@ -21,6 +90,10 @@
     inset-inline: var(--sp-3);
     bottom: calc(var(--bottom-nav-height) + var(--sp-3) + env(safe-area-inset-bottom));
     margin-top: 0;
+  }
+
+  @include desktop {
+    display: none;
   }
 }
 
@@ -100,7 +173,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--sp-2);
-  max-height: 42vh;
+  /* Exactly 5 entries tall (each row measures ~63px), then scroll. */
+  max-height: calc((63px + var(--sp-2)) * 5 - var(--sp-2));
   overflow-y: auto;
   padding-inline-end: var(--sp-1);
 }
@@ -108,8 +182,8 @@
 .entry {
   display: flex;
   align-items: center;
-  gap: var(--sp-3);
-  padding: var(--sp-3);
+  gap: var(--sp-2);
+  padding: var(--sp-2);
   border-radius: var(--radius-sm);
   background: var(--surface-2);
   border: 1px solid var(--border);
@@ -119,12 +193,12 @@
   @include numeric;
   display: grid;
   place-items: center;
-  min-width: 56px;
-  height: 40px;
+  min-width: 46px;
+  height: 36px;
   border-radius: var(--radius-xs);
   background: var(--accent-tint);
   color: var(--accent);
-  font-size: var(--fs-md);
+  font-size: var(--fs-sm);
   font-weight: var(--fw-bold);
   letter-spacing: 0.04em;
   flex-shrink: 0;
@@ -149,14 +223,14 @@
 }
 
 .entryStake {
-  width: 96px;
+  width: 76px;
   flex-shrink: 0;
 }
 
 .entryStakeInput {
   @include numeric;
   width: 100%;
-  min-height: 40px;
+  min-height: 36px;
   padding: var(--sp-2);
   text-align: end;
   border-radius: var(--radius-xs);
@@ -172,10 +246,10 @@
 
 .entryRemove {
   @include tappable;
-  width: 36px;
-  min-width: 36px;
-  height: 36px;
-  min-height: 36px;
+  width: 30px;
+  min-width: 30px;
+  height: 30px;
+  min-height: 30px;
   display: grid;
   place-items: center;
   border-radius: var(--radius-xs);
@@ -210,6 +284,11 @@
   font-size: var(--fs-md);
   color: var(--text);
   font-weight: var(--fw-semibold);
+}
+
+.totalRowStrong {
+  padding-top: var(--sp-2);
+  border-top: 1px dashed var(--border-subtle);
 }
 
 .warning {

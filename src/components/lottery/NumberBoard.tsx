@@ -1,12 +1,11 @@
 'use client';
 
-import { Coins, Delete } from 'lucide-react';
+import { Delete } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { memo, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { cn } from '@/lib/utils/cn';
 import {
-  allNumbers,
   buildRestrictionMap,
   doubles,
   evenNumbers,
@@ -18,64 +17,49 @@ import {
   oddNumbers,
   permutations,
   trailingRun,
+  triples,
 } from '@/lib/utils/lottery';
 import { useBetSlipStore } from '@/store/bet-slip-store';
+import { pushToast } from '@/lib/toast';
 import type { BetType, RestrictedNumber } from '@/types';
 
 import styles from './NumberBoard.module.scss';
 
-const DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+/** Beat before a completed number commits to the slip — lets the player see
+ * the full number and back out with backspace before it's added. */
+const SUBMIT_DELAY_MS = 500;
 
-interface CellProps {
-  number: string;
-  selected: boolean;
-  closed: boolean;
-  reduced: boolean;
-  onToggle: (number: string) => void;
-}
+type RunFn = 'leadingRun' | 'trailingRun' | 'nineteenGate';
 
-/**
- * Memoised so that selecting one number does not re-render the other 999 on
- * the 3-digit board.
- */
-const Cell = memo(function Cell({
-  number,
-  selected,
-  closed,
-  reduced,
-  onToggle,
-}: CellProps) {
-  return (
-    <button
-      type="button"
-      disabled={closed}
-      aria-pressed={selected}
-      className={cn(
-        styles.cell,
-        selected && styles.selected,
-        reduced && styles.reduced,
-        closed && styles.closed,
-      )}
-      onClick={() => onToggle(number)}
-    >
-      {number}
-    </button>
-  );
-});
+const RUN_FN: Record<RunFn, (digit: string) => string[]> = {
+  leadingRun,
+  trailingRun,
+  nineteenGate,
+};
 
 export function NumberBoard({
-  betType,
+  types,
   restricted,
 }: {
-  betType: BetType;
+  /** Every currently-checked bet type — 1 or 2 members of the same group, e.g. [3top, 3tod]. */
+  types: BetType[];
   restricted: RestrictedNumber[];
 }) {
   const t = useTranslations('lottery.board');
+  const tTypes = useTranslations('lottery.betTypes');
   const [manual, setManual] = useState('');
   const [manualError, setManualError] = useState<string | null>(null);
+  const [runFn, setRunFn] = useState<RunFn | null>(null);
+  const [reverseMode, setReverseMode] = useState(false);
+  const pendingSubmitRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (pendingSubmitRef.current) clearTimeout(pendingSubmitRef.current);
+    };
+  }, []);
 
   const entries = useBetSlipStore((s) => s.entries);
-  const toggle = useBetSlipStore((s) => s.toggle);
   const addMany = useBetSlipStore((s) => s.addMany);
 
   const restrictionMap = useMemo(
@@ -83,133 +67,140 @@ export function NumberBoard({
     [restricted],
   );
 
-  const numbers = useMemo(() => allNumbers(betType.digits), [betType.digits]);
+  const digits = types[0]?.digits;
 
-  const rows = useMemo(() => {
-    const chunks: string[][] = [];
-    for (let i = 0; i < numbers.length; i += 10) {
-      chunks.push(numbers.slice(i, i + 10));
+  const isSelected = (typeId: BetType['id'], number: string) =>
+    entries.some((entry) => entry.betType === typeId && entry.number === number);
+
+  // e.g. "2 ตัวบน : 20, 21, 22 อยู่ในรายการแล้ว" — one toast per bet type that
+  // had at least one duplicate, listing every number skipped for that type.
+  const notifyDuplicates = (dupByType: Map<BetType['id'], string[]>) => {
+    for (const [typeId, numbers] of dupByType) {
+      pushToast({
+        tone: 'warning',
+        title: t('duplicateInType', { type: tTypes(typeId), numbers: numbers.join(', ') }),
+      });
     }
-    return chunks;
-  }, [numbers]);
+  };
 
-  const selectedSet = useMemo(() => {
-    const set = new Set<string>();
-    for (const entry of entries) {
-      if (entry.betType === betType.id) set.add(entry.number);
+  // Same shape as `notifyDuplicates` — a number restriction can close the
+  // number for one bet type but not another (e.g. blocked as 3top, still open
+  // as 3tod), so this stays per-type rather than an all-or-nothing message.
+  const notifyClosed = (closedByType: Map<BetType['id'], string[]>) => {
+    for (const [typeId, numbers] of closedByType) {
+      pushToast({
+        tone: 'danger',
+        title: t('closedInType', { type: tTypes(typeId), numbers: numbers.join(', ') }),
+      });
     }
-    return set;
-  }, [entries, betType.id]);
+  };
 
-  const effectivePayout = (number: string) =>
-    lookupRestriction(restrictionMap, betType.id, number, betType.payout).payout ??
-    betType.payout;
-
+  // A completed number goes to every checked type in the group at once.
+  // Typing the same number again is a no-op, not a removal: with the number
+  // grid gone there's no visual cue
+  // that a re-entry would toggle it back out, so that would silently drop a
+  // bet the player meant to keep. Removal only happens via the slip's trash icon.
+  // A toast flags the no-op so it doesn't look like the tap did nothing.
   const onToggle = (number: string) => {
-    toggle(betType.id, number, effectivePayout(number));
+    const dupByType = new Map<BetType['id'], string[]>();
+    const closedByType = new Map<BetType['id'], string[]>();
+    for (const type of types) {
+      const restriction = lookupRestriction(restrictionMap, type.id, number);
+      if (restriction.closed) {
+        closedByType.set(type.id, [number]);
+        continue;
+      }
+      if (isSelected(type.id, number)) {
+        dupByType.set(type.id, [number]);
+        continue;
+      }
+      addMany(type.id, [number], type.payout);
+    }
+    notifyClosed(closedByType);
+    notifyDuplicates(dupByType);
   };
 
   const addGroup = (values: string[]) => {
-    const open = values.filter(
-      (value) =>
-        !lookupRestriction(restrictionMap, betType.id, value, betType.payout).closed,
-    );
-    // Every number in the group keeps its own (possibly reduced) rate.
-    for (const value of open) {
-      if (!selectedSet.has(value)) {
-        addMany(betType.id, [value], effectivePayout(value));
+    const dupByType = new Map<BetType['id'], string[]>();
+    for (const type of types) {
+      const open = values.filter(
+        (value) => !lookupRestriction(restrictionMap, type.id, value).closed,
+      );
+      for (const value of open) {
+        if (isSelected(type.id, value)) {
+          const list = dupByType.get(type.id) ?? [];
+          list.push(value);
+          dupByType.set(type.id, list);
+          continue;
+        }
+        addMany(type.id, [value], type.payout);
       }
     }
+    notifyDuplicates(dupByType);
   };
 
   const submitManual = (value: string) => {
     const cleaned = value.replace(/\D/g, '');
-    if (cleaned.length !== betType.digits) {
-      setManualError(t('manualHint', { digits: betType.digits }));
+    if (!digits || cleaned.length !== digits) {
+      setManualError(t('manualHint', { digits: digits ?? 0 }));
       return;
     }
     setManualError(null);
     setManual('');
+    pendingSubmitRef.current = null;
+    if (reverseMode) {
+      addGroup(permutations(cleaned));
+      return;
+    }
     onToggle(cleaned);
   };
 
+  // With "รูดหน้า/รูดหลัง/19 ประตู" active, the numpad no longer builds up a
+  // full number — each tap is itself the one digit that function runs on.
   const handleNumpadPress = (digit: string) => {
-    if (manual.length >= betType.digits) return;
+    if (runFn) {
+      addGroup(RUN_FN[runFn](digit));
+      return;
+    }
+    if (!digits || manual.length >= digits) return;
     const next = manual + digit;
-    if (next.length === betType.digits) {
-      submitManual(next);
-    } else {
-      setManual(next);
-      setManualError(null);
+    setManual(next);
+    setManualError(null);
+    if (next.length === digits) {
+      pendingSubmitRef.current = setTimeout(() => submitManual(next), SUBMIT_DELAY_MS);
     }
   };
 
+  const handleBackspace = () => {
+    if (pendingSubmitRef.current) {
+      clearTimeout(pendingSubmitRef.current);
+      pendingSubmitRef.current = null;
+    }
+    setManual((v) => v.slice(0, -1));
+    setManualError(null);
+  };
+
+  if (!digits) return null;
+
   return (
     <div className={styles.board}>
-      <div className={styles.rateBar}>
-        <span className={styles.rateLabel}>
-          <Coins size={15} aria-hidden />
-          {t('payoutRate')}
-        </span>
-        <span className={styles.rateValue}>× {betType.payout}</span>
-      </div>
-
       <Helpers
-        digits={betType.digits}
-        manualValue={manual}
+        digits={digits}
+        runFn={runFn}
+        onSetRunFn={setRunFn}
         onAddGroup={addGroup}
-        onPermute={() => {
-          const value = manual.replace(/\D/g, '');
-          if (value.length === betType.digits) addGroup(permutations(value));
-        }}
+        reverseMode={reverseMode}
+        onToggleReverse={() => setReverseMode((v) => !v)}
       />
 
       <Numpad
-        digits={betType.digits}
-        value={manual}
+        digits={runFn ? 1 : digits}
+        value={runFn ? '' : manual}
         error={manualError}
         onPress={handleNumpadPress}
-        onBackspace={() => { setManual((v) => v.slice(0, -1)); setManualError(null); }}
+        onBackspace={handleBackspace}
       />
 
-      <div className={styles.legend}>
-        <span className={styles.legendItem}>
-          <span className={styles.legendSwatch} aria-hidden />
-          {t('restricted')}
-        </span>
-        <span className={styles.legendItem}>
-          <span
-            className={cn(styles.legendSwatch, styles.legendSwatchClosed)}
-            aria-hidden
-          />
-          {t('closedNumber')}
-        </span>
-      </div>
-
-      <div className={styles.gridWrap}>
-        {rows.map((row) => (
-          <div key={row[0]} className={styles.row}>
-            {row.map((number) => {
-              const restriction = lookupRestriction(
-                restrictionMap,
-                betType.id,
-                number,
-                betType.payout,
-              );
-              return (
-                <Cell
-                  key={number}
-                  number={number}
-                  selected={selectedSet.has(number)}
-                  closed={restriction.closed}
-                  reduced={restriction.reduced}
-                  onToggle={onToggle}
-                />
-              );
-            })}
-          </div>
-        ))}
-      </div>
     </div>
   );
 }
@@ -288,117 +279,113 @@ function Numpad({
 
 function Helpers({
   digits,
-  manualValue,
+  runFn,
+  onSetRunFn,
   onAddGroup,
-  onPermute,
+  reverseMode,
+  onToggleReverse,
 }: {
   digits: 1 | 2 | 3;
-  manualValue: string;
+  runFn: RunFn | null;
+  onSetRunFn: (fn: RunFn | null) => void;
   onAddGroup: (values: string[]) => void;
-  onPermute: () => void;
+  reverseMode: boolean;
+  onToggleReverse: () => void;
 }) {
   const t = useTranslations('lottery.board');
-  const [runDigit, setRunDigit] = useState<string | null>(null);
 
   if (digits === 1) return null;
 
   return (
-    <div className={styles.helpers}>
-      <div className={styles.helperRow}>
-        {digits === 3 && (
-          <button
-            type="button"
-            className={styles.helperChip}
-            onClick={onPermute}
-            disabled={manualValue.length !== 3}
-          >
-            {t('reverse')}
-          </button>
-        )}
-        {digits === 2 && (
-          <>
+    <>
+      <div className={styles.specialCard}>
+        <div className={styles.specialHead}>{t('specialMode')}</div>
+        <div className={styles.specialGrid}>
+          {digits === 3 && (
             <button
               type="button"
               className={styles.helperChip}
-              onClick={() => onAddGroup(doubles())}
+              onClick={() => onAddGroup(triples())}
             >
-              {t('doubles')}
+              {t('triples')}
             </button>
-            <button
-              type="button"
-              className={styles.helperChip}
-              onClick={() => onAddGroup(highNumbers())}
-            >
-              {t('high')}
-            </button>
-            <button
-              type="button"
-              className={styles.helperChip}
-              onClick={() => onAddGroup(lowNumbers())}
-            >
-              {t('low')}
-            </button>
-            <button
-              type="button"
-              className={styles.helperChip}
-              onClick={() => onAddGroup(oddNumbers())}
-            >
-              {t('odd')}
-            </button>
-            <button
-              type="button"
-              className={styles.helperChip}
-              onClick={() => onAddGroup(evenNumbers())}
-            >
-              {t('even')}
-            </button>
-          </>
-        )}
+          )}
+          {digits === 2 && (
+            <>
+              <button
+                type="button"
+                className={styles.helperChip}
+                onClick={() => onAddGroup(doubles())}
+              >
+                {t('doubles')}
+              </button>
+              <button
+                type="button"
+                className={styles.helperChip}
+                onClick={() => onAddGroup(highNumbers())}
+              >
+                {t('high')}
+              </button>
+              <button
+                type="button"
+                className={styles.helperChip}
+                onClick={() => onAddGroup(lowNumbers())}
+              >
+                {t('low')}
+              </button>
+              <button
+                type="button"
+                className={styles.helperChip}
+                onClick={() => onAddGroup(oddNumbers())}
+              >
+                {t('odd')}
+              </button>
+              <button
+                type="button"
+                className={styles.helperChip}
+                onClick={() => onAddGroup(evenNumbers())}
+              >
+                {t('even')}
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
+      {digits === 3 && (
+        <div className={styles.specialCard}>
+          <div className={styles.specialHead}>{t('helpers')}</div>
+          <div className={styles.specialGrid}>
+            <button
+              type="button"
+              className={cn(styles.helperChip, reverseMode && styles.helperChipActive)}
+              onClick={onToggleReverse}
+            >
+              {t('reverse')}
+            </button>
+          </div>
+          {reverseMode && <p className={styles.runHint}>{t('reverseHint')}</p>}
+        </div>
+      )}
+
       {digits === 2 && (
-        <>
-          <div className={styles.digitPicker}>
-            <span className={styles.digitLabel}>{t('helpers')}</span>
-            {DIGITS.map((digit) => (
+        <div className={styles.specialCard}>
+          <div className={styles.specialHead}>{t('helpers')}</div>
+          <div className={styles.specialGrid}>
+            {(['leadingRun', 'trailingRun', 'nineteenGate'] as const).map((fn) => (
               <button
-                key={digit}
+                key={fn}
                 type="button"
-                className={cn(styles.digit, runDigit === digit && styles.digitActive)}
-                onClick={() => setRunDigit(digit === runDigit ? null : digit)}
+                className={cn(styles.helperChip, runFn === fn && styles.helperChipActive)}
+                onClick={() => onSetRunFn(runFn === fn ? null : fn)}
               >
-                {digit}
+                {t(fn)}
               </button>
             ))}
           </div>
-
-          {runDigit && (
-            <div className={styles.helperRow}>
-              <button
-                type="button"
-                className={styles.helperChip}
-                onClick={() => onAddGroup(leadingRun(runDigit))}
-              >
-                {t('leadingRun')} {runDigit}x
-              </button>
-              <button
-                type="button"
-                className={styles.helperChip}
-                onClick={() => onAddGroup(trailingRun(runDigit))}
-              >
-                {t('trailingRun')} x{runDigit}
-              </button>
-              <button
-                type="button"
-                className={styles.helperChip}
-                onClick={() => onAddGroup(nineteenGate(runDigit))}
-              >
-                {t('nineteenGate')}
-              </button>
-            </div>
-          )}
-        </>
+          {runFn && <p className={styles.runHint}>{t('runHint')}</p>}
+        </div>
       )}
-    </div>
+    </>
   );
 }

@@ -1,0 +1,158 @@
+@use 'styles/abstracts' as *;
+
+.panel {
+  @include card;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+
+  @include desktop {
+    position: sticky;
+    top: var(--sp-4);
+  }
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--accent-gradient);
+  color: var(--text-on-accent);
+}
+
+.title {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  color: var(--text-on-accent);
+}
+
+.count {
+  margin-inline-start: auto;
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semibold);
+  color: var(--text-on-accent);
+  background: color-mix(in srgb, var(--text-on-accent) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text-on-accent) 30%, transparent);
+  border-radius: var(--radius-pill);
+  padding: 2px var(--sp-2);
+}
+
+/* -------------------------------- tabs ----------------------------------- */
+
+.tabs {
+  display: flex;
+  gap: 2px;
+  padding: var(--sp-2) var(--sp-2) 0;
+}
+
+.tab {
+  @include tappable;
+  flex: 1;
+  padding: var(--sp-2) 0;
+  border-radius: var(--radius-xs) var(--radius-xs) 0 0;
+  background: var(--surface-2);
+  color: var(--text-3);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semibold);
+  text-align: center;
+}
+
+.tabActive {
+  background: var(--surface-1);
+  color: var(--accent);
+}
+
+/* -------------------------------- table ----------------------------------- */
+
+.tableWrap {
+  border-top: 1px solid var(--border-subtle);
+}
+
+.tableScroll {
+  @include scrollbar;
+  /* header + 4 rows, then scroll — never lets the panel grow unbounded. */
+  max-height: 182px;
+  overflow-y: auto;
+
+  /* Tablet's 2-up layout (`.leftColumn` in lottery.module.scss) sits this
+     panel next to "Package ที่เลือก" — locked to a fixed height (not just
+     a cap) so the two cards always match, whether there are 0 restricted
+     numbers or 30 (see that card's `.imageWrap`). */
+  @include up('md') {
+    @include down('lg') {
+      height: 163px;
+      max-height: none;
+    }
+  }
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-2xs);
+
+  th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: var(--sp-2);
+    background: var(--surface-2);
+    color: var(--text-3);
+    font-size: var(--fs-2xs);
+    font-weight: var(--fw-semibold);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  td {
+    padding: var(--sp-2);
+    text-align: center;
+    border-top: 1px dashed var(--border-subtle);
+  }
+
+  tr:nth-child(even) td {
+    background: var(--surface-2);
+  }
+}
+
+.number {
+  @include numeric;
+  font-weight: var(--fw-bold);
+  color: var(--accent);
+}
+
+.dash {
+  color: var(--text-3);
+}
+
+.badge {
+  display: inline-block;
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-bold);
+  padding: 1px var(--sp-2);
+  border-radius: var(--radius-xs);
+  white-space: nowrap;
+}
+
+.badgeClosed {
+  background: var(--danger-tint);
+  color: var(--danger);
+  border: 1px solid var(--danger);
+}
+
+.badgeLimit {
+  @include numeric;
+  background: var(--warning-tint);
+  color: var(--warning);
+  border: 1px solid var(--warning);
+}
+
+.empty {
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+  text-align: center;
+  padding: var(--sp-4) 0;
+}

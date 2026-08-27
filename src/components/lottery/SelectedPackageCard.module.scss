@@ -1,0 +1,66 @@
+@use 'styles/abstracts' as *;
+
+.panel {
+  @include card;
+  overflow: hidden;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--accent-gradient);
+  color: var(--text-on-accent);
+}
+
+.title {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+}
+
+.imageWrap {
+  @include mobile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 96px;
+    padding: var(--sp-2);
+    background: var(--surface-2);
+  }
+
+  /* Tablet's 2-up layout (`.leftColumn` in lottery.module.scss) sits this
+     card next to "เลขอั้น" (3 rows tall, ≈266px total) — grow to match
+     instead of the generic mobile 96px so both cards land level. */
+  @include up('md') {
+    @include down('lg') {
+      height: 220px;
+    }
+  }
+}
+
+.image {
+  display: block;
+  width: 100%;
+  object-fit: cover;
+
+  /* Full-width mobile/tablet cards would otherwise scale the banner up to
+     its natural (wide) aspect ratio and dominate the screen. `contain`
+     inside a fixed-height, centered frame keeps the whole banner — text
+     included — legible and balanced instead of cropping it. The narrow
+     desktop sidebar column already keeps it small with `cover`, so it's
+     left untouched there. */
+  @include mobile {
+    width: auto;
+    max-width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+}
+
+.name {
+  padding: var(--sp-3) var(--sp-4);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--text);
+}

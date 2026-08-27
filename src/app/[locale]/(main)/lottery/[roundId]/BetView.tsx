@@ -5,20 +5,26 @@ import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
 
 import { BetSlipPanel } from '@/components/lottery/BetSlipPanel';
+import { BetTypeGrid } from '@/components/lottery/BetTypeGrid';
 import { NumberBoard } from '@/components/lottery/NumberBoard';
+import { RestrictedNumbersPanel } from '@/components/lottery/RestrictedNumbersPanel';
+import { SelectedPackageCard } from '@/components/lottery/SelectedPackageCard';
 import { Countdown } from '@/components/ui/Countdown';
 import { EmptyState, Skeleton } from '@/components/ui/Feedback';
-import { Tabs } from '@/components/ui/Tabs';
-import { useRates, useRound } from '@/lib/api/queries';
-import { isBettable, sortBetTypes } from '@/lib/utils/lottery';
+import { useRouter } from '@/i18n/navigation';
+import { useRates, useRound, useSelectedPackage } from '@/lib/api/queries';
+import { useCountdown } from '@/lib/hooks/use-countdown';
+import { pushToast } from '@/lib/toast';
+import { BET_TYPE_ORDER, betTypeGroup, isBettable, mergePackageRates } from '@/lib/utils/lottery';
 import { useBetSlipStore } from '@/store/bet-slip-store';
-import type { BetTypeId, LotteryRound, RoundRates } from '@/types';
+import type { BetTypeId, LotteryPackage, LotteryRound, RoundRates } from '@/types';
 
 import styles from '../lottery.module.scss';
 
 export function BetView({ roundId }: { roundId: string }) {
   const t = useTranslations('lottery');
   const tCommon = useTranslations('common');
+  const router = useRouter();
 
   const { data: roundData, isLoading: roundLoading } = useRound(roundId);
   const { data: ratesData, isLoading: ratesLoading } = useRates(roundId);
@@ -27,26 +33,66 @@ export function BetView({ roundId }: { roundId: string }) {
   const round = roundData as LotteryRound | undefined;
   const rates = ratesData as RoundRates | undefined;
 
-  const [activeType, setActiveType] = useState<BetTypeId | null>(null);
+  // The server-known status only refreshes when this page's own queries
+  // refetch (no polling), so once the countdown itself hits zero the board
+  // must stop being biddable without waiting for that — otherwise a bet can
+  // land after betting closed. Mirrors the home page's `MarketCard`.
+  const statusBettable = !!round && isBettable(round.status);
+  const countdown = useCountdown(statusBettable ? (round as LotteryRound).closesAt : null);
+  const expired = statusBettable && (countdown?.expired ?? false);
+  const bettable = statusBettable && !expired;
+
+  const { data: selectedPackageData, isLoading: selectedPackageLoading } = useSelectedPackage(
+    round?.groupId,
+  );
+  const selectedPackage = selectedPackageData as LotteryPackage | null | undefined;
+
+  // Mirrors lotto-seed-app's `bet/page.tsx` hard gate — a group requires a
+  // selected package before its rounds can be bet on; bounce back to the
+  // list with a toast instead of rendering the board (covers direct-URL
+  // access and back/forward nav, not just the round-card flow).
+  useEffect(() => {
+    if (!round?.groupId || selectedPackageLoading || selectedPackageData) return;
+    pushToast({ tone: 'warning', title: t('package.required') });
+    router.replace('/lottery');
+  }, [round?.groupId, selectedPackageLoading, selectedPackageData, router, t]);
+
+  // Multi-select within one group at a time — e.g. [3top, 3tod] together, but
+  // never mixed with a 2-digit or run type. Matches lotto-seed-app: picking a
+  // chip from a different group replaces the selection; picking one in the
+  // same group toggles it in place.
+  const [selectedTypes, setSelectedTypes] = useState<BetTypeId[]>([]);
+
+  const toggleType = (id: BetTypeId) => {
+    setSelectedTypes((prev) => {
+      const currentGroup = prev.length > 0 ? betTypeGroup(prev[0]) : null;
+      if (currentGroup && currentGroup !== betTypeGroup(id)) return [id];
+      return prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
+    });
+  };
 
   // Switching rounds clears the slip — rates and restrictions do not carry over.
   useEffect(() => {
     setRound(roundId);
+    setSelectedTypes([]);
   }, [roundId, setRound]);
 
+  // `round.betTypes` is always empty — the bulk listing that produces it carries
+  // no per-market bet-type data. `rates` (this round's own betting-context call)
+  // is the only place that's actually known, so it's the sole source here.
   const availableTypes = useMemo(() => {
-    if (!round || !rates) return [];
-    const offered = new Set(round.betTypes);
-    return sortBetTypes(
-      rates.betTypes.filter((type) => offered.has(type.id)).map((type) => type.id),
+    if (!rates) return [];
+    const merged = mergePackageRates(rates.betTypes, selectedPackage ?? null);
+    return [...merged].sort(
+      (a, b) => BET_TYPE_ORDER.indexOf(a.id) - BET_TYPE_ORDER.indexOf(b.id),
     );
-  }, [round, rates]);
+  }, [rates, selectedPackage]);
 
-  useEffect(() => {
-    if (!activeType && availableTypes.length > 0) setActiveType(availableTypes[0]);
-  }, [activeType, availableTypes]);
+  // Also covers the moment between confirming no package is selected and the
+  // redirect effect above actually navigating away — never flash the board.
+  const gatingOnPackage = !!round?.groupId && (selectedPackageLoading || !selectedPackageData);
 
-  if (roundLoading || ratesLoading) {
+  if (roundLoading || ratesLoading || gatingOnPackage) {
     return (
       <div className={styles.page}>
         <Skeleton height={92} radius={20} />
@@ -59,8 +105,7 @@ export function BetView({ roundId }: { roundId: string }) {
     return <EmptyState title={tCommon('notFound')} description={tCommon('notFoundHint')} />;
   }
 
-  const bettable = isBettable(round.status);
-  const betType = rates.betTypes.find((type) => type.id === activeType);
+  const boardTypes = availableTypes.filter((type) => selectedTypes.includes(type.id));
 
   return (
     <div className={styles.page}>
@@ -88,27 +133,22 @@ export function BetView({ roundId }: { roundId: string }) {
           {t('slip.roundClosed')}
         </div>
       ) : (
-        <>
-          <div className={styles.boardArea}>
-            <Tabs
-              className={styles.betTabs}
-              variant="bordered"
-              items={availableTypes.map((id) => ({
-                value: id,
-                label: t(`betTypes.${id}`),
-              }))}
-              value={activeType ?? availableTypes[0]}
-              onChange={setActiveType}
-              ariaLabel={t('board.pickNumbers')}
-            />
+        <div className={styles.betLayout}>
+          <div className={styles.leftColumn}>
+            <SelectedPackageCard groupId={round.groupId} />
+            <RestrictedNumbersPanel restricted={rates.restricted} />
+          </div>
 
-            {betType && (
-              <NumberBoard betType={betType} restricted={rates.restricted} />
+          <div className={styles.boardArea}>
+            <BetTypeGrid types={availableTypes} value={selectedTypes} onToggle={toggleType} />
+
+            {boardTypes.length > 0 && (
+              <NumberBoard types={boardTypes} restricted={rates.restricted} />
             )}
           </div>
 
           <BetSlipPanel round={round} />
-        </>
+        </div>
       )}
     </div>
   );
