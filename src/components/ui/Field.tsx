@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils/cn';
 
 import styles from './Field.module.scss';
 
-interface FieldShellProps {
+export interface FieldShellProps {
   label?: ReactNode;
   optionalLabel?: string;
   error?: string;
@@ -23,7 +23,7 @@ interface FieldShellProps {
   children: ReactNode;
 }
 
-function FieldShell({
+export function FieldShell({
   label,
   optionalLabel,
   error,

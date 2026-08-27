@@ -17,6 +17,7 @@ export function Tabs<T extends string>({
   value,
   onChange,
   variant = 'pill',
+  wrap = false,
   className,
   ariaLabel,
 }: {
@@ -24,6 +25,8 @@ export function Tabs<T extends string>({
   value: T;
   onChange: (value: T) => void;
   variant?: 'pill' | 'bordered';
+  /** Wrap onto multiple lines instead of horizontal-scrolling — for a short, fixed set of items that must all stay visible at once. */
+  wrap?: boolean;
   className?: string;
   ariaLabel?: string;
 }) {
@@ -34,6 +37,7 @@ export function Tabs<T extends string>({
       className={cn(
         styles.tabs,
         variant === 'pill' ? styles.pillList : styles.bordered,
+        wrap && styles.wrap,
         className,
       )}
     >
