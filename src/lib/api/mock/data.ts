@@ -7,11 +7,36 @@ import type {
   ReferralFriend,
   ReferralSummary,
   RoundRates,
-  Ticket,
   Transaction,
   User,
   Wallet,
 } from '@/types';
+
+/**
+ * Raw, backend-shaped slip fixture — mirrors what `lotto/tickets` and
+ * `lotto/tickets/{id}` actually return, since the mock intercepts requests
+ * below the client-side normalizers in `endpoints.ts` (see proxy route).
+ */
+export interface MockTicket {
+  id: string;
+  draw_id: string;
+  market_name: string;
+  status: string;
+  created_at: string;
+  item_count: number;
+  total_bet_amount: number;
+  total_win_amount: number;
+  is_final: boolean;
+  is_winner: boolean;
+  items: Array<{
+    bet_type: string;
+    number: string;
+    amount: number;
+    payout_at_time: number;
+    result_status: string | null;
+    win_amount: number;
+  }>;
+}
 
 /* =========================================================================
  *  In-memory fixtures used when NEXT_PUBLIC_USE_MOCK=true.
@@ -146,14 +171,14 @@ export function buildRates(roundId: string): RoundRates {
   return {
     roundId,
     betTypes: DEFAULT_BET_TYPES,
-    // เลขอั้น: จ่ายลด / ปิดรับ
+    // เลขอั้น: จำกัดยอด / ปิดรับ
     restricted: [
-      { betType: '2top', number: '19', payout: 50 },
-      { betType: '2top', number: '28', payout: 50 },
-      { betType: '2top', number: '69', payout: null },
-      { betType: '2bottom', number: '07', payout: 60 },
-      { betType: '3top', number: '123', payout: null },
-      { betType: '3top', number: '456', payout: 450 },
+      { betType: '2top', number: '19', closed: false, maxAmount: 50_000 },
+      { betType: '2top', number: '28', closed: false, maxAmount: 50_000 },
+      { betType: '2top', number: '69', closed: true, maxAmount: null },
+      { betType: '2bottom', number: '07', closed: false, maxAmount: 60_000 },
+      { betType: '3top', number: '123', closed: true, maxAmount: null },
+      { betType: '3top', number: '456', closed: false, maxAmount: 45_000 },
     ],
   };
 }
@@ -305,52 +330,55 @@ export const TRANSACTIONS: Transaction[] = [
   },
 ];
 
-export function buildTickets(): Ticket[] {
+export function buildTickets(): MockTicket[] {
   return [
     {
       id: 'tk1',
-      reference: 'PY26082401',
-      roundId: 'yeekee-vip',
-      roundName: 'ยี่กี VIP',
-      roundLabel: 'รอบที่ 61',
-      createdAt: hoursAgo(1),
+      draw_id: 'yeekee-vip',
+      market_name: 'ยี่กี VIP',
       status: 'pending',
-      totalStake: 15_000,
-      totalWin: 0,
+      created_at: hoursAgo(1),
+      item_count: 3,
+      total_bet_amount: 150,
+      total_win_amount: 0,
+      is_final: false,
+      is_winner: false,
       items: [
-        { betType: '2top', number: '42', stake: 5_000, payout: 95, status: 'pending', winAmount: 0 },
-        { betType: '2bottom', number: '17', stake: 5_000, payout: 95, status: 'pending', winAmount: 0 },
-        { betType: '3top', number: '842', stake: 5_000, payout: 900, status: 'pending', winAmount: 0 },
+        { bet_type: 'top_2', number: '42', amount: 50, payout_at_time: 95, result_status: null, win_amount: 0 },
+        { bet_type: 'bottom_2', number: '17', amount: 50, payout_at_time: 95, result_status: null, win_amount: 0 },
+        { bet_type: 'top_3', number: '842', amount: 50, payout_at_time: 900, result_status: null, win_amount: 0 },
       ],
     },
     {
       id: 'tk2',
-      reference: 'PY26082312',
-      roundId: 'hanoi-special',
-      roundName: 'ฮานอย พิเศษ',
-      roundLabel: 'ประจำวันที่ 23/08',
-      createdAt: hoursAgo(20),
+      draw_id: 'hanoi-special',
+      market_name: 'ฮานอย พิเศษ',
       status: 'won',
-      totalStake: 10_000,
-      totalWin: 47_500,
+      created_at: hoursAgo(20),
+      item_count: 2,
+      total_bet_amount: 100,
+      total_win_amount: 475,
+      is_final: true,
+      is_winner: true,
       items: [
-        { betType: '2top', number: '58', stake: 5_000, payout: 95, status: 'won', winAmount: 47_500 },
-        { betType: '2bottom', number: '31', stake: 5_000, payout: 95, status: 'lost', winAmount: 0 },
+        { bet_type: 'top_2', number: '58', amount: 50, payout_at_time: 95, result_status: 'win', win_amount: 475 },
+        { bet_type: 'bottom_2', number: '31', amount: 50, payout_at_time: 95, result_status: 'lose', win_amount: 0 },
       ],
     },
     {
       id: 'tk3',
-      reference: 'PY26082208',
-      roundId: 'laos-hd',
-      roundName: 'ลาว HD',
-      roundLabel: 'ประจำวันที่ 22/08',
-      createdAt: hoursAgo(44),
+      draw_id: 'laos-hd',
+      market_name: 'ลาว HD',
       status: 'lost',
-      totalStake: 20_000,
-      totalWin: 0,
+      created_at: hoursAgo(44),
+      item_count: 2,
+      total_bet_amount: 200,
+      total_win_amount: 0,
+      is_final: true,
+      is_winner: false,
       items: [
-        { betType: '3top', number: '119', stake: 10_000, payout: 900, status: 'lost', winAmount: 0 },
-        { betType: '3tod', number: '119', stake: 10_000, payout: 150, status: 'lost', winAmount: 0 },
+        { bet_type: 'top_3', number: '119', amount: 100, payout_at_time: 900, result_status: 'lose', win_amount: 0 },
+        { bet_type: 'tod_3', number: '119', amount: 100, payout_at_time: 150, result_status: 'lose', win_amount: 0 },
       ],
     },
   ];

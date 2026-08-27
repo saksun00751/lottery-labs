@@ -3,6 +3,7 @@ import 'server-only';
 import { cookies } from 'next/headers';
 
 import { serverEnv } from '@/config/env.server';
+import { routing } from '@/i18n/routing';
 
 /**
  * Server-side helper that talks to the real backend. Only ever called from
@@ -17,6 +18,23 @@ export interface UpstreamResult {
 export async function getAccessToken() {
   const store = await cookies();
   return store.get(serverEnv.sessionCookieName)?.value ?? null;
+}
+
+/** The backend only understands these four codes — everything else (incl. `my`) falls back to `th`. */
+const API_LANGUAGE: Record<string, 'th' | 'en' | 'kh' | 'la'> = {
+  th: 'th',
+  en: 'en',
+  km: 'kh',
+  lo: 'la',
+};
+
+async function getApiLanguage(): Promise<'th' | 'en' | 'kh' | 'la'> {
+  const cookieName =
+    (typeof routing.localeCookie === 'object' ? routing.localeCookie.name : undefined) ??
+    'NEXT_LOCALE';
+  const store = await cookies();
+  const locale = store.get(cookieName)?.value;
+  return API_LANGUAGE[locale ?? ''] ?? 'th';
 }
 
 export async function callUpstream(
@@ -44,13 +62,15 @@ export async function callUpstream(
   const url = `${serverEnv.apiBaseUrl}/${path.replace(/^\/+/, '')}${init.search ?? ''}`;
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), serverEnv.apiTimeoutMs);
+  const language = await getApiLanguage();
 
   try {
     const response = await fetch(url, {
       method: init.method,
       headers: {
         Accept: 'application/json',
-        ...(init.contentType ? { 'Content-Type': init.contentType } : {}),
+        'Content-Type': 'application/json',
+        'X-Language': language,
         ...(init.token ? { Authorization: `Bearer ${init.token}` } : {}),
         ...(serverEnv.apiKey ? { 'X-Api-Key': serverEnv.apiKey } : {}),
         ...(init.idempotencyKey ? { 'Idempotency-Key': init.idempotencyKey } : {}),

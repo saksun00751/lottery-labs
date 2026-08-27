@@ -25,10 +25,14 @@ export const qk = {
   wallet: ['wallet'] as const,
   bankAccounts: ['bank-accounts'] as const,
   rounds: (category?: string) => ['lottery', 'rounds', category ?? 'all'] as const,
+  groups: ['lottery', 'groups'] as const,
   round: (id: string) => ['lottery', 'round', id] as const,
   rates: (id: string) => ['lottery', 'rates', id] as const,
+  packages: (groupId: number) => ['lottery', 'packages', groupId] as const,
+  selectedPackage: (groupId: number) => ['lottery', 'selected-package', groupId] as const,
   results: ['lottery', 'results'] as const,
-  tickets: (status?: string) => ['lottery', 'tickets', status ?? 'all'] as const,
+  tickets: () => ['lottery', 'tickets'] as const,
+  ticketDetail: (id: string) => ['lottery', 'ticket', id] as const,
   channels: ['wallet', 'channels'] as const,
   transactions: (type?: TransactionType) =>
     ['wallet', 'transactions', type ?? 'all'] as const,
@@ -73,6 +77,13 @@ export const useRounds = (category?: string) =>
     refetchInterval: 60_000,
   });
 
+export const useLotteryGroups = () =>
+  useQuery({
+    queryKey: qk.groups,
+    queryFn: lotteryApi.groups,
+    refetchInterval: 60_000,
+  });
+
 export const useRound = (id: string) =>
   useQuery({ queryKey: qk.round(id), queryFn: () => lotteryApi.round(id), enabled: !!id });
 
@@ -84,13 +95,46 @@ export const useRates = (id: string) =>
     staleTime: 30_000,
   });
 
+export const usePackages = (groupId?: number) =>
+  useQuery({
+    queryKey: qk.packages(groupId ?? 0),
+    queryFn: () => lotteryApi.packages(groupId as number),
+    enabled: !!groupId,
+    staleTime: 5 * 60_000,
+  });
+
+export const useSelectedPackage = (groupId?: number) =>
+  useQuery({
+    queryKey: qk.selectedPackage(groupId ?? 0),
+    queryFn: () => lotteryApi.selectedPackage(groupId as number),
+    enabled: !!groupId,
+  });
+
+export function useSelectPackage() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ groupId, packageId }: { groupId: number; packageId: number }) =>
+      lotteryApi.selectPackage(groupId, packageId),
+    onSuccess: (_data, vars) => {
+      queryClient.invalidateQueries({ queryKey: qk.selectedPackage(vars.groupId) });
+    },
+  });
+}
+
 export const useResults = () =>
   useQuery({ queryKey: qk.results, queryFn: lotteryApi.results });
 
-export const useTickets = (status?: string) =>
+export const useTickets = () =>
   useQuery({
-    queryKey: qk.tickets(status),
-    queryFn: () => lotteryApi.tickets({ status }),
+    queryKey: qk.tickets(),
+    queryFn: lotteryApi.tickets,
+  });
+
+export const useTicketDetail = (id?: string) =>
+  useQuery({
+    queryKey: qk.ticketDetail(id ?? ''),
+    queryFn: () => lotteryApi.ticketDetail(id as string),
+    enabled: !!id,
   });
 
 export const useDepositChannels = () =>
@@ -131,6 +175,18 @@ function useMoneyMutation<TArgs, TResult>(fn: (args: TArgs) => Promise<TResult>)
 export const useDeposit = () => useMoneyMutation(walletApi.deposit);
 export const useWithdraw = () => useMoneyMutation(walletApi.withdraw);
 export const useClaimCashback = () => useMoneyMutation(() => walletApi.claimCashback());
+
+export function useCancelTicket() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => lotteryApi.cancelTicket(id),
+    onSuccess: (_data, id) => {
+      queryClient.invalidateQueries({ queryKey: qk.tickets() });
+      queryClient.invalidateQueries({ queryKey: qk.ticketDetail(id) });
+      queryClient.invalidateQueries({ queryKey: qk.wallet });
+    },
+  });
+}
 
 export function useSubmitSlip() {
   const queryClient = useQueryClient();

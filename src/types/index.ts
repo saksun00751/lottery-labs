@@ -57,11 +57,29 @@ export type LotteryCategory =
 
 export type RoundStatus = 'open' | 'closing' | 'closed' | 'settled';
 
+/** Group-level summary (e.g. หวยไทย/หวยต่างประเทศ) shown on the home page's shortcut section. */
+export interface LotteryGroupSummary {
+  id: string;
+  groupId: number;
+  category: LotteryCategory;
+  name: string;
+  description?: string;
+  logoUrl?: string;
+  openCount: number;
+  totalCount: number;
+}
+
 export interface LotteryRound {
   id: string;
   /** i18n key or plain name returned by the API. */
   name: string;
   category: LotteryCategory;
+  /** Real backend group code (e.g. `lotto-daily`) — more precise than `category`, used for filtering. */
+  groupCode?: string;
+  /** Real backend group name (e.g. "หวยรายวัน"), used as the filter tab label when present. */
+  groupName?: string;
+  /** Numeric group id — what the package-selection endpoints key off. */
+  groupId?: number;
   /** Flag/emblem shown on the card. */
   iconUrl?: string;
   status: RoundStatus;
@@ -72,6 +90,10 @@ export interface LotteryRound {
   /** Round label, e.g. "16/08/2569" or "รอบที่ 42". */
   label: string;
   betTypes: BetTypeId[];
+  /** Present only once the round has been drawn (`status === 'settled'`). */
+  result?: { top3?: string; bottom2?: string };
+  /** The specific draw instance's numeric id — what `POST /lotto/bet` needs, distinct from `id` (the market id). */
+  drawId?: number;
 }
 
 export type BetTypeId =
@@ -91,20 +113,33 @@ export interface BetType {
   payout: number;
   minStake: Minor;
   maxStake: Minor;
+  /** ส่วนลด — set once the member's selected package overrides this bet type. */
+  discountPercent?: number;
 }
 
-/** เลขอั้น / เลขปิดรับ — numbers with a reduced or zero payout. */
+/** เลขอั้น — a number either closed outright, or capped at a max stake. */
 export interface RestrictedNumber {
   betType: BetTypeId;
   number: string;
-  /** `null` means the number is closed entirely. */
-  payout: number | null;
+  closed: boolean;
+  /** Highest stake still accepted when not closed; `null` when closed or uncapped. */
+  maxAmount: Minor | null;
 }
 
 export interface RoundRates {
   roundId: string;
   betTypes: BetType[];
   restricted: RestrictedNumber[];
+}
+
+/** A payout-rate tier a member picks per lottery group before betting. */
+export interface LotteryPackage {
+  id: number;
+  name: string;
+  imageUrl?: string;
+  discountPercent?: number;
+  /** Per-bet-type payout/discount overrides this package applies once selected. */
+  betSettings?: Array<{ betType: BetTypeId; payout: number; discountPercent: number }>;
 }
 
 /** One line in the bet slip before submission. */
@@ -128,17 +163,30 @@ export interface TicketItem {
   winAmount: Minor;
 }
 
-/** โพยหวย — a submitted slip. */
+/**
+ * โพยหวย — a submitted slip. `GET /lotto/tickets` (the list) only ever
+ * returns this summary shape; the numbered items only come back from
+ * `GET /lotto/tickets/{id}` — see `TicketDetail`.
+ */
 export interface Ticket {
   id: string;
   reference: string;
   roundId: string;
   roundName: string;
   roundLabel: string;
+  iconUrl?: string;
+  groupName?: string;
   createdAt: string;
   status: TicketStatus;
+  itemCount: number;
   totalStake: Minor;
   totalWin: Minor;
+}
+
+/** Full slip detail, including every number bet — fetched per-ticket on demand. */
+export interface TicketDetail extends Ticket {
+  totalDiscount: Minor;
+  totalNet: Minor;
   items: TicketItem[];
 }
 

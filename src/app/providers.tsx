@@ -2,8 +2,9 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useEffect, useState, type ReactNode } from 'react';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-import { Toaster } from '@/components/ui/Feedback';
 import { ApiError } from '@/lib/api/client';
 import { useThemeStore } from '@/store/theme-store';
 
@@ -37,7 +38,16 @@ export function Providers({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      <Toaster />
+      {/* No `limit` here — src/lib/toast.tsx owns capping via FIFO dismissal
+          so a 4th toast closes the oldest immediately instead of queueing. */}
+      <ToastContainer
+        position="top-center"
+        autoClose={4500}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        theme="dark"
+      />
     </QueryClientProvider>
   );
 }

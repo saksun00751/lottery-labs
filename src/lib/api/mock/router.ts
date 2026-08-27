@@ -1,6 +1,6 @@
 import 'server-only';
 
-import type { Ticket, Transaction, Wallet } from '@/types';
+import type { Transaction, Wallet } from '@/types';
 
 import {
   BANKS,
@@ -15,6 +15,7 @@ import {
   buildResults,
   buildRounds,
   buildTickets,
+  type MockTicket,
 } from './data';
 
 /* =========================================================================
@@ -28,7 +29,7 @@ import {
 interface MockState {
   wallet: Wallet;
   transactions: Transaction[];
-  tickets: Ticket[];
+  tickets: MockTicket[];
   claimedPromotions: Set<string>;
   /** Idempotency-Key -> response already produced for that key. */
   idempotency: Map<string, unknown>;
@@ -97,7 +98,34 @@ async function route({ method, path, query, body }: MockRequest): Promise<MockRe
   switch (true) {
     /* ------------------------------ reference ------------------------- */
     case key === 'GET banks':
+    case key === 'GET auth/register/banks':
       return ok({ items: BANKS });
+
+    /**
+     * Mirrors the upstream account-name lookup used by the register form:
+     * any 10+ digit number resolves to a fixed holder, anything shorter is
+     * reported as not found so the "unknown account" path stays testable.
+     */
+    case key === 'POST auth/register/bank-account-name': {
+      const accNo = String(body.acc_no ?? '').replace(/\D/g, '');
+      if (accNo.length < 10) {
+        return ok({
+          success: false,
+          message: 'ไม่พบชื่อบัญชี กรุณากรอกชื่อ-นามสกุลด้วยตนเอง',
+          data: { valid: false },
+        });
+      }
+      return ok({
+        success: true,
+        data: {
+          valid: true,
+          acc_no: accNo,
+          account_name: `${USER.firstName} ${USER.lastName}`,
+          firstname: USER.firstName,
+          lastname: USER.lastName,
+        },
+      });
+    }
 
     /* -------------------------------- account ------------------------- */
     case key === 'GET me':
@@ -140,54 +168,60 @@ async function route({ method, path, query, body }: MockRequest): Promise<MockRe
     case key === 'GET lottery/results':
       return ok({ items: buildResults() });
 
-    case key === 'GET lottery/tickets':
-      return ok(
-        paginate(
-          query.get('status')
-            ? state.tickets.filter((t) => t.status === query.get('status'))
-            : state.tickets,
-          query,
-        ),
-      );
+    case key === 'GET lotto/tickets':
+      return ok({ data: state.tickets });
 
-    case method === 'GET' && /^lottery\/tickets\/[^/]+$/.test(path): {
+    case method === 'GET' && /^lotto\/tickets\/[^/]+$/.test(path): {
       const ticket = state.tickets.find((t) => t.id === path.split('/')[2]);
-      return ticket ? ok(ticket) : fail(404, 'not_found', 'ไม่พบโพยนี้');
+      return ticket ? ok({ data: ticket }) : fail(404, 'not_found', 'ไม่พบโพยนี้');
     }
 
-    case key === 'POST lottery/tickets': {
-      const items = (body.items ?? []) as Ticket['items'];
+    case key === 'POST lotto/bet': {
+      const items = (body.items ?? []) as Array<{
+        bet_type: string;
+        number: string;
+        amount: number;
+      }>;
       if (!Array.isArray(items) || items.length === 0) {
         return fail(422, 'empty_slip', 'กรุณาเลือกเลขอย่างน้อย 1 รายการ');
       }
-      const totalStake = items.reduce((sum, i) => sum + Number(i.stake || 0), 0);
-      if (totalStake > state.wallet.balance) {
+      const totalAmount = items.reduce((sum, i) => sum + Number(i.amount || 0), 0);
+      if (totalAmount * 100 > state.wallet.balance) {
         return fail(422, 'insufficient_balance', 'ยอดเงินคงเหลือไม่เพียงพอ');
       }
 
       const rounds = buildRounds();
-      const round = rounds.find((r) => r.id === body.roundId);
+      const round = rounds.find((r) => r.drawId === body.draw_id || r.id === String(body.draw_id));
       if (!round) return fail(404, 'not_found', 'ไม่พบงวดหวยนี้');
       if (round.status === 'closed' || round.status === 'settled') {
         return fail(409, 'round_closed', 'งวดนี้ปิดรับแทงแล้ว');
       }
 
-      const ticket: Ticket = {
-        id: `tk_${Date.now()}`,
-        reference: ref('PY'),
-        roundId: round.id,
-        roundName: round.name,
-        roundLabel: round.label,
-        createdAt: new Date().toISOString(),
+      const id = `tk_${Date.now()}`;
+      const ticket: MockTicket = {
+        id,
+        draw_id: round.id,
+        market_name: round.name,
         status: 'pending',
-        totalStake,
-        totalWin: 0,
-        items: items.map((i) => ({ ...i, status: 'pending', winAmount: 0 })),
+        created_at: new Date().toISOString(),
+        item_count: items.length,
+        total_bet_amount: totalAmount,
+        total_win_amount: 0,
+        is_final: false,
+        is_winner: false,
+        items: items.map((i) => ({
+          bet_type: i.bet_type,
+          number: i.number,
+          amount: i.amount,
+          payout_at_time: 0,
+          result_status: null,
+          win_amount: 0,
+        })),
       };
 
       state.tickets = [ticket, ...state.tickets];
-      state.wallet = { ...state.wallet, balance: state.wallet.balance - totalStake };
-      return ok(ticket);
+      state.wallet = { ...state.wallet, balance: state.wallet.balance - totalAmount * 100 };
+      return ok({ data: { id, created_at: ticket.created_at } });
     }
 
     /* -------------------------------- wallet -------------------------- */

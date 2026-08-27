@@ -1,4 +1,11 @@
-import type { BetTypeId, RestrictedNumber, RoundStatus } from '@/types';
+import type {
+  BetType,
+  BetTypeId,
+  LotteryPackage,
+  Minor,
+  RestrictedNumber,
+  RoundStatus,
+} from '@/types';
 
 /* --------------------------- bet type metadata --------------------------- */
 
@@ -29,13 +36,32 @@ export function sortBetTypes(ids: BetTypeId[]) {
   );
 }
 
+/**
+ * บน/ล่าง ของหลักเดียวกันอยู่กลุ่มเดียวกัน — เลือกได้พร้อมกันหลายประเภทในกลุ่ม
+ * เดียวกัน (เช่น 3 ตัวบน + 3 ตัวโต๊ด) แต่ข้ามกลุ่มไม่ได้ (เช่น 3 ตัว + 2 ตัว).
+ */
+export type BetTypeGroup = 'three' | 'two' | 'run';
+
+const BET_TYPE_GROUP: Record<BetTypeId, BetTypeGroup> = {
+  '3top': 'three',
+  '3tod': 'three',
+  '3bottom': 'three',
+  '2top': 'two',
+  '2bottom': 'two',
+  run_top: 'run',
+  run_bottom: 'run',
+};
+
+export function betTypeGroup(id: BetTypeId): BetTypeGroup {
+  return BET_TYPE_GROUP[id];
+}
+
 /* ------------------------------- restrictions ---------------------------- */
 
 export interface NumberRestriction {
-  /** `null` payout means the number is closed for betting. */
-  payout: number | null;
   closed: boolean;
-  reduced: boolean;
+  /** Highest stake still accepted when not closed; `null` when closed or uncapped. */
+  maxAmount: Minor | null;
 }
 
 export function buildRestrictionMap(restricted: RestrictedNumber[]) {
@@ -50,15 +76,10 @@ export function lookupRestriction(
   map: Map<string, RestrictedNumber>,
   betType: BetTypeId,
   number: string,
-  basePayout: number,
 ): NumberRestriction {
   const hit = map.get(`${betType}:${number}`);
-  if (!hit) return { payout: basePayout, closed: false, reduced: false };
-  return {
-    payout: hit.payout,
-    closed: hit.payout === null,
-    reduced: hit.payout !== null && hit.payout < basePayout,
-  };
+  if (!hit) return { closed: false, maxAmount: null };
+  return { closed: hit.closed, maxAmount: hit.maxAmount };
 }
 
 /* ------------------------------ number helpers --------------------------- */
@@ -108,6 +129,11 @@ export function doubles(): string[] {
   return Array.from({ length: 10 }, (_, i) => `${i}${i}`);
 }
 
+/** เลขตอง — 000, 111, 222 … (3-digit triples). */
+export function triples(): string[] {
+  return Array.from({ length: 10 }, (_, i) => `${i}${i}${i}`);
+}
+
 export function highNumbers(): string[] {
   return allNumbers(2).filter((n) => Number(n) >= 50);
 }
@@ -122,6 +148,27 @@ export function oddNumbers(): string[] {
 
 export function evenNumbers(): string[] {
   return allNumbers(2).filter((n) => Number(n) % 2 === 0);
+}
+
+/* --------------------------------- packages ------------------------------ */
+
+/**
+ * Overlays a selected package's per-bet-type payout/discount onto the base
+ * betting-context rates — same merge lotto-seed-app's `applyPackageBetSettings`
+ * does server-side. A bet type the package doesn't mention keeps its base rate.
+ */
+export function mergePackageRates(betTypes: BetType[], pkg: LotteryPackage | null): BetType[] {
+  if (!pkg?.betSettings?.length) return betTypes;
+  const overrides = new Map(pkg.betSettings.map((row) => [row.betType, row]));
+  return betTypes.map((type) => {
+    const override = overrides.get(type.id);
+    if (!override) return type;
+    return {
+      ...type,
+      payout: override.payout || type.payout,
+      discountPercent: override.discountPercent,
+    };
+  });
 }
 
 /* --------------------------------- rounds -------------------------------- */
