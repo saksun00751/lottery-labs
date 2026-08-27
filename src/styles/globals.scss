@@ -65,6 +65,96 @@ html[lang='km'] body {
   overflow-wrap: anywhere;
 }
 
+/* ==========================================================================
+   react-toastify — re-themed to the app's own tokens instead of its
+   defaults. `html .Toastify` outranks the library's own bare `:root` rule
+   regardless of stylesheet load order.
+   ========================================================================== */
+html .Toastify {
+  --toastify-color-light: var(--surface-2);
+  --toastify-color-dark: var(--surface-2);
+  --toastify-color-info: var(--info);
+  --toastify-color-success: var(--success);
+  --toastify-color-warning: var(--warning);
+  --toastify-color-error: var(--danger);
+
+  --toastify-text-color-light: var(--text);
+  --toastify-text-color-dark: var(--text);
+
+  --toastify-toast-background: var(--surface-2);
+  --toastify-toast-width: min(380px, calc(100vw - (var(--sp-4) * 2)));
+  --toastify-toast-bd-radius: var(--radius-md);
+  --toastify-toast-shadow: var(--shadow-pop);
+  --toastify-color-progress-bgo: 0.16;
+
+  .Toastify__toast {
+    font-family: var(--font-ui);
+    border: 1px solid var(--border);
+  }
+
+  .Toastify__toast--success {
+    border-inline-start: 3px solid var(--success);
+  }
+  .Toastify__toast--error {
+    border-inline-start: 3px solid var(--danger);
+  }
+  .Toastify__toast--warning {
+    border-inline-start: 3px solid var(--warning);
+  }
+  .Toastify__toast--info {
+    border-inline-start: 3px solid var(--info);
+  }
+
+  .Toastify__close-button {
+    color: var(--text-3);
+    opacity: 1;
+
+    &:hover {
+      color: var(--text);
+    }
+  }
+
+  .toastTitle {
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-semibold);
+    color: var(--text);
+  }
+
+  .toastDescription {
+    margin-top: 2px;
+    font-size: var(--fs-xs);
+    color: var(--text-2);
+  }
+}
+
+/* react-toastify's own mobile breakpoint (≤480px) makes toasts go full-bleed:
+   flush to the screen edges, square corners, no gap between stacked toasts.
+   That reads as broken next to the rest of the app's rounded, inset cards —
+   keep the same floating/rounded look at every width instead. */
+@media only screen and (max-width: 480px) {
+  html .Toastify {
+    .Toastify__toast-container {
+      width: 100vw;
+      left: 0;
+      margin: 0;
+      padding-inline: var(--sp-4);
+      box-sizing: border-box;
+    }
+
+    .Toastify__toast-container--top-center {
+      top: calc(var(--sp-4) + env(safe-area-inset-top));
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .Toastify__toast {
+      width: 100%;
+      border-radius: var(--radius-md);
+      margin-bottom: var(--sp-2);
+    }
+  }
+}
+
 body {
   min-height: 100dvh;
   background: var(--bg);

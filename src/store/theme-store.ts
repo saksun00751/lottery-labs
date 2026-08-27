@@ -3,11 +3,26 @@
 import { create } from 'zustand';
 
 import { publicEnv } from '@/config/env.public';
+import {
+  MODE_COOKIE,
+  MODE_STORAGE_KEY,
+  THEME_COOKIE,
+  THEME_COOKIE_MAX_AGE,
+  THEME_STORAGE_KEY,
+} from '@/config/theme';
 
 export type ColorMode = 'dark' | 'light' | 'system';
 
-export const THEME_STORAGE_KEY = 'll:theme';
-export const MODE_STORAGE_KEY = 'll:mode';
+export { MODE_STORAGE_KEY, THEME_STORAGE_KEY } from '@/config/theme';
+
+/**
+ * The choice is mirrored into cookies so the server can render `data-theme` /
+ * `data-mode` on <html> straight away: that is what keeps the first paint
+ * flash-free without shipping a blocking inline script.
+ */
+function writeCookie(name: string, value: string) {
+  document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${THEME_COOKIE_MAX_AGE}; samesite=lax`;
+}
 
 /**
  * The list of selectable themes is NOT hard-coded here.
@@ -42,6 +57,8 @@ function apply(theme: string, mode: ColorMode) {
   const root = document.documentElement;
   root.dataset.theme = theme;
   root.dataset.mode = mode;
+  writeCookie(THEME_COOKIE, theme);
+  writeCookie(MODE_COOKIE, mode);
 }
 
 export const useThemeStore = create<ThemeState>((set, get) => ({
