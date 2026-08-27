@@ -1,0 +1,56 @@
+@use 'styles/abstracts' as *;
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.card {
+  @include tappable;
+  @include transition(border-color, box-shadow, transform);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--sp-2);
+  padding: var(--sp-2);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface-1);
+  text-align: center;
+  overflow: hidden;
+
+  &:hover:not(:disabled) {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-pop);
+    transform: translateY(-2px);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.image {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}
+
+.fallback {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-sm);
+  background: var(--accent-tint);
+  color: var(--accent);
+}
+
+.name {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--text-2);
+}

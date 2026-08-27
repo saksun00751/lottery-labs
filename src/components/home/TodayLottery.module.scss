@@ -1,0 +1,263 @@
+@use 'styles/abstracts' as *;
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+/* ------------------------------- group block ------------------------------ */
+
+.groupBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  border-radius: var(--radius-lg);
+  background: var(--surface-inset);
+  border: 1px solid var(--border-subtle);
+}
+
+.groupHead {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.groupName {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.01em;
+  color: var(--text-2);
+
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 4px;
+    border-radius: var(--radius-pill);
+    background: var(--accent);
+    margin-inline-end: var(--sp-2);
+    vertical-align: middle;
+  }
+}
+
+.groupCount {
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semibold);
+  color: var(--text-3);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 2px var(--sp-2);
+}
+
+/* ---------------------------------- grid ----------------------------------- */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-3);
+
+  @include up('sm') {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* ---------------------------------- tones ----------------------------------- */
+
+.toneOpen {
+  --tone: var(--success);
+  --tone-tint: var(--success-tint);
+}
+.toneClosing {
+  --tone: var(--warning);
+  --tone-tint: var(--warning-tint);
+}
+.toneClosed {
+  --tone: var(--text-3);
+  --tone-tint: var(--surface-3);
+}
+.toneSettled {
+  --tone: var(--info);
+  --tone-tint: var(--info-tint);
+}
+
+/* ---------------------------------- card ----------------------------------- */
+
+.card {
+  @include transition(transform, border-color, box-shadow);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-width: 0;
+  padding: var(--sp-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+
+  &:is(a, button):hover {
+    transform: translateY(-2px);
+    border-color: var(--accent-tint-strong);
+    box-shadow: var(--shadow-pop);
+  }
+
+  &:is(a, button):focus-visible {
+    @include focus-ring;
+  }
+}
+
+.asButton {
+  appearance: none;
+  font-family: inherit;
+  text-align: start;
+  width: 100%;
+}
+
+.clickable {
+  cursor: pointer;
+  border-color: var(--accent-tint-strong);
+  background: var(--accent-gradient-soft), var(--surface-1);
+}
+
+.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+.badge {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-tint);
+  color: var(--accent);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-bold);
+  overflow: hidden;
+}
+
+.badgeImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.name {
+  min-width: 0;
+
+  b {
+    display: block;
+    @include truncate;
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-bold);
+    line-height: 1.25;
+  }
+
+  span {
+    display: block;
+    margin-top: 1px;
+    font-size: var(--fs-2xs);
+    color: var(--text-3);
+  }
+}
+
+.dot {
+  margin-inline-start: auto;
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--tone);
+  box-shadow: 0 0 0 3px var(--tone-tint);
+}
+
+.body {
+  display: flex;
+  gap: var(--sp-2);
+}
+
+.num {
+  flex: 1;
+  text-align: center;
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-2) var(--sp-1);
+}
+
+.numLabel {
+  display: block;
+  font-size: 9px;
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 3px;
+}
+
+.numValue {
+  @include numeric;
+  display: block;
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
+  color: var(--tone);
+  letter-spacing: 0.02em;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-bold);
+  color: var(--tone);
+  background: var(--tone-tint);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-2) var(--sp-1);
+  text-align: center;
+}
+
+.playRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  background: var(--accent);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-2) var(--sp-2) var(--sp-2) var(--sp-3);
+
+  /* Countdown reads these as plain (unscoped) custom properties, so
+     redefining them here re-colors its segments for the accent background.
+     `--danger` (the <10min "urgent" state) is remapped too — the theme's red
+     is too close in tone to the purple accent to stay legible on it, so the
+     urgent segments fall back to the same on-accent text colour and lean on
+     the blink animation + brighter chip background to read as "urgent". */
+  --text: var(--text-on-accent);
+  --text-3: rgb(255 255 255 / 75%);
+  --surface-3: rgb(255 255 255 / 22%);
+  --danger: var(--text-on-accent);
+  --danger-tint: rgb(255 255 255 / 30%);
+}
+
+.playLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-bold);
+  color: var(--text-on-accent);
+  white-space: nowrap;
+}

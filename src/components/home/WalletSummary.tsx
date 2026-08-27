@@ -3,9 +3,11 @@
 import {
   ArrowDownToLine,
   ArrowUpFromLine,
+  AtSign,
   Gem,
   RotateCcw,
   TrendingUp,
+  User as UserIcon,
   Wallet as WalletIcon,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
@@ -20,7 +22,7 @@ import { useClaimCashback, useMe, useWallet } from '@/lib/api/queries';
 import { cn } from '@/lib/utils/cn';
 import { formatNumber } from '@/lib/utils/intl';
 import { formatMoney } from '@/lib/utils/money';
-import { useUiStore } from '@/store/ui-store';
+import { pushToast } from '@/lib/toast';
 import type { User, Wallet } from '@/types';
 
 import styles from './WalletSummary.module.scss';
@@ -36,7 +38,7 @@ function Stat({
   label: string;
   children: ReactNode;
   footer?: ReactNode;
-  variant?: 'diamond' | 'cashback' | 'turnover';
+  variant?: 'balance' | 'diamond' | 'cashback' | 'turnover';
 }) {
   return (
     <div className={cn(styles.stat, variant && styles[variant])}>
@@ -62,7 +64,6 @@ export function WalletSummary({ showActions = true }: { showActions?: boolean })
   const tNav = useTranslations('nav');
   const locale = useLocale();
   const router = useRouter();
-  const pushToast = useUiStore((s) => s.pushToast);
 
   const { data: user } = useMe();
   const { data, isLoading } = useWallet();
@@ -83,54 +84,43 @@ export function WalletSummary({ showActions = true }: { showActions?: boolean })
     });
   };
 
-  const displayName = (user as User | undefined)?.firstName ?? '';
+  const member = user as User | undefined;
+  const fullName = [member?.firstName, member?.lastName].filter(Boolean).join(' ');
+  const displayName = fullName || member?.username || '';
+  const initial = displayName.trim().charAt(0).toUpperCase();
 
   return (
     <section className={styles.card}>
       <div className={styles.top}>
-        <div>
-          <div className={styles.name}>
-            {tHome('greeting', { name: displayName })}
+        <div className={styles.identity}>
+          <span className={styles.avatar} aria-hidden>
+            {initial || <UserIcon size={18} />}
+          </span>
+          <div className={styles.identityText}>
+            <div className={styles.name} title={displayName}>
+              {displayName}
+            </div>
+            {member?.username && (
+              <div className={styles.username}>
+                <AtSign size={11} aria-hidden />
+                {member.username}
+              </div>
+            )}
           </div>
-          <div className={styles.greeting}>{tHome('welcomeBack')}</div>
         </div>
       </div>
 
-      <div className={styles.balanceBlock}>
-        <div className={styles.balanceLabel}>
-          <WalletIcon size={15} aria-hidden />
-          {t('balance')}
-        </div>
-        <div className={styles.balanceValue}>
-          {isLoading ? (
-            <Skeleton width={200} height={40} />
-          ) : (
-            <Money value={wallet?.balance ?? 0} size="xl" tone="accent" suffix="THB" />
-          )}
-        </div>
-      </div>
-
-      {showActions && (
-        <div className={styles.actions}>
-          <Button
-            leftIcon={<ArrowDownToLine size={18} />}
-            onClick={() => router.push('/deposit')}
-          >
-            {tNav('deposit')}
-          </Button>
-          <Button
-            variant="secondary"
-            leftIcon={<ArrowUpFromLine size={18} />}
-            onClick={() => router.push('/withdraw')}
-          >
-            {tNav('withdraw')}
-          </Button>
-        </div>
-      )}
-
-      {/* The balance is the hero above, so the stat row carries the other
-          three figures rather than repeating it. */}
+      {/* The balance widget leads the row so it reads first, same as the
+          other figures, instead of sitting apart as its own hero block. */}
       <div className={styles.stats}>
+        <Stat icon={<WalletIcon size={15} />} label={t('balance')} variant="balance">
+          {isLoading ? (
+            <Skeleton width={100} height={22} />
+          ) : (
+            <Money value={wallet?.balance ?? 0} size="lg" tone="accent" compact suffix="THB" />
+          )}
+        </Stat>
+
         {publicEnv.features.diamond && (
           <Stat icon={<Gem size={15} />} label={t('diamond')} variant="diamond">
             {isLoading ? (
@@ -178,6 +168,24 @@ export function WalletSummary({ showActions = true }: { showActions?: boolean })
           )}
         </Stat>
       </div>
+
+      {showActions && (
+        <div className={styles.actions}>
+          <Button
+            leftIcon={<ArrowDownToLine size={18} />}
+            onClick={() => router.push('/deposit')}
+          >
+            {tNav('deposit')}
+          </Button>
+          <Button
+            variant="secondary"
+            leftIcon={<ArrowUpFromLine size={18} />}
+            onClick={() => router.push('/withdraw')}
+          >
+            {tNav('withdraw')}
+          </Button>
+        </div>
+      )}
     </section>
   );
 }

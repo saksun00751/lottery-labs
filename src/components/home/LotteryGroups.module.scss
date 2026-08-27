@@ -1,0 +1,74 @@
+@use 'styles/abstracts' as *;
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-3);
+
+  @include up('sm') {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.card {
+  @include card;
+  @include tappable;
+  @include transition(border-color, box-shadow, transform);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  min-width: 0;
+
+  &:hover {
+    border-color: var(--accent-tint-strong);
+    box-shadow: var(--shadow-pop);
+    transform: translateY(-2px);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+.emblem {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  background: var(--accent-gradient-soft);
+  border: 1px solid var(--accent-tint-strong);
+  color: var(--accent);
+}
+
+.logo {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.name {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.015em;
+  @include truncate;
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  margin-top: auto;
+}
+
+.playNow {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--accent);
+}

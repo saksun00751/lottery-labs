@@ -28,46 +28,51 @@
   z-index: 1;
 }
 
-.name {
-  font-size: var(--fs-lg);
-  font-weight: var(--fw-semibold);
-  letter-spacing: -0.02em;
-}
-
-.greeting {
-  margin-top: 2px;
-  font-size: var(--fs-sm);
-  color: var(--text-2);
-}
-
-.balanceBlock {
-  margin-top: var(--sp-5);
-  position: relative;
-  z-index: 1;
-}
-
-.balanceLabel {
+.identity {
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
-  font-size: var(--fs-xs);
-  font-weight: var(--fw-medium);
-  color: var(--text-2);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  gap: var(--sp-3);
+  min-width: 0;
 }
 
-.balanceValue {
-  margin-top: var(--sp-2);
+.avatar {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: var(--accent-gradient);
+  color: var(--text-on-accent);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-sm);
+}
+
+.identityText {
+  min-width: 0;
+}
+
+.name {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.02em;
+  @include truncate;
+}
+
+.username {
   display: flex;
-  align-items: baseline;
-  gap: var(--sp-2);
+  align-items: center;
+  gap: 3px;
+  margin-top: 1px;
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+  @include truncate;
 }
 
 .actions {
   display: flex;
   gap: var(--sp-3);
-  margin-top: var(--sp-5);
+  margin-top: var(--sp-4);
   position: relative;
   z-index: 1;
 
@@ -78,14 +83,17 @@
 
 /* --------------------------------- Stats -------------------------------- */
 
+/* 2x2 on a phone-width card, 4x1 once there is room for it in a row. */
 .stats {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--sp-3);
-  margin-top: var(--sp-5);
+  margin-top: var(--sp-4);
+  position: relative;
+  z-index: 1;
 
-  @include up('md') {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  @include up('sm') {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
@@ -152,4 +160,9 @@
 .turnover .statIcon {
   background: var(--warning-tint);
   color: var(--warning);
+}
+
+.balance .statIcon {
+  background: var(--accent-tint);
+  color: var(--accent);
 }

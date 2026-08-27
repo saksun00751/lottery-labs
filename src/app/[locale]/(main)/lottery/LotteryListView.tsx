@@ -2,46 +2,69 @@
 
 import { Ticket } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
 
 import { PageHeader } from '@/components/layout/PageHeader';
+import { PackagePickerModal } from '@/components/lottery/PackagePickerModal';
 import { RoundCard } from '@/components/lottery/RoundCard';
 import { EmptyState, Skeleton } from '@/components/ui/Feedback';
 import { Tabs } from '@/components/ui/Tabs';
 import { useRounds } from '@/lib/api/queries';
-import type { LotteryCategory, LotteryRound } from '@/types';
+import { useRoundPicker } from '@/lib/hooks/use-round-picker';
+import { isBettable } from '@/lib/utils/lottery';
+import type { LotteryRound } from '@/types';
 
 import styles from './lottery.module.scss';
 
-type CategoryFilter = LotteryCategory | 'all';
+/** The real backend group code when present, otherwise the coarse `category` (mock data has no group code). */
+function groupKey(round: LotteryRound): string {
+  return round.groupCode ?? round.category;
+}
 
-const CATEGORIES: CategoryFilter[] = [
-  'all',
-  'government',
-  'yeekee',
-  'hanoi',
-  'laos',
-  'stock',
-];
+/** เปิดรับ (open/closing) first, then closed, then already-settled. */
+function statusOrder(round: LotteryRound): number {
+  if (isBettable(round.status)) return 0;
+  return round.status === 'closed' ? 1 : 2;
+}
 
 export function LotteryListView() {
   const t = useTranslations('lottery');
   const tCommon = useTranslations('common');
-  const [category, setCategory] = useState<CategoryFilter>('all');
+  const searchParams = useSearchParams();
+  const groupParam = searchParams.get('group') ?? searchParams.get('category');
 
   const { data, isLoading } = useRounds();
   const rounds = (data as LotteryRound[] | undefined) ?? [];
 
-  const counts = useMemo(() => {
-    const map = new Map<CategoryFilter, number>([['all', rounds.length]]);
+  const tabs = useMemo(() => {
+    const seen = new Map<string, { label: string; count: number }>();
     for (const round of rounds) {
-      map.set(round.category, (map.get(round.category) ?? 0) + 1);
+      const key = groupKey(round);
+      const existing = seen.get(key);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        seen.set(key, {
+          label: round.groupName || t(`categories.${round.category}`),
+          count: 1,
+        });
+      }
     }
-    return map;
-  }, [rounds]);
+    return [
+      { value: 'all', label: t('categories.all'), count: rounds.length },
+      ...Array.from(seen, ([value, { label, count }]) => ({ value, label, count })),
+    ];
+  }, [rounds, t]);
 
-  const visible =
-    category === 'all' ? rounds : rounds.filter((r) => r.category === category);
+  const [category, setCategory] = useState<string>(groupParam ?? 'all');
+  const { play, checkingId, pickerRound, closePicker } = useRoundPicker();
+
+  const visible = useMemo(() => {
+    const filtered =
+      category === 'all' ? rounds : rounds.filter((r) => groupKey(r) === category);
+    return [...filtered].sort((a, b) => statusOrder(a) - statusOrder(b));
+  }, [rounds, category]);
 
   return (
     <div className={styles.page}>
@@ -52,13 +75,7 @@ export function LotteryListView() {
       />
 
       <Tabs
-        items={CATEGORIES.filter(
-          (value) => value === 'all' || (counts.get(value) ?? 0) > 0,
-        ).map((value) => ({
-          value,
-          label: t(`categories.${value}`),
-          count: counts.get(value) ?? 0,
-        }))}
+        items={tabs}
         value={category}
         onChange={setCategory}
         ariaLabel={t('title')}
@@ -75,10 +92,17 @@ export function LotteryListView() {
       ) : (
         <div className={styles.grid}>
           {visible.map((round) => (
-            <RoundCard key={round.id} round={round} />
+            <RoundCard
+              key={round.id}
+              round={round}
+              onPlay={play}
+              loading={checkingId === round.id}
+            />
           ))}
         </div>
       )}
+
+      <PackagePickerModal round={pickerRound} onClose={closePicker} />
     </div>
   );
 }

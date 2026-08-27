@@ -1,5 +1,6 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 
 import { LotteryListView } from './LotteryListView';
 
@@ -20,5 +21,9 @@ export default async function LotteryPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <LotteryListView />;
+  return (
+    <Suspense fallback={null}>
+      <LotteryListView />
+    </Suspense>
+  );
 }

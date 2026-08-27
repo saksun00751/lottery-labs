@@ -26,6 +26,21 @@
   cursor: not-allowed;
 }
 
+.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.asButton {
+  appearance: none;
+  font-family: inherit;
+  cursor: pointer;
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
 .head {
   display: flex;
   align-items: flex-start;
