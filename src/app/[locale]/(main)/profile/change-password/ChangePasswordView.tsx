@@ -15,7 +15,7 @@ import {
   changePasswordSchema,
   type ChangePasswordValues,
 } from '@/lib/validators/auth';
-import { useUiStore } from '@/store/ui-store';
+import { pushToast } from '@/lib/toast';
 
 import styles from '../profile.module.scss';
 
@@ -24,7 +24,6 @@ export function ChangePasswordView() {
   const tAuth = useTranslations('auth');
   const tv = useTranslations('validation');
   const tCommon = useTranslations('common');
-  const pushToast = useUiStore((s) => s.pushToast);
 
   const change = useChangePassword();
   const [formError, setFormError] = useState<string | null>(null);

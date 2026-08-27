@@ -10,7 +10,7 @@ import { EmptyState, Skeleton } from '@/components/ui/Feedback';
 import { Money } from '@/components/ui/Money';
 import { useReferral, useReferralFriends } from '@/lib/api/queries';
 import { formatDate, formatNumber } from '@/lib/utils/intl';
-import { useUiStore } from '@/store/ui-store';
+import { pushToast } from '@/lib/toast';
 import type { Paginated, ReferralFriend, ReferralSummary } from '@/types';
 
 import styles from './referral.module.scss';
@@ -19,7 +19,6 @@ export function ReferralView() {
   const t = useTranslations('referral');
   const tCommon = useTranslations('common');
   const locale = useLocale();
-  const pushToast = useUiStore((s) => s.pushToast);
 
   const { data, isLoading } = useReferral();
   const { data: friendsData, isLoading: friendsLoading } = useReferralFriends();

@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { useClaimPromotion } from '@/lib/api/queries';
 import { formatMoney } from '@/lib/utils/money';
-import { useUiStore } from '@/store/ui-store';
+import { pushToast } from '@/lib/toast';
 import type { Promotion } from '@/types';
 
 import styles from './PromotionCard.module.scss';
@@ -23,7 +23,6 @@ export function PromotionCard({
   const t = useTranslations('promotion');
   const locale = useLocale();
   const claim = useClaimPromotion();
-  const pushToast = useUiStore((s) => s.pushToast);
 
   const onClaim = () => {
     claim.mutate(promotion.id, {
