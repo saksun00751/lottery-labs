@@ -25,7 +25,8 @@
     "minutesShort": "น.",
     "notFound": "ไม่พบหน้าที่คุณต้องการ",
     "notFoundHint": "ลิงก์อาจหมดอายุหรือถูกย้ายไปแล้ว",
-    "goHome": "กลับหน้าแรก"
+    "goHome": "กลับหน้าแรก",
+    "live": "เปิดรับ"
   },
   "nav": {
     "home": "หน้าแรก",
@@ -79,7 +80,9 @@
     "ageNotice": "การสมัครถือว่าคุณอายุครบ 18 ปีบริบูรณ์ และยอมรับเงื่อนไขการใช้บริการ",
     "demoHint": "โหมดทดลอง: ใช้ {identifier} / {password}",
     "loginFailed": "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง",
-    "logoutConfirm": "ต้องการออกจากระบบใช่หรือไม่?"
+    "logoutConfirm": "ต้องการออกจากระบบใช่หรือไม่?",
+    "accountNameChecking": "กำลังตรวจสอบชื่อบัญชี…",
+    "accountNameNotFound": "ไม่พบชื่อบัญชี กรุณากรอกชื่อ-นามสกุลด้วยตนเอง"
   },
   "wallet": {
     "balance": "ยอดเงินคงเหลือ",
@@ -101,7 +104,10 @@
     "openRounds": "งวดที่เปิดรับแทง",
     "latestResults": "ผลรางวัลล่าสุด",
     "activePromotions": "โปรโมชั่นแนะนำ",
-    "myTickets": "โพยล่าสุดของฉัน"
+    "myTickets": "โพยล่าสุดของฉัน",
+    "lotteryGroups": "กลุ่มหวย",
+    "todayLottery": "หวยวันนี้",
+    "itemsCount": "รายการ"
   },
   "lottery": {
     "title": "แทงหวย",
@@ -152,7 +158,24 @@
       "even": "เลขคู่",
       "clearSelection": "ล้างที่เลือก",
       "manualEntry": "กรอกเลข",
-      "manualHint": "กรอกให้ครบ {digits} หลัก"
+      "manualHint": "กรอกให้ครบ {digits} หลัก",
+      "specialMode": "เลือกเลขเร็ว",
+      "triples": "เลขตอง",
+      "betTypeTitle": "ประเภทการแทง",
+      "pickAtLeastOne": "เลือกอย่างน้อย 1 ประเภท",
+      "runHint": "แตะตัวเลขด้านล่างเพื่อเพิ่มลงโพย",
+      "duplicateInType": "{type} : {numbers} อยู่ในรายการแล้ว",
+      "reverseHint": "พิมพ์เลขให้ครบ 3 หลัก ระบบจะใส่ทุกสลับหลักให้อัตโนมัติ",
+      "closedInType": "{type} : เลข {numbers} ปิดรับแทง",
+      "itemsCount": "{count} รายการ",
+      "group": {
+        "three": "3 ตัว",
+        "two": "2 ตัว",
+        "run": "วิ่ง"
+      },
+      "numberColumn": "เลข",
+      "noRestrictedNumbers": "ไม่มีเลขอั้นในหมวดนี้",
+      "closedLabel": "ปิดรับ"
     },
     "slip": {
       "title": "โพยหวย",
@@ -187,13 +210,31 @@
         "pending": "รอผล",
         "won": "ถูกรางวัล",
         "lost": "ไม่ถูก"
-      }
+      },
+      "viewDetail": "ดูรายละเอียด",
+      "totalDiscount": "ส่วนลด",
+      "totalNet": "ยอดสุทธิ",
+      "totalWin": "ยอดถูกรางวัล",
+      "cancelTicket": "ยกเลิกโพย",
+      "cancelConfirmTitle": "ยืนยันยกเลิกโพย",
+      "cancelConfirmHint": "เมื่อยกเลิกแล้ว เงินเดิมพันจะคืนเข้าบัญชี และไม่สามารถกู้คืนโพยนี้ได้",
+      "cancelSuccess": "ยกเลิกโพยเรียบร้อยแล้ว",
+      "discount": "ส่วนลด ({percent}%)",
+      "netStake": "ยอดหลังหักส่วนลด"
     },
     "results": {
       "title": "ตรวจผลหวย",
       "subtitle": "ผลรางวัลย้อนหลังทุกประเภท",
       "drawnAt": "ประกาศผล {time}",
       "noResults": "ยังไม่มีผลรางวัล"
+    },
+    "package": {
+      "title": "เลือก Package",
+      "empty": "ไม่พบ Package",
+      "hint": "เลือกแพ็กเกจอัตราจ่ายก่อนเข้าแทงหวย",
+      "selected": "Package ที่เลือก",
+      "change": "เปลี่ยน",
+      "required": "กรุณาเลือก Package ก่อนแทงหวย"
     }
   },
   "deposit": {
@@ -208,7 +249,9 @@
     "submit": "แจ้งฝากเงิน",
     "success": "แจ้งฝากเงินเรียบร้อย ระบบกำลังตรวจสอบ",
     "minAmount": "ฝากขั้นต่ำ {amount} บาท",
-    "warning": "กรุณาโอนจากบัญชีธนาคารที่ลงทะเบียนไว้เท่านั้น มิฉะนั้นระบบจะไม่สามารถเติมเครดิตอัตโนมัติได้"
+    "warning": "กรุณาโอนจากบัญชีธนาคารที่ลงทะเบียนไว้เท่านั้น มิฉะนั้นระบบจะไม่สามารถเติมเครดิตอัตโนมัติได้",
+    "notesTitle": "ข้อควรทราบ",
+    "noteAmount": "ฝากขั้นต่ำ {amount} บาท"
   },
   "withdraw": {
     "title": "ถอนเงิน",
@@ -222,7 +265,19 @@
     "insufficient": "ยอดเงินคงเหลือไม่เพียงพอ",
     "noBankAccount": "กรุณาเพิ่มบัญชีธนาคารก่อนทำการถอน",
     "confirmTitle": "ยืนยันการถอนเงิน",
-    "confirmHint": "ถอน {amount} บาท เข้าบัญชี {bank} {account}"
+    "confirmHint": "ถอน {amount} บาท เข้าบัญชี {bank} {account}",
+    "myAccount": "บัญชีที่จะรับเงิน",
+    "transferTo": "โอนเข้าบัญชี",
+    "notesTitle": "ข้อควรทราบ",
+    "noteMin": "ถอนขั้นต่ำ {amount} บาท",
+    "noteAccount": "ระบบโอนเข้าบัญชีธนาคารหลักที่ผูกไว้เท่านั้น",
+    "rowAmount": "จำนวนเงิน",
+    "rowBank": "ธนาคาร",
+    "rowAccount": "เลขบัญชี",
+    "rowName": "ชื่อบัญชี",
+    "successTitle": "ส่งคำขอถอนเงินสำเร็จ",
+    "successDesc": "ระบบกำลังโอนเงินเข้าบัญชีของคุณ โปรดตรวจสอบยอดเงินอีกครั้งในภายหลัง",
+    "again": "ทำรายการอีกครั้ง"
   },
   "promotion": {
     "title": "โปรโมชั่น",
@@ -335,6 +390,11 @@
     "amountInvalid": "จำนวนเงินไม่ถูกต้อง",
     "amountMin": "ขั้นต่ำ {amount} บาท",
     "amountMax": "สูงสุด {amount} บาท",
-    "selectBank": "กรุณาเลือกธนาคาร"
+    "selectBank": "กรุณาเลือกธนาคาร",
+    "passwordLength": "รหัสผ่านต้องมี 6-16 ตัวอักษร (a-z, 0-9)",
+    "accountNumberLength": "เลขที่บัญชีต้องมี {min}-{max} หลัก",
+    "referralInvalid": "รหัสแนะนำไม่ถูกต้อง",
+    "identifierTaken": "ข้อมูลนี้ถูกใช้สมัครแล้ว",
+    "accountNumberDuplicate": "เลขบัญชีนี้ถูกใช้งานแล้วในธนาคารที่เลือก"
   }
 }

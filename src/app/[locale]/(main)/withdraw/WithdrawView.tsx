@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertTriangle, ArrowUpFromLine, Landmark, Wallet } from 'lucide-react';
+import { AlertTriangle, ArrowUpFromLine, Check, Info, Landmark, Wallet } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useState } from 'react';
 
@@ -13,8 +13,10 @@ import { Modal } from '@/components/ui/Modal';
 import { Money } from '@/components/ui/Money';
 import { ApiError } from '@/lib/api/client';
 import { useBankAccounts, useWallet, useWithdraw } from '@/lib/api/queries';
+import { formatAccountNumber, maskAccountNumber } from '@/lib/utils/bank';
+import { cn } from '@/lib/utils/cn';
 import { formatAmountInput, formatMoney, parseAmountInput } from '@/lib/utils/money';
-import { useUiStore } from '@/store/ui-store';
+import { pushToast } from '@/lib/toast';
 import type { BankAccount, Wallet as WalletType } from '@/types';
 
 import styles from '../finance.module.scss';
@@ -23,12 +25,16 @@ import styles from '../finance.module.scss';
 const QUICK_AMOUNTS = [10_000, 30_000, 50_000];
 const MIN_WITHDRAW = 10_000;
 
+interface WithdrawResult {
+  amount: number;
+  bank: BankAccount;
+}
+
 export function WithdrawView() {
   const t = useTranslations('withdraw');
   const tWallet = useTranslations('wallet');
   const tCommon = useTranslations('common');
   const locale = useLocale();
-  const pushToast = useUiStore((s) => s.pushToast);
 
   const { data: walletData, isLoading: walletLoading } = useWallet();
   const { data: accounts, isLoading: accountsLoading } = useBankAccounts();
@@ -41,6 +47,7 @@ export function WithdrawView() {
   const [amountText, setAmountText] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [confirming, setConfirming] = useState(false);
+  const [result, setResult] = useState<WithdrawResult | null>(null);
 
   const amount = parseAmountInput(amountText);
   const balance = wallet?.balance ?? 0;
@@ -68,6 +75,7 @@ export function WithdrawView() {
       { amount, bankAccountId: primary.id },
       {
         onSuccess: () => {
+          setResult({ amount, bank: primary });
           setAmountText('');
           setConfirming(false);
           pushToast({ tone: 'success', title: t('success') });
@@ -85,6 +93,57 @@ export function WithdrawView() {
       },
     );
   };
+
+  if (result) {
+    return (
+      <div className={styles.page}>
+        <PageHeader
+          icon={<ArrowUpFromLine size={22} />}
+          title={t('title')}
+          subtitle={t('subtitle')}
+        />
+
+        <div className={styles.successWrap}>
+          <span className={styles.successIcon} aria-hidden>
+            <Check size={32} />
+          </span>
+          <h2 className={styles.successTitle}>{t('successTitle')}</h2>
+          <p className={styles.successDesc}>{t('successDesc')}</p>
+
+          <div className={cn(styles.detailList, styles.successDetails)}>
+            <div className={styles.detailRow}>
+              <span className={styles.detailLabel}>{t('rowAmount')}</span>
+              <Money
+                value={result.amount}
+                size="sm"
+                tone="accent"
+                suffix="THB"
+                className={styles.detailHighlight}
+              />
+            </div>
+            <div className={styles.detailRow}>
+              <span className={styles.detailLabel}>{t('rowBank')}</span>
+              <span className={styles.detailValue}>{result.bank.bankName}</span>
+            </div>
+            <div className={styles.detailRow}>
+              <span className={styles.detailLabel}>{t('rowAccount')}</span>
+              <span className={styles.detailValue}>
+                {maskAccountNumber(result.bank.accountNumber)}
+              </span>
+            </div>
+            <div className={styles.detailRow}>
+              <span className={styles.detailLabel}>{t('rowName')}</span>
+              <span className={styles.detailValue}>{result.bank.accountName}</span>
+            </div>
+          </div>
+
+          <Button className={styles.successCta} block onClick={() => setResult(null)}>
+            {t('again')}
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.page}>
@@ -105,6 +164,23 @@ export function WithdrawView() {
             </h2>
 
             <div className={styles.fieldGroup}>
+              {!accountsLoading && primary && (
+                <div className={styles.destRow}>
+                  <div className={styles.destIdentity}>
+                    <span className={styles.destAvatar} aria-hidden>
+                      <Landmark size={18} />
+                    </span>
+                    <div>
+                      <div className={styles.destName}>{primary.accountName}</div>
+                      <div className={styles.destBank}>{primary.bankName}</div>
+                    </div>
+                  </div>
+                  <span className={styles.destNumber}>
+                    {formatAccountNumber(primary.accountNumber)}
+                  </span>
+                </div>
+              )}
+
               <Input
                 amount
                 value={amountText}
@@ -134,6 +210,15 @@ export function WithdrawView() {
                 />
               </div>
 
+              {!error && amount > 0 && primary && (
+                <div className={styles.summaryRow}>
+                  <span className={styles.summaryLabel}>{t('transferTo')}</span>
+                  <span className={styles.summaryValue}>
+                    {primary.accountName} · {maskAccountNumber(primary.accountNumber)}
+                  </span>
+                </div>
+              )}
+
               <Button
                 size="lg"
                 block
@@ -151,6 +236,23 @@ export function WithdrawView() {
                   {t('noBankAccount')}
                 </div>
               )}
+            </div>
+          </div>
+
+          <div className={styles.noteCard}>
+            <div className={styles.noteHead}>
+              <span className={styles.noteIcon} aria-hidden>
+                <Info size={14} />
+              </span>
+              <span className={styles.noteTitle}>{t('notesTitle')}</span>
+            </div>
+            <div className={styles.noteList}>
+              <div className={styles.noteItem}>
+                {t('noteMin', {
+                  amount: formatMoney(MIN_WITHDRAW, { locale, compactDecimals: true }),
+                })}
+              </div>
+              <div className={styles.noteItem}>{t('noteAccount')}</div>
             </div>
           </div>
         </div>
@@ -200,15 +302,6 @@ export function WithdrawView() {
         open={confirming}
         onClose={() => setConfirming(false)}
         title={t('confirmTitle')}
-        description={
-          primary
-            ? t('confirmHint', {
-                amount: formatMoney(amount, { locale }),
-                bank: primary.bankName,
-                account: primary.accountNumber,
-              })
-            : undefined
-        }
         closeLabel={tCommon('close')}
         footer={
           <>
@@ -220,7 +313,36 @@ export function WithdrawView() {
             </Button>
           </>
         }
-      />
+      >
+        {primary && (
+          <div className={styles.detailList}>
+            <div className={styles.detailRow}>
+              <span className={styles.detailLabel}>{t('rowAmount')}</span>
+              <Money
+                value={amount}
+                size="sm"
+                tone="danger"
+                suffix="THB"
+                className={styles.detailHighlight}
+              />
+            </div>
+            <div className={styles.detailRow}>
+              <span className={styles.detailLabel}>{t('rowBank')}</span>
+              <span className={styles.detailValue}>{primary.bankName}</span>
+            </div>
+            <div className={styles.detailRow}>
+              <span className={styles.detailLabel}>{t('rowAccount')}</span>
+              <span className={styles.detailValue}>
+                {maskAccountNumber(primary.accountNumber)}
+              </span>
+            </div>
+            <div className={styles.detailRow}>
+              <span className={styles.detailLabel}>{t('rowName')}</span>
+              <span className={styles.detailValue}>{primary.accountName}</span>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

@@ -25,7 +25,8 @@
     "minutesShort": "ນາທີ",
     "notFound": "ບໍ່ພົບໜ້ານີ້",
     "notFoundHint": "ລິ້ງອາດໝົດອາຍຸ ຫຼື ຖືກຍ້າຍແລ້ວ",
-    "goHome": "ກັບໜ້າຫຼັກ"
+    "goHome": "ກັບໜ້າຫຼັກ",
+    "live": "ເປີດ"
   },
   "nav": {
     "home": "ໜ້າຫຼັກ",
@@ -79,7 +80,9 @@
     "ageNotice": "ການສະໝັກຖືວ່າທ່ານມີອາຍຸ 18 ປີຂຶ້ນໄປ ແລະ ຍອມຮັບເງື່ອນໄຂການໃຫ້ບໍລິການ",
     "demoHint": "ໂໝດທົດລອງ: ໃຊ້ {identifier} / {password}",
     "loginFailed": "ຊື່ຜູ້ໃຊ້ ຫຼື ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ",
-    "logoutConfirm": "ຕ້ອງການອອກຈາກລະບົບບໍ?"
+    "logoutConfirm": "ຕ້ອງການອອກຈາກລະບົບບໍ?",
+    "accountNameChecking": "ກຳລັງກວດສອບຊື່ບັນຊີ…",
+    "accountNameNotFound": "ບໍ່ພົບຊື່ບັນຊີ — ກະລຸນາປ້ອນຊື່-ນາມສະກຸນເອງ"
   },
   "wallet": {
     "balance": "ຍອດເງິນຄົງເຫຼືອ",
@@ -101,7 +104,10 @@
     "openRounds": "ງວດທີ່ເປີດຮັບ",
     "latestResults": "ຜົນລາງວັນຫຼ້າສຸດ",
     "activePromotions": "ໂປຣໂມຊັນແນະນຳ",
-    "myTickets": "ໃບຫວຍຫຼ້າສຸດ"
+    "myTickets": "ໃບຫວຍຫຼ້າສຸດ",
+    "lotteryGroups": "ກຸ່ມຫວຍ",
+    "todayLottery": "ຫວຍມື້ນີ້",
+    "itemsCount": "ລາຍການ"
   },
   "lottery": {
     "title": "ຊື້ຫວຍ",
@@ -152,7 +158,24 @@
       "even": "ເລກຄູ່",
       "clearSelection": "ລ້າງທີ່ເລືອກ",
       "manualEntry": "ປ້ອນເລກ",
-      "manualHint": "ປ້ອນເລກ {digits} ຫຼັກ"
+      "manualHint": "ປ້ອນເລກ {digits} ຫຼັກ",
+      "specialMode": "ເລືອກເລກໄວ",
+      "triples": "ເລກຕອງ",
+      "betTypeTitle": "ປະເພດການແທງ",
+      "pickAtLeastOne": "ເລືອກຢ່າງໜ້ອຍ 1 ປະເພດ",
+      "runHint": "ແຕະໂຕເລກທາງລຸ່ມເພື່ອເພີ່ມລົງໂພຍ",
+      "duplicateInType": "{type} : {numbers} ມີຢູ່ໃນລາຍການແລ້ວ",
+      "reverseHint": "ພິມເລກໃຫ້ຄົບ 3 ຫຼັກ ລະບົບຈະໃສ່ທຸກສະຫຼັບຫຼັກໃຫ້ອັດຕະໂນມັດ",
+      "closedInType": "{type} : ເລກ {numbers} ປິດຮັບແທງ",
+      "itemsCount": "{count} ລາຍການ",
+      "group": {
+        "three": "3 ໂຕ",
+        "two": "2 ໂຕ",
+        "run": "ແລ່ນ"
+      },
+      "numberColumn": "ເລກ",
+      "noRestrictedNumbers": "ບໍ່ມີເລກອັ້ນໃນໝວດນີ້",
+      "closedLabel": "ປິດຮັບ"
     },
     "slip": {
       "title": "ໃບຫວຍ",
@@ -187,13 +210,31 @@
         "pending": "ລໍຜົນ",
         "won": "ຖືກລາງວັນ",
         "lost": "ບໍ່ຖືກ"
-      }
+      },
+      "viewDetail": "ເບິ່ງລາຍລະອຽດ",
+      "totalDiscount": "ສ່ວນຫຼຸດ",
+      "totalNet": "ຍອດສຸດທິ",
+      "totalWin": "ຈຳນວນຖືກລາງວັນ",
+      "cancelTicket": "ຍົກເລີກໃບຫວຍ",
+      "cancelConfirmTitle": "ຢືນຢັນການຍົກເລີກໃບຫວຍ",
+      "cancelConfirmHint": "ເງິນເດີມພັນຈະຖືກຄືນເຂົ້າບັນຊີ ແລະ ບໍ່ສາມາດຍ້ອນກັບໄດ້",
+      "cancelSuccess": "ຍົກເລີກໃບຫວຍສຳເລັດແລ້ວ",
+      "discount": "ສ່ວນຫຼຸດ ({percent}%)",
+      "netStake": "ຍອດຫຼັງຫັກສ່ວນຫຼຸດ"
     },
     "results": {
       "title": "ກວດຜົນຫວຍ",
       "subtitle": "ຜົນລາງວັນຍ້ອນຫຼັງທຸກປະເພດ",
       "drawnAt": "ປະກາດຜົນ {time}",
       "noResults": "ຍັງບໍ່ມີຜົນລາງວັນ"
+    },
+    "package": {
+      "title": "ເລືອກ Package",
+      "empty": "ບໍ່ພົບ Package",
+      "hint": "ເລືອກແພັກເກັດອັດຕາຈ່າຍກ່ອນແທງ",
+      "selected": "Package ທີ່ເລືອກ",
+      "change": "ປ່ຽນ",
+      "required": "ກະລຸນາເລືອກ Package ກ່ອນແທງຫວຍ"
     }
   },
   "deposit": {
@@ -208,7 +249,9 @@
     "submit": "ແຈ້ງຝາກເງິນ",
     "success": "ແຈ້ງຝາກເງິນສຳເລັດ ລະບົບກຳລັງກວດສອບ",
     "minAmount": "ຝາກຂັ້ນຕ່ຳ {amount} ບາດ",
-    "warning": "ກະລຸນາໂອນຈາກບັນຊີທະນາຄານທີ່ລົງທະບຽນໄວ້ເທົ່ານັ້ນ ບໍ່ດັ່ງນັ້ນລະບົບຈະບໍ່ສາມາດເຕີມເຄຣດິດອັດຕະໂນມັດໄດ້"
+    "warning": "ກະລຸນາໂອນຈາກບັນຊີທະນາຄານທີ່ລົງທະບຽນໄວ້ເທົ່ານັ້ນ ບໍ່ດັ່ງນັ້ນລະບົບຈະບໍ່ສາມາດເຕີມເຄຣດິດອັດຕະໂນມັດໄດ້",
+    "notesTitle": "ຄວນຮູ້",
+    "noteAmount": "ຝາກຂັ້ນຕ່ຳ {amount} ບາດ"
   },
   "withdraw": {
     "title": "ຖອນເງິນ",
@@ -222,7 +265,19 @@
     "insufficient": "ຍອດເງິນຄົງເຫຼືອບໍ່ພຽງພໍ",
     "noBankAccount": "ກະລຸນາເພີ່ມບັນຊີທະນາຄານກ່ອນຖອນເງິນ",
     "confirmTitle": "ຢືນຢັນການຖອນເງິນ",
-    "confirmHint": "ຖອນ {amount} ບາດ ເຂົ້າບັນຊີ {bank} {account}"
+    "confirmHint": "ຖອນ {amount} ບາດ ເຂົ້າບັນຊີ {bank} {account}",
+    "myAccount": "ບັນຊີທີ່ຈະຮັບເງິນ",
+    "transferTo": "ໂອນເຂົ້າບັນຊີ",
+    "notesTitle": "ຄວນຮູ້",
+    "noteMin": "ຖອນຂັ້ນຕ່ຳ {amount} ບາດ",
+    "noteAccount": "ລະບົບໂອນເຂົ້າບັນຊີທະນາຄານຫຼັກທີ່ຜູກໄວ້ເທົ່ານັ້ນ",
+    "rowAmount": "ຈຳນວນເງິນ",
+    "rowBank": "ທະນາຄານ",
+    "rowAccount": "ເລກບັນຊີ",
+    "rowName": "ຊື່ບັນຊີ",
+    "successTitle": "ສົ່ງຄຳຂໍຖອນເງິນສຳເລັດ",
+    "successDesc": "ລະບົບກຳລັງໂອນເງິນເຂົ້າບັນຊີຂອງທ່ານ ກະລຸນາກວດສອບຍອດເງິນອີກຄັ້ງພາຍຫຼັງ",
+    "again": "ເຮັດລາຍການອີກຄັ້ງ"
   },
   "promotion": {
     "title": "ໂປຣໂມຊັນ",
@@ -335,6 +390,11 @@
     "amountInvalid": "ຈຳນວນເງິນບໍ່ຖືກຕ້ອງ",
     "amountMin": "ຂັ້ນຕ່ຳ {amount} ບາດ",
     "amountMax": "ສູງສຸດ {amount} ບາດ",
-    "selectBank": "ກະລຸນາເລືອກທະນາຄານ"
+    "selectBank": "ກະລຸນາເລືອກທະນາຄານ",
+    "passwordLength": "ລະຫັດຜ່ານຕ້ອງມີ 6-16 ຕົວອັກສອນ (a-z, 0-9)",
+    "accountNumberLength": "ເລກບັນຊີຕ້ອງມີ {min}-{max} ຫຼັກ",
+    "referralInvalid": "ລະຫັດແນະນຳບໍ່ຖືກຕ້ອງ",
+    "identifierTaken": "ຂໍ້ມູນນີ້ຖືກໃຊ້ສະໝັກແລ້ວ",
+    "accountNumberDuplicate": "ເລກບັນຊີນີ້ຖືກໃຊ້ແລ້ວໃນທະນາຄານທີ່ເລືອກ"
   }
 }

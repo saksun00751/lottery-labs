@@ -5,9 +5,10 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { Badge } from '@/components/ui/Badge';
+import { formatAccountNumber } from '@/lib/utils/bank';
 import { cn } from '@/lib/utils/cn';
 import { formatNumber } from '@/lib/utils/intl';
-import { useUiStore } from '@/store/ui-store';
+import { pushToast } from '@/lib/toast';
 
 import styles from './BankAccountCard.module.scss';
 
@@ -30,7 +31,6 @@ export function BankAccountCard({
 }: BankAccountCardProps) {
   const t = useTranslations('common');
   const tWallet = useTranslations('wallet');
-  const pushToast = useUiStore((s) => s.pushToast);
   const [copied, setCopied] = useState(false);
 
   const onCopy = async () => {
@@ -53,7 +53,7 @@ export function BankAccountCard({
       </span>
       <div className={styles.info}>
         <div className={styles.bankName}>{bankName}</div>
-        <div className={styles.number}>{accountNumber}</div>
+        <div className={styles.number}>{formatAccountNumber(accountNumber)}</div>
         <div className={styles.holder}>{accountName}</div>
       </div>
       <div className={styles.side}>

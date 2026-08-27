@@ -25,7 +25,8 @@
     "minutesShort": "min",
     "notFound": "Page not found",
     "notFoundHint": "The link may have expired or moved.",
-    "goHome": "Back to home"
+    "goHome": "Back to home",
+    "live": "live"
   },
   "nav": {
     "home": "Home",
@@ -79,7 +80,9 @@
     "ageNotice": "By signing up you confirm you are 18 or older and accept the terms of service.",
     "demoHint": "Demo mode: use {identifier} / {password}",
     "loginFailed": "Incorrect username or password",
-    "logoutConfirm": "Do you want to log out?"
+    "logoutConfirm": "Do you want to log out?",
+    "accountNameChecking": "Checking account holder…",
+    "accountNameNotFound": "Account holder not found — please type your name"
   },
   "wallet": {
     "balance": "Balance",
@@ -101,7 +104,10 @@
     "openRounds": "Open rounds",
     "latestResults": "Latest results",
     "activePromotions": "Featured promotions",
-    "myTickets": "My recent slips"
+    "myTickets": "My recent slips",
+    "lotteryGroups": "Lottery Groups",
+    "todayLottery": "Today's Lottery",
+    "itemsCount": "items"
   },
   "lottery": {
     "title": "Play lottery",
@@ -152,7 +158,24 @@
       "even": "Even",
       "clearSelection": "Clear selection",
       "manualEntry": "Enter number",
-      "manualHint": "Enter {digits} digits"
+      "manualHint": "Enter {digits} digits",
+      "specialMode": "Quick pick",
+      "triples": "Triples",
+      "betTypeTitle": "Bet Type",
+      "pickAtLeastOne": "Pick at least one type",
+      "runHint": "Tap a digit below to add it to the slip",
+      "duplicateInType": "{type}: {numbers} already in the list",
+      "reverseHint": "Type all 3 digits — every permutation is added automatically.",
+      "closedInType": "{type}: {numbers} is closed for betting",
+      "itemsCount": "{count} items",
+      "group": {
+        "three": "3-digit",
+        "two": "2-digit",
+        "run": "Run"
+      },
+      "numberColumn": "Number",
+      "noRestrictedNumbers": "No restricted numbers in this group",
+      "closedLabel": "Closed"
     },
     "slip": {
       "title": "Bet slip",
@@ -187,13 +210,31 @@
         "pending": "Pending",
         "won": "Won",
         "lost": "Lost"
-      }
+      },
+      "viewDetail": "View detail",
+      "totalDiscount": "Discount",
+      "totalNet": "Net total",
+      "totalWin": "Win amount",
+      "cancelTicket": "Cancel slip",
+      "cancelConfirmTitle": "Cancel this slip?",
+      "cancelConfirmHint": "Your stake will be refunded to your balance. This cannot be undone.",
+      "cancelSuccess": "Slip cancelled",
+      "discount": "Discount ({percent}%)",
+      "netStake": "Net after discount"
     },
     "results": {
       "title": "Results",
       "subtitle": "Past results for every lottery",
       "drawnAt": "Announced {time}",
       "noResults": "No results yet"
+    },
+    "package": {
+      "title": "Choose a package",
+      "empty": "No packages found",
+      "hint": "Pick a payout package before you bet",
+      "selected": "Selected Package",
+      "change": "Change",
+      "required": "Please select a package before betting"
     }
   },
   "deposit": {
@@ -208,7 +249,9 @@
     "submit": "Notify deposit",
     "success": "Deposit reported — we are verifying it now.",
     "minAmount": "Minimum deposit {amount} THB",
-    "warning": "Transfer only from your registered bank account, otherwise credit cannot be added automatically."
+    "warning": "Transfer only from your registered bank account, otherwise credit cannot be added automatically.",
+    "notesTitle": "Good to know",
+    "noteAmount": "Minimum deposit {amount} THB"
   },
   "withdraw": {
     "title": "Withdraw",
@@ -222,7 +265,19 @@
     "insufficient": "Insufficient balance",
     "noBankAccount": "Add a bank account before withdrawing.",
     "confirmTitle": "Confirm withdrawal",
-    "confirmHint": "Withdraw {amount} THB to {bank} {account}"
+    "confirmHint": "Withdraw {amount} THB to {bank} {account}",
+    "myAccount": "Receiving account",
+    "transferTo": "Transfer to",
+    "notesTitle": "Good to know",
+    "noteMin": "Minimum withdrawal {amount} THB",
+    "noteAccount": "Withdrawals are sent to your linked primary bank account only.",
+    "rowAmount": "Amount",
+    "rowBank": "Bank",
+    "rowAccount": "Account number",
+    "rowName": "Account name",
+    "successTitle": "Withdrawal requested",
+    "successDesc": "We're transferring the funds to your account — check your balance again shortly.",
+    "again": "Make another withdrawal"
   },
   "promotion": {
     "title": "Promotions",
@@ -335,6 +390,11 @@
     "amountInvalid": "Invalid amount",
     "amountMin": "Minimum {amount} THB",
     "amountMax": "Maximum {amount} THB",
-    "selectBank": "Please select a bank"
+    "selectBank": "Please select a bank",
+    "passwordLength": "Password must be 6-16 characters (a-z, 0-9)",
+    "accountNumberLength": "Account number must be {min}-{max} digits",
+    "referralInvalid": "Invalid referral code",
+    "identifierTaken": "This is already registered",
+    "accountNumberDuplicate": "This account number is already in use at the selected bank"
   }
 }

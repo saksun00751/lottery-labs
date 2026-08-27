@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertTriangle, ArrowDownToLine, Gift, Landmark, Wallet } from 'lucide-react';
+import { ArrowDownToLine, Gift, Info, Landmark, Wallet } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useState } from 'react';
 
@@ -21,7 +21,7 @@ import {
 } from '@/lib/api/queries';
 import { cn } from '@/lib/utils/cn';
 import { formatAmountInput, formatMoney, parseAmountInput } from '@/lib/utils/money';
-import { useUiStore } from '@/store/ui-store';
+import { pushToast } from '@/lib/toast';
 import type { BankAccount, DepositChannel, Promotion, Wallet as WalletType } from '@/types';
 
 import styles from '../finance.module.scss';
@@ -34,7 +34,6 @@ export function DepositView() {
   const tWallet = useTranslations('wallet');
   const tCommon = useTranslations('common');
   const locale = useLocale();
-  const pushToast = useUiStore((s) => s.pushToast);
 
   const { data: walletData, isLoading: walletLoading } = useWallet();
   const { data: accounts } = useBankAccounts();
@@ -120,10 +119,22 @@ export function DepositView() {
                 ))}
               </div>
             )}
+          </div>
 
-            <div className={styles.warning} style={{ marginTop: 'var(--sp-4)' }}>
-              <AlertTriangle size={16} aria-hidden />
-              {t('warning')}
+          <div className={styles.noteCard}>
+            <div className={styles.noteHead}>
+              <span className={styles.noteIcon} aria-hidden>
+                <Info size={14} />
+              </span>
+              <span className={styles.noteTitle}>{t('notesTitle')}</span>
+            </div>
+            <div className={styles.noteList}>
+              <div className={styles.noteItem}>
+                {t('noteAmount', {
+                  amount: formatMoney(minAmount, { locale, compactDecimals: true }),
+                })}
+              </div>
+              <div className={styles.noteItem}>{t('warning')}</div>
             </div>
           </div>
 
