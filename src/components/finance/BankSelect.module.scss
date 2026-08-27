@@ -1,0 +1,138 @@
+@use 'styles/abstracts' as *;
+
+.wrapper {
+  position: relative;
+}
+
+/* Mirrors .input in Field.module.scss so the field lines up with its siblings. */
+.trigger {
+  @include transition(border-color, background, box-shadow);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  width: 100%;
+  min-height: 52px;
+  padding: var(--sp-2) var(--sp-4);
+  background: var(--surface-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  text-align: start;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--border-strong);
+  }
+
+  &.open {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+    background: var(--surface-1);
+  }
+
+  &.error {
+    border-color: var(--danger);
+  }
+}
+
+.value {
+  flex: 1;
+  min-width: 0;
+  font-weight: var(--fw-medium);
+  @include truncate;
+}
+
+.placeholder {
+  flex: 1;
+  color: var(--text-3);
+}
+
+.chevron {
+  @include transition(transform);
+  flex-shrink: 0;
+  color: var(--text-3);
+
+  .open & {
+    transform: rotate(180deg);
+  }
+}
+
+.menu {
+  position: absolute;
+  z-index: var(--z-overlay);
+  inset-inline: 0;
+  top: calc(100% + var(--sp-1));
+  max-height: 280px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-pop);
+}
+
+.option {
+  @include transition(background);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  width: 100%;
+  padding: var(--sp-3) var(--sp-4);
+  text-align: start;
+  color: var(--text);
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--surface-2);
+  }
+
+  &.selected {
+    background: var(--accent-tint);
+    color: var(--accent);
+  }
+}
+
+.optionName {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-sm);
+  @include truncate;
+}
+
+.check {
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+.empty {
+  padding: var(--sp-4);
+  font-size: var(--fs-sm);
+  color: var(--text-3);
+  text-align: center;
+}
+
+/* Logo, with the brand-coloured initials shown until (or unless) it loads. */
+.logo {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+}
+
+.initials {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  font-weight: var(--fw-bold);
+  color: #fff;
+}

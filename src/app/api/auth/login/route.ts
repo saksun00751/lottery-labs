@@ -12,6 +12,10 @@ export const dynamic = 'force-dynamic';
  * Exchanges credentials for a session. The access token is written to an
  * httpOnly cookie and never handed to client JavaScript, which keeps it out of
  * reach of any XSS that gets through.
+ *
+ * The upstream endpoint only ever accepts the identifier as `user_name`
+ * (a phone number in phone mode, a username otherwise) — there's no separate
+ * `phone` field to switch to.
  */
 export async function POST(request: NextRequest) {
   const { identifier, password } = (await request.json().catch(() => ({}))) as {
@@ -46,19 +50,24 @@ export async function POST(request: NextRequest) {
   } else {
     const upstream = await callUpstream('auth/login', {
       method: 'POST',
-      body: JSON.stringify({
-        [publicEnv.loginMode === 'phone' ? 'phone' : 'username']: identifier,
-        password,
-      }),
+      body: JSON.stringify({ user_name: identifier, password }),
       contentType: 'application/json',
     });
     status = upstream.status;
-    const payload = upstream.body as { accessToken?: string; user?: unknown };
-    if (upstream.status < 400 && payload?.accessToken) {
-      token = payload.accessToken;
-      user = payload.user ?? null;
+    const payload = upstream.body as {
+      access_token?: string;
+      member?: unknown;
+      message?: string;
+      success?: boolean;
+    };
+    if (upstream.status < 400 && payload?.access_token) {
+      token = payload.access_token;
+      user = payload.member ?? null;
     } else {
-      errorBody = upstream.body;
+      errorBody = {
+        code: 'invalid_credentials',
+        message: safeMessage(payload?.message),
+      };
     }
   }
 
@@ -76,4 +85,13 @@ export async function POST(request: NextRequest) {
   });
 
   return NextResponse.json({ user });
+}
+
+/** Guards against a raw JSON body leaking into the UI as an error message. */
+function safeMessage(message: string | undefined) {
+  const trimmed = (message ?? '').trim();
+  if (!trimmed || trimmed.startsWith('{') || trimmed.startsWith('[')) {
+    return 'เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่อีกครั้ง';
+  }
+  return trimmed;
 }
