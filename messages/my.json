@@ -31,6 +31,8 @@
   "nav": {
     "home": "ပင်မ",
     "lottery": "ထီထိုးရန်",
+    "lotteryGroups": "ထီအုပ်စုများ",
+    "todayLottery": "ယနေ့ထီ",
     "slip": "ထီစလစ်",
     "results": "ထီပေါက်စဉ်",
     "deposit": "ငွေသွင်း",

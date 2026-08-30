@@ -31,6 +31,8 @@
   "nav": {
     "home": "ໜ້າຫຼັກ",
     "lottery": "ຊື້ຫວຍ",
+    "lotteryGroups": "ກຸ່ມຫວຍ",
+    "todayLottery": "ຫວຍມື້ນີ້",
     "slip": "ໃບຫວຍ",
     "results": "ກວດຜົນຫວຍ",
     "deposit": "ຝາກເງິນ",

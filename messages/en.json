@@ -31,6 +31,8 @@
   "nav": {
     "home": "Home",
     "lottery": "Play",
+    "lotteryGroups": "Lottery Groups",
+    "todayLottery": "Today's Lottery",
     "slip": "My slips",
     "results": "Results",
     "deposit": "Deposit",

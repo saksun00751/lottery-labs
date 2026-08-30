@@ -15,7 +15,7 @@ export function LotteryHomeSection() {
 
   return (
     <>
-      <section className={styles.section}>
+      <section id="lottery-groups" className={styles.section}>
         <SectionHead
           icon={Ticket}
           title={t('lotteryGroups')}
@@ -25,7 +25,7 @@ export function LotteryHomeSection() {
         <LotteryGroups />
       </section>
 
-      <section className={styles.section}>
+      <section id="today-lottery" className={styles.section}>
         <SectionHead icon={Trophy} title={t('todayLottery')} />
         <TodayLottery />
       </section>

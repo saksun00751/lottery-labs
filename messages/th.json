@@ -31,6 +31,8 @@
   "nav": {
     "home": "หน้าแรก",
     "lottery": "แทงหวย",
+    "lotteryGroups": "กลุ่มหวย",
+    "todayLottery": "หวยวันนี้",
     "slip": "โพยหวย",
     "results": "ตรวจผลหวย",
     "deposit": "ฝากเงิน",

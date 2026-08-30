@@ -1,6 +1,7 @@
 import {
   ArrowDownToLine,
   ArrowUpFromLine,
+  CalendarDays,
   Disc3,
   Gamepad2,
   Gift,
@@ -8,6 +9,7 @@ import {
   History,
   Home,
   KeyRound,
+  Layers,
   ScrollText,
   Ticket,
   Trophy,
@@ -42,6 +44,18 @@ export const navSections: NavSection[] = [
     titleKey: 'sectionPlay',
     items: [
       { href: '/lottery', labelKey: 'lottery', icon: Ticket, enabled: lotteryEnabled },
+      {
+        href: '/#lottery-groups',
+        labelKey: 'lotteryGroups',
+        icon: Layers,
+        enabled: lotteryEnabled,
+      },
+      {
+        href: '/#today-lottery',
+        labelKey: 'todayLottery',
+        icon: CalendarDays,
+        enabled: lotteryEnabled,
+      },
       { href: '/slip', labelKey: 'slip', icon: ScrollText, enabled: lotteryEnabled },
       { href: '/results', labelKey: 'results', icon: Trophy, enabled: lotteryEnabled },
     ],
