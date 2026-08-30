@@ -3,7 +3,6 @@
 import {
   ArrowDownToLine,
   ArrowUpFromLine,
-  ChevronRight,
   Gift,
   History,
   ScrollText,
@@ -49,35 +48,6 @@ const QUICK_ACTIONS: QuickAction[] = [
     enabled: publicEnv.features.referral,
   },
 ];
-
-function SectionHead({
-  icon: Icon,
-  title,
-  href,
-  seeAllLabel,
-}: {
-  icon: LucideIcon;
-  title: string;
-  href?: string;
-  seeAllLabel?: string;
-}) {
-  return (
-    <div className={styles.sectionHead}>
-      <h2 className={styles.sectionTitle}>
-        <span className={styles.sectionIcon} aria-hidden>
-          <Icon size={19} />
-        </span>
-        {title}
-      </h2>
-      {href && seeAllLabel && (
-        <Link href={href} className={styles.seeAll}>
-          {seeAllLabel}
-          <ChevronRight size={15} aria-hidden />
-        </Link>
-      )}
-    </div>
-  );
-}
 
 export function HomeView() {
   const t = useTranslations('home');
