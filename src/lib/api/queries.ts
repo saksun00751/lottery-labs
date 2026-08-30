@@ -7,7 +7,7 @@ import {
   type UseQueryOptions,
 } from '@tanstack/react-query';
 
-import type { DepositMethod, TransactionType } from '@/types';
+import type { BonusSource, DepositMethod, TransactionType } from '@/types';
 
 import {
   accountApi,
@@ -31,6 +31,7 @@ export const qk = {
   wallet: ['wallet'] as const,
   bankAccounts: ['bank-accounts'] as const,
   withdrawInfo: ['withdraw-info'] as const,
+  bonusSummary: ['bonus-summary'] as const,
   rounds: (category?: string) => ['lottery', 'rounds', category ?? 'all'] as const,
   groups: ['lottery', 'groups'] as const,
   round: (id: string) => ['lottery', 'round', id] as const,
@@ -93,6 +94,13 @@ export const useWithdrawInfo = () =>
   useQuery({
     queryKey: qk.withdrawInfo,
     queryFn: accountApi.withdrawInfo,
+    staleTime: 10_000,
+  });
+
+export const useBonusSummary = () =>
+  useQuery({
+    queryKey: qk.bonusSummary,
+    queryFn: accountApi.bonusSummary,
     staleTime: 10_000,
   });
 
@@ -308,7 +316,18 @@ export function useExpireDepositPayment() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: qk.wallet }),
   });
 }
-export const useClaimCashback = () => useMoneyMutation(() => walletApi.claimCashback());
+export function useClaimBonus() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (source: BonusSource) => walletApi.claim(source),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: qk.wallet });
+      queryClient.invalidateQueries({ queryKey: ['wallet', 'transactions'] });
+      queryClient.invalidateQueries({ queryKey: qk.withdrawInfo });
+      queryClient.invalidateQueries({ queryKey: qk.bonusSummary });
+    },
+  });
+}
 
 export function useCancelTicket() {
   const queryClient = useQueryClient();

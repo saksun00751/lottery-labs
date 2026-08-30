@@ -18,7 +18,7 @@ import { Skeleton } from '@/components/ui/Feedback';
 import { Money } from '@/components/ui/Money';
 import { publicEnv } from '@/config/env.public';
 import { useRouter } from '@/i18n/navigation';
-import { useClaimCashback, useMe, useWallet } from '@/lib/api/queries';
+import { useClaimBonus, useMe, useWallet } from '@/lib/api/queries';
 import { cn } from '@/lib/utils/cn';
 import { formatNumber } from '@/lib/utils/intl';
 import { formatMoney } from '@/lib/utils/money';
@@ -68,10 +68,10 @@ export function WalletSummary({ showActions = true }: { showActions?: boolean })
   const { data: user } = useMe();
   const { data, isLoading } = useWallet();
   const wallet = data as Wallet | undefined;
-  const claim = useClaimCashback();
+  const claim = useClaimBonus();
 
   const onClaim = () => {
-    claim.mutate(undefined, {
+    claim.mutate('cashback', {
       onSuccess: (result) => {
         pushToast({
           tone: 'success',

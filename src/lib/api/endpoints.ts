@@ -3,6 +3,8 @@ import type {
   BankAccount,
   BetType,
   BetTypeId,
+  BonusSource,
+  BonusSummary,
   ContactChannel,
   DepositChannel,
   DepositMethod,
@@ -337,7 +339,25 @@ export const accountApi = {
       apiFetch<LoadBalanceResponse>('member/loadbalance'),
       apiFetch<MemberProfileResponse>('member/profile'),
     ]).then(([loadBalance, memberProfile]) => normalizeWithdrawInfo(loadBalance, memberProfile)),
+
+  // Ported from lotto-seed-app's `/bonus` page — the four claimable pools
+  // (`bonus`, `cashback`, `faststart`, `ic`/`winlost`) only show up on
+  // `member/loadbalance`, not `member/balance`.
+  bonusSummary: () =>
+    apiFetch<LoadBalanceResponse>('member/loadbalance').then(normalizeBonusSummary),
 };
+
+function normalizeBonusSummary(payload: LoadBalanceResponse): BonusSummary {
+  const p = payload.profile ?? {};
+  const num = (v: number | string | undefined) => (v === undefined ? 0 : Number(v));
+
+  return {
+    bonus: toMinor(num(p.bonus)),
+    cashback: toMinor(num(p.cashback)),
+    faststart: toMinor(num(p.faststart)),
+    ic: toMinor(num(p.ic ?? p.winlost)),
+  };
+}
 
 /**
  * `member/loadbalance` — carries the withdraw limits and the daily running
@@ -355,6 +375,11 @@ interface LoadBalanceProfileFields {
   withdraw_sum_today?: number | string;
   withdraw_remain_today?: number | string;
   withdraw_limit_amount?: number | string;
+  bonus?: number | string;
+  cashback?: number | string;
+  faststart?: number | string;
+  ic?: number | string;
+  winlost?: number | string;
 }
 interface LoadBalanceResponse {
   success?: boolean;
@@ -1151,18 +1176,24 @@ export const walletApi = {
 
   // `API_ENDPOINTS.md` §9: `source` is one of bonus | cashback | faststart | ic.
   // The response shape isn't documented — read defensively, same as balance.
-  claimCashback: () =>
-    apiFetch<{ data?: { claimed?: number | string; balance?: number | string } }>(
-      'wallet/claim',
-      {
-        method: 'POST',
-        body: { source: 'cashback' },
-        idempotencyKey: newIdempotencyKey(),
-      },
-    ).then((res) => ({
-      claimed: toMinor(Number(res.data?.claimed ?? 0)),
-      balance: toMinor(Number(res.data?.balance ?? 0)),
-    })),
+  // A business-rule rejection (e.g. "nothing to claim") comes back as HTTP 200
+  // with `success: false`, same as `promotion/select` — `assertSuccess` throws
+  // on that so the caller's `onError` sees it like any other failure.
+  claim: (source: BonusSource) =>
+    apiFetch<{
+      success?: boolean;
+      message?: string;
+      data?: { claimed?: number | string; balance?: number | string };
+    }>('wallet/claim', {
+      method: 'POST',
+      body: { source },
+      idempotencyKey: newIdempotencyKey(),
+    })
+      .then(assertSuccess)
+      .then((res) => ({
+        claimed: toMinor(Number(res.data?.claimed ?? 0)),
+        balance: toMinor(Number(res.data?.balance ?? 0)),
+      })),
 };
 
 /* --------------------------------- deposit -------------------------------- */

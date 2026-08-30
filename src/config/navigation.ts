@@ -1,6 +1,7 @@
 import {
   ArrowDownToLine,
   ArrowUpFromLine,
+  Award,
   CalendarDays,
   Disc3,
   Gamepad2,
@@ -62,6 +63,7 @@ export const navSections: NavSection[] = [
     items: [
       { href: '/deposit', labelKey: 'deposit', icon: ArrowDownToLine },
       { href: '/withdraw', labelKey: 'withdraw', icon: ArrowUpFromLine },
+      { href: '/bonus', labelKey: 'bonus', icon: Award },
       {
         href: '/promotion',
         labelKey: 'promotion',

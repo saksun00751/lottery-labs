@@ -47,6 +47,17 @@ export interface Wallet {
   updatedAt: string;
 }
 
+/** The four claimable bonus pools on `member/loadbalance`, matching `wallet/claim`'s `source`. */
+export type BonusSource = 'bonus' | 'cashback' | 'faststart' | 'ic';
+
+/** Claimable balances shown on the `/bonus` page — `member/loadbalance`'s bonus fields. */
+export interface BonusSummary {
+  bonus: Minor;
+  cashback: Minor;
+  faststart: Minor;
+  ic: Minor;
+}
+
 /** Withdrawal eligibility for a promotion currently claimed on the account. */
 export interface WithdrawPromoInfo {
   active: boolean;
