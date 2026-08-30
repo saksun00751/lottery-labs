@@ -108,19 +108,43 @@ export const visibleNavSections = navSections
   }))
   .filter((section) => section.items.length > 0);
 
-/** The four destinations that fit comfortably in the mobile tab bar. */
-export const bottomNavItems: NavItem[] = gamesEnabled && !lotteryEnabled
-  ? [
-      { href: '/', labelKey: 'home', icon: Home },
-      { href: '/games', labelKey: 'games', icon: Gamepad2 },
-      { href: '/deposit', labelKey: 'deposit', icon: ArrowDownToLine },
-      { href: '/history', labelKey: 'history', icon: History },
-      { href: '/profile', labelKey: 'profile', icon: User },
-    ]
-  : [
-      { href: '/', labelKey: 'home', icon: Home },
+/**
+ * The five destinations that fit comfortably in the mobile tab bar.
+ *
+ * When both verticals are enabled, Lottery and Games sit side by side
+ * instead of defaulting to the lottery-only layout — Slip/History still
+ * live one tap away on their own pages, just not pinned to the bar.
+ */
+export const bottomNavItems: NavItem[] = (() => {
+  const home: NavItem = { href: '/', labelKey: 'home', icon: Home };
+  const deposit: NavItem = { href: '/deposit', labelKey: 'deposit', icon: ArrowDownToLine };
+  const contact: NavItem = { href: '/contact', labelKey: 'contact', icon: Headphones };
+
+  if (lotteryEnabled && gamesEnabled) {
+    return [
+      home,
       { href: '/lottery', labelKey: 'lottery', icon: Ticket },
-      { href: '/deposit', labelKey: 'deposit', icon: ArrowDownToLine },
-      { href: '/slip', labelKey: 'slip', icon: ScrollText },
-      { href: '/profile', labelKey: 'profile', icon: User },
+      { href: '/games', labelKey: 'games', icon: Gamepad2 },
+      deposit,
+      contact,
     ];
+  }
+
+  if (gamesEnabled) {
+    return [
+      home,
+      { href: '/games', labelKey: 'games', icon: Gamepad2 },
+      deposit,
+      { href: '/history', labelKey: 'history', icon: History },
+      contact,
+    ];
+  }
+
+  return [
+    home,
+    { href: '/lottery', labelKey: 'lottery', icon: Ticket },
+    deposit,
+    { href: '/slip', labelKey: 'slip', icon: ScrollText },
+    contact,
+  ];
+})();
