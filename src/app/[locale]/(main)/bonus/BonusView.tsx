@@ -1,6 +1,6 @@
 'use client';
 
-import { Award, ChevronRight, Coins, HandCoins, RefreshCcw, Rocket, Sparkles, UserPlus } from 'lucide-react';
+import { Award, ChevronRight, Coins, HandCoins, Rocket, Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState, type ReactNode } from 'react';
 
@@ -68,10 +68,10 @@ export function BonusView() {
   ];
 
   const steps = [
-    { icon: <RefreshCcw size={18} />, title: t('stepSpinTitle'), desc: t('stepSpinDesc') },
-    { icon: <Coins size={18} />, title: t('stepCashbackTitle'), desc: t('stepCashbackDesc') },
-    { icon: <UserPlus size={18} />, title: t('stepFriendTitle'), desc: t('stepFriendDesc') },
-    { icon: <HandCoins size={18} />, title: t('stepReferTitle'), desc: t('stepReferDesc') },
+    { icon: '🎡', title: t('stepSpinTitle'), desc: t('stepSpinDesc') },
+    { icon: '💸', title: t('stepCashbackTitle'), desc: t('stepCashbackDesc') },
+    { icon: '👥', title: t('stepFriendTitle'), desc: t('stepFriendDesc') },
+    { icon: '🤝', title: t('stepReferTitle'), desc: t('stepReferDesc') },
   ];
 
   const closeModal = () => {
