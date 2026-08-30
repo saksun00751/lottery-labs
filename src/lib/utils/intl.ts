@@ -31,9 +31,9 @@ export function formatDate(
   locale: string,
   options: Intl.DateTimeFormatOptions = { dateStyle: 'medium' },
 ) {
-  return new Intl.DateTimeFormat(calendarLocale(locale), options).format(
-    new Date(value),
-  );
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '—';
+  return new Intl.DateTimeFormat(calendarLocale(locale), options).format(date);
 }
 
 export function formatDateTime(value: string | number | Date, locale: string) {

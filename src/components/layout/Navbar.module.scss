@@ -40,26 +40,10 @@
 .brand {
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
+  justify-content: center;
   min-width: 0;
-  font-weight: var(--fw-semibold);
-  font-size: var(--fs-sm);
-  letter-spacing: -0.02em;
-  white-space: nowrap;
-
-  @include desktop {
-    display: none;
-  }
-}
-
-/* On a narrow phone the balance pill and the controls matter more than the
-   wordmark — the logo tile alone keeps the header on one line. */
-.brandText {
-  @include truncate;
-
-  @include down('sm') {
-    display: none;
-  }
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 .brandMark {
@@ -72,6 +56,17 @@
   color: var(--text-on-accent);
   font-size: var(--fs-2xs);
   font-weight: var(--fw-bold);
+}
+
+.brandLogo {
+  width: auto;
+  height: clamp(60px, 3.33vw + 46.7px, 100px);
+  max-width: 240px;
+  max-height: 100%;
+  flex-shrink: 0;
+  object-fit: contain;
+  border-radius: 8px;
+  display: block;
 }
 
 .spacer {

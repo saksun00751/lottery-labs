@@ -32,37 +32,28 @@ export function ChangePasswordView() {
     register,
     handleSubmit,
     reset,
-    setError,
     formState: { errors, isSubmitting },
   } = useForm<ChangePasswordValues>({
     resolver: zodResolver(changePasswordSchema),
-    defaultValues: { currentPassword: '', newPassword: '', confirmPassword: '' },
+    defaultValues: { newPassword: '', confirmPassword: '' },
   });
 
   const onSubmit = handleSubmit(async (values) => {
     setFormError(null);
     try {
       await change.mutateAsync({
-        current: values.currentPassword,
-        next: values.newPassword,
+        password: values.newPassword,
+        confirm: values.confirmPassword,
       });
       reset();
       pushToast({ tone: 'success', title: t('changePasswordSuccess') });
     } catch (error) {
-      if (error instanceof ApiError && error.fields?.currentPassword) {
-        setError('currentPassword', { message: 'invalidCurrent' });
-      }
-      setFormError(
-        error instanceof ApiError ? error.message : tCommon('error'),
-      );
+      setFormError(error instanceof ApiError ? error.message : tCommon('error'));
     }
   });
 
-  const message = (key?: string) => {
-    if (!key) return undefined;
-    if (key === 'invalidCurrent') return t('wrongCurrentPassword');
-    return tv(key, { field: t('currentPassword'), min: 6, max: 60, amount: 0 });
-  };
+  const message = (key: string | undefined, field: string) =>
+    key ? tv(key, { field, min: 6, max: 60, amount: 0 }) : undefined;
 
   return (
     <div className={styles.page}>
@@ -82,21 +73,12 @@ export function ChangePasswordView() {
           )}
 
           <PasswordInput
-            {...register('currentPassword')}
-            label={t('currentPassword')}
-            autoComplete="current-password"
-            showLabel={tAuth('showPassword')}
-            hideLabel={tAuth('hidePassword')}
-            error={message(errors.currentPassword?.message)}
-          />
-
-          <PasswordInput
             {...register('newPassword')}
             label={t('newPassword')}
             autoComplete="new-password"
             showLabel={tAuth('showPassword')}
             hideLabel={tAuth('hidePassword')}
-            error={message(errors.newPassword?.message)}
+            error={message(errors.newPassword?.message, t('newPassword'))}
           />
 
           <PasswordInput
@@ -105,7 +87,7 @@ export function ChangePasswordView() {
             autoComplete="new-password"
             showLabel={tAuth('showPassword')}
             hideLabel={tAuth('hidePassword')}
-            error={message(errors.confirmPassword?.message)}
+            error={message(errors.confirmPassword?.message, t('confirmNewPassword'))}
           />
 
           <Button type="submit" size="lg" loading={isSubmitting}>

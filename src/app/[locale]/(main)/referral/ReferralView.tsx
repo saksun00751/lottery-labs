@@ -2,29 +2,41 @@
 
 import { Check, Copy, Link2, Share2, Users } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { EmptyState, Skeleton } from '@/components/ui/Feedback';
 import { Money } from '@/components/ui/Money';
-import { useReferral, useReferralFriends } from '@/lib/api/queries';
-import { formatDate, formatNumber } from '@/lib/utils/intl';
+import { useMe, useReferral } from '@/lib/api/queries';
 import { pushToast } from '@/lib/toast';
-import type { Paginated, ReferralFriend, ReferralSummary } from '@/types';
+import { formatDate, formatNumber } from '@/lib/utils/intl';
 
 import styles from './referral.module.scss';
+
+/** "0891234567" -> "089-XXX-67XX" — same masking lotto-seed-app applies client-side. */
+function maskPhone(phone: string): string {
+  const digits = phone.replace(/\D/g, '');
+  return digits.length >= 6 ? `${digits.slice(0, 3)}-XXX-${digits.slice(-2)}XX` : phone;
+}
 
 export function ReferralView() {
   const t = useTranslations('referral');
   const tCommon = useTranslations('common');
   const locale = useLocale();
 
-  const { data, isLoading } = useReferral();
-  const { data: friendsData, isLoading: friendsLoading } = useReferralFriends();
+  const { data, isLoading, isError } = useReferral();
+  const { data: me } = useMe();
 
-  const summary = data as ReferralSummary | undefined;
-  const friends = (friendsData as Paginated<ReferralFriend> | undefined)?.items ?? [];
+  const summary = data?.summary;
+  const friends = data?.friends ?? [];
+  // `member/contributor` sometimes comes back with an empty code — the
+  // member's own profile always has one, so it's a reliable fallback.
+  const code = summary?.code || me?.referralCode || '';
+
+  const [origin, setOrigin] = useState('');
+  useEffect(() => setOrigin(window.location.origin), []);
+  const link = code ? `${origin}/${locale}/register?ref=${encodeURIComponent(code)}` : '';
 
   const [copied, setCopied] = useState<'code' | 'link' | null>(null);
 
@@ -40,11 +52,11 @@ export function ReferralView() {
   };
 
   const share = async () => {
-    if (!summary) return;
+    if (!link) return;
     if (navigator.share) {
-      await navigator.share({ url: summary.link, title: t('title') }).catch(() => undefined);
+      await navigator.share({ url: link, title: t('title') }).catch(() => undefined);
     } else {
-      copy(summary.link, 'link');
+      copy(link, 'link');
     }
   };
 
@@ -53,7 +65,7 @@ export function ReferralView() {
       <PageHeader
         icon={<Users size={22} />}
         title={t('title')}
-        subtitle={t('subtitle')}
+        subtitle={summary?.moreMessage || t('subtitle')}
       />
 
       <div className={styles.hero}>
@@ -63,13 +75,14 @@ export function ReferralView() {
             {isLoading ? (
               <Skeleton width={160} height={40} />
             ) : (
-              <div className={styles.code}>{summary?.code}</div>
+              <div className={styles.code}>{code || '—'}</div>
             )}
           </div>
           <Button
             variant="secondary"
             leftIcon={copied === 'code' ? <Check size={17} /> : <Copy size={17} />}
-            onClick={() => summary && copy(summary.code, 'code')}
+            disabled={!code}
+            onClick={() => code && copy(code, 'code')}
           >
             {copied === 'code' ? tCommon('copied') : tCommon('copy')}
           </Button>
@@ -79,48 +92,43 @@ export function ReferralView() {
           <span className={styles.linkIcon} aria-hidden>
             <Link2 size={16} />
           </span>
-          <span className={styles.link}>{summary?.link ?? '—'}</span>
+          <span className={styles.link}>{link || '—'}</span>
           <Button
             size="sm"
             variant="ghost"
-            onClick={() => summary && copy(summary.link, 'link')}
+            disabled={!link}
+            onClick={() => link && copy(link, 'link')}
             aria-label={tCommon('copy')}
           >
             {copied === 'link' ? <Check size={16} /> : <Copy size={16} />}
           </Button>
         </div>
 
-        <Button block leftIcon={<Share2 size={18} />} onClick={share}>
+        <Button block leftIcon={<Share2 size={18} />} disabled={!link} onClick={share}>
           {t('share')}
         </Button>
-
-        {summary && (
-          <p className={styles.rate}>
-            {t('commissionRate', { percent: summary.commissionPercent })}
-          </p>
-        )}
       </div>
 
       <div className={styles.statGrid}>
         <div className={styles.stat}>
           <span className={styles.statLabel}>{t('totalFriends')}</span>
           <span className={styles.statValue}>
-            {formatNumber(summary?.totalFriends ?? 0, locale)}
-          </span>
-        </div>
-        <div className={styles.stat}>
-          <span className={styles.statLabel}>{t('activeFriends')}</span>
-          <span className={styles.statValue}>
-            {formatNumber(summary?.activeFriends ?? 0, locale)}
+            {formatNumber(summary?.referredCount ?? 0, locale)}
           </span>
         </div>
         <div className={styles.stat}>
           <span className={styles.statLabel}>{t('totalCommission')}</span>
-          <Money value={summary?.totalCommission ?? 0} size="lg" tone="success" />
+          <Money value={summary?.totalEarned ?? 0} size="lg" tone="success" />
         </div>
         <div className={styles.stat}>
-          <span className={styles.statLabel}>{t('pendingCommission')}</span>
-          <Money value={summary?.pendingCommission ?? 0} size="lg" />
+          <span className={styles.statLabel}>{t('promotionBonusIncome')}</span>
+          <Money value={summary?.promotionBonusIncome ?? 0} size="lg" tone="accent" />
+        </div>
+        <div className={styles.stat}>
+          <span className={styles.statLabel}>{t('promotionBonusCount')}</span>
+          <span className={styles.statValue}>
+            {formatNumber(summary?.promotionBonusCount ?? 0, locale)}
+          </span>
         </div>
       </div>
 
@@ -136,8 +144,10 @@ export function ReferralView() {
       <div className={styles.card}>
         <h2 className={styles.cardTitle}>{t('friendList')}</h2>
 
-        {friendsLoading ? (
+        {isLoading ? (
           <Skeleton height={140} radius={14} />
+        ) : isError ? (
+          <EmptyState title={t('loadError')} />
         ) : friends.length === 0 ? (
           <EmptyState title={t('noFriends')} />
         ) : (
@@ -145,24 +155,18 @@ export function ReferralView() {
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>{tCommon('all')}</th>
+                  <th>{t('colMember')}</th>
                   <th>{t('joinedAt')}</th>
-                  <th className={styles.alignEnd}>{t('turnover')}</th>
                   <th className={styles.alignEnd}>{t('commission')}</th>
                 </tr>
               </thead>
               <tbody>
                 {friends.map((friend) => (
                   <tr key={friend.id}>
-                    <td>{friend.maskedName}</td>
-                    <td className={styles.muted}>
-                      {formatDate(friend.joinedAt, locale)}
-                    </td>
+                    <td>{friend.name || (friend.phone ? maskPhone(friend.phone) : t('member'))}</td>
+                    <td className={styles.muted}>{formatDate(friend.joinedAt, locale)}</td>
                     <td className={styles.alignEnd}>
-                      <Money value={friend.turnover} size="sm" compact />
-                    </td>
-                    <td className={styles.alignEnd}>
-                      <Money value={friend.commission} size="sm" tone="success" />
+                      <Money value={friend.earned} size="sm" tone="success" />
                     </td>
                   </tr>
                 ))}

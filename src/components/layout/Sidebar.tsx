@@ -4,9 +4,9 @@ import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect } from 'react';
 
-import { publicEnv } from '@/config/env.public';
 import { visibleNavSections } from '@/config/navigation';
 import { Link, usePathname } from '@/i18n/navigation';
+import { useSiteMeta } from '@/lib/site-meta-client';
 import { cn } from '@/lib/utils/cn';
 import { useUiStore } from '@/store/ui-store';
 
@@ -16,6 +16,7 @@ export function Sidebar() {
   const t = useTranslations('nav');
   const pathname = usePathname();
   const { sidebarCollapsed, drawerOpen, closeDrawer, toggleSidebar } = useUiStore();
+  const { name: siteName, logo } = useSiteMeta();
 
   // Any navigation closes the mobile drawer — otherwise it covers the new page.
   useEffect(() => {
@@ -44,10 +45,14 @@ export function Sidebar() {
         )}
       >
         <div className={styles.brand}>
-          <span className={styles.brandMark} aria-hidden>
-            LL
-          </span>
-          <span className={styles.brandName}>{publicEnv.siteName}</span>
+          {logo ? (
+            <img src={logo} alt={siteName || 'Brand'} className={styles.brandLogo} />
+          ) : (
+            <span className={styles.brandMark} aria-hidden>
+              LL
+            </span>
+          )}
+          <span className={styles.brandName}>{siteName}</span>
         </div>
 
         <nav className={styles.nav}>

@@ -8,6 +8,7 @@ import type { ReactNode } from 'react';
 import { publicEnv } from '@/config/env.public';
 import { MODE_COOKIE, THEME_COOKIE } from '@/config/theme';
 import { routing } from '@/i18n/routing';
+import { getSiteMeta } from '@/lib/site-meta';
 
 import { fontVariables } from '../fonts';
 import { Providers } from '../providers';
@@ -25,24 +26,30 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'common' });
+  const siteMeta = await getSiteMeta();
+  const siteName = siteMeta.name ?? siteMeta.site_name ?? publicEnv.siteName;
+  const favicon = siteMeta.favicon ?? siteMeta.favicon_url ?? siteMeta.faviconUrl ?? '/icon.svg';
 
   return {
     title: {
-      default: publicEnv.siteName,
-      template: `%s · ${publicEnv.siteName}`,
+      default: siteName,
+      template: `%s · ${siteName}`,
     },
     description: t('appName'),
-    applicationName: publicEnv.siteName,
+    applicationName: siteName,
     formatDetection: { telephone: false },
     appleWebApp: {
       capable: true,
-      title: publicEnv.siteName,
+      title: siteName,
       statusBarStyle: 'black-translucent',
     },
     icons: {
-      icon: '/icon.svg',
-      apple: '/icon.svg',
+      icon: favicon,
+      apple: favicon,
     },
+    other: siteMeta.header_code || siteMeta.headerCode ? {
+      'x-header-code': siteMeta.header_code ?? siteMeta.headerCode ?? '',
+    } : undefined,
   };
 }
 

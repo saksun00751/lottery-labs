@@ -1,15 +1,16 @@
 import type {
   Bank,
   DepositChannel,
-  DrawResult,
+  DepositPaymentProvider,
+  ContactChannel,
   LotteryRound,
   Promotion,
-  ReferralFriend,
-  ReferralSummary,
   RoundRates,
   Transaction,
   User,
   Wallet,
+  WheelHistoryGroup,
+  WheelSegment,
 } from '@/types';
 
 /**
@@ -66,6 +67,7 @@ export const USER: User = {
   lastName: 'ใจดี',
   referralCode: 'LL8K2M',
   createdAt: '2025-11-02T08:14:00.000Z',
+  activePromotionName: null,
   bankAccounts: [
     {
       id: 'ba_1',
@@ -76,6 +78,22 @@ export const USER: User = {
       isPrimary: true,
     },
   ],
+};
+
+/**
+ * Withdraw limits and promo-lock state, mirroring `member/loadbalance` +
+ * `member/profile`'s `amount_balance`/`withdraw_limit_amount` fields. Set
+ * `USER.activePromotionName` alongside `promoTurnoverRequired` to exercise
+ * the promo-forced-amount path in mock mode.
+ */
+export const WITHDRAW_INFO = {
+  canWithdraw: true,
+  notice: null as string | null,
+  min: 10_000, // 100.00
+  max: 20_000_000, // 200,000.00
+  maxPerDay: 20_000_000, // 200,000.00
+  promoTurnoverRequired: 0,
+  promoWithdrawLimit: 0,
 };
 
 export const WALLET: Wallet = {
@@ -183,26 +201,40 @@ export function buildRates(roundId: string): RoundRates {
   };
 }
 
-export const DEPOSIT_CHANNELS: DepositChannel[] = [
-  {
-    id: 'dc_1',
-    type: 'bank_transfer',
-    bankName: 'ธนาคารกสิกรไทย',
-    accountNumber: '0451234567',
-    accountName: 'บจก. ลอตเตอรี่ แล็บส์',
-    minAmount: 10_000,
-    maxAmount: 50_000_000,
-  },
-  {
-    id: 'dc_2',
-    type: 'qr_promptpay',
-    bankName: 'พร้อมเพย์',
-    accountNumber: '0812345678',
-    accountName: 'บจก. ลอตเตอรี่ แล็บส์',
-    qrPayload: '00020101021129370016A000000677010111...',
-    minAmount: 10_000,
-    maxAmount: 20_000_000,
-  },
+export const DEPOSIT_ACCOUNTS: Record<'bank' | 'tw' | 'slip', DepositChannel[]> = {
+  bank: [
+    {
+      id: 'dc_1',
+      bankName: 'ธนาคารกสิกรไทย',
+      accountNumber: '0451234567',
+      accountName: 'บจก. ลอตเตอรี่ แล็บส์',
+      qrImageUrl: 'https://placehold.co/240x240?text=QR',
+      minAmount: 10_000,
+    },
+  ],
+  tw: [
+    {
+      id: 'dc_2',
+      bankName: 'TrueMoney Wallet',
+      accountNumber: '0812345678',
+      accountName: 'บจก. ลอตเตอรี่ แล็บส์',
+      minAmount: 10_000,
+    },
+  ],
+  slip: [
+    {
+      id: 'dc_3',
+      bankName: 'ธนาคารกสิกรไทย',
+      accountNumber: '0451234567',
+      accountName: 'บจก. ลอตเตอรี่ แล็บส์',
+      minAmount: 10_000,
+    },
+  ],
+};
+
+export const DEPOSIT_PAYMENT_PROVIDERS: DepositPaymentProvider[] = [
+  { id: 'wealthpay', name: 'Wealthpay', minAmount: 10_000 },
+  { id: 'flashpay', name: 'Flashpay', minAmount: 10_000 },
 ];
 
 export const PROMOTIONS: Promotion[] = [
@@ -219,6 +251,7 @@ export const PROMOTIONS: Promotion[] = [
     endsAt: null,
     claimed: false,
     claimable: true,
+    hideClaimButton: false,
     terms: [
       'สำหรับสมาชิกใหม่ที่ยังไม่เคยรับโปรโมชั่นนี้',
       'ต้องทำยอดเดิมพันครบ 3 เท่าก่อนถอน',
@@ -237,6 +270,7 @@ export const PROMOTIONS: Promotion[] = [
     endsAt: null,
     claimed: false,
     claimable: true,
+    hideClaimButton: false,
     terms: ['รับได้วันละ 1 ครั้ง', 'ต้องทำยอดเดิมพันครบ 2 เท่าก่อนถอน'],
   },
   {
@@ -251,6 +285,7 @@ export const PROMOTIONS: Promotion[] = [
     endsAt: null,
     claimed: true,
     claimable: false,
+    hideClaimButton: false,
     terms: ['คำนวณจากยอดเสียสุทธิของสัปดาห์ก่อนหน้า', 'เครดิตเข้าบัญชีอัตโนมัติ'],
   },
   {
@@ -265,25 +300,121 @@ export const PROMOTIONS: Promotion[] = [
     endsAt: null,
     claimed: false,
     claimable: true,
+    hideClaimButton: false,
     terms: ['คำนวณจากยอดเดิมพันของเพื่อนที่แนะนำ', 'จ่ายทุกวันเวลา 06:00 น.'],
   },
 ];
 
-export const REFERRAL: ReferralSummary = {
-  code: USER.referralCode,
-  link: `https://lotterylabs.example/r/${USER.referralCode}`,
-  totalFriends: 14,
-  activeFriends: 9,
-  totalCommission: 187_450,
-  pendingCommission: 12_300,
-  commissionPercent: 1,
+/**
+ * Raw, backend-shaped rows mirroring `GET member/contributor`'s `referrals[]`
+ * — the mock intercepts below the client-side normalizer, same as `TRANSACTIONS`.
+ */
+export const REFERRAL_ROWS = [
+  { id: 1, referee: { display_name: 'สมชาย ญาณกิจ', phone: '0891234567', created_at: '2026-08-01T04:00:00.000Z' }, total_earned: 124 },
+  { id: 2, referee: { display_name: null, phone: '0851112222', created_at: '2026-07-24T09:30:00.000Z' }, total_earned: 86 },
+  { id: 3, referee: { display_name: 'ณัฐพงษ์ ใจงาม', phone: '0871234567', created_at: '2026-07-11T12:05:00.000Z' }, total_earned: 312 },
+  { id: 4, referee: { display_name: 'ธนกร สุขใจ', phone: '0861234567', created_at: '2026-06-28T17:45:00.000Z' }, total_earned: 41 },
+];
+
+export const CONTACT_CHANNELS: ContactChannel[] = [
+  { code: 1, type: 'line', label: '@lotterylabs', link: 'https://line.me/R/ti/p/@lotterylabs', sort: 1 },
+  { code: 2, type: 'telegram', label: '@lotterylabs_support', link: 'https://t.me/lotterylabs_support', sort: 2 },
+  { code: 3, type: 'phone', label: '02-123-4567', link: 'tel:021234567', sort: 3 },
+];
+
+/** Raw, backend-shaped fixtures mirroring `games/types` / `games/providers/{type}`. */
+export const GAME_TYPES = [
+  { id: 'slot', name: 'สล็อต', status_open: 'Y' },
+  { id: 'casino', name: 'คาสิโน', status_open: 'Y' },
+  { id: 'sport', name: 'กีฬา', status_open: 'Y' },
+  { id: 'card', name: 'ไพ่', status_open: 'Y' },
+  { id: 'poker', name: 'โป๊กเกอร์', status_open: 'Y' },
+  { id: 'keno', name: 'คีโน่', status_open: 'Y' },
+  { id: 'cock', name: 'ไก่ชน', status_open: 'Y' },
+];
+
+export const GAME_PROVIDERS: Record<
+  string,
+  Array<{ provider: string; providerName: string; logoURL: string; status: string }>
+> = {
+  slot: [
+    { provider: 'pgsoft', providerName: 'PG Soft', logoURL: 'https://placehold.co/200x320?text=PG+Soft', status: 'ACTIVE' },
+    { provider: 'jili', providerName: 'JILI', logoURL: 'https://placehold.co/200x320?text=JILI', status: 'ACTIVE' },
+    { provider: 'pragmatic', providerName: 'Pragmatic Play', logoURL: 'https://placehold.co/200x320?text=Pragmatic', status: 'ACTIVE' },
+  ],
+  casino: [
+    { provider: 'sagaming', providerName: 'SA Gaming', logoURL: 'https://placehold.co/200x320?text=SA+Gaming', status: 'ACTIVE' },
+    { provider: 'evolution', providerName: 'Evolution', logoURL: 'https://placehold.co/200x320?text=Evolution', status: 'ACTIVE' },
+  ],
+  sport: [
+    { provider: 'saba', providerName: 'SABA Sports', logoURL: 'https://placehold.co/200x320?text=SABA', status: 'ACTIVE' },
+  ],
+  card: [
+    { provider: 'sexybcrt', providerName: 'Sexy Baccarat', logoURL: 'https://placehold.co/200x320?text=Sexy+Bcrt', status: 'ACTIVE' },
+  ],
+  poker: [
+    { provider: 'poker88', providerName: 'Poker88', logoURL: 'https://placehold.co/200x320?text=Poker88', status: 'ACTIVE' },
+  ],
+  keno: [
+    { provider: 'kenostar', providerName: 'Keno Star', logoURL: 'https://placehold.co/200x320?text=Keno+Star', status: 'ACTIVE' },
+  ],
+  cock: [
+    { provider: 'sabong', providerName: 'Sabong International', logoURL: 'https://placehold.co/200x320?text=Sabong', status: 'ACTIVE' },
+  ],
 };
 
-export const REFERRAL_FRIENDS: ReferralFriend[] = [
-  { id: 'f1', maskedName: 'สม***ญ', joinedAt: '2026-08-01T04:00:00.000Z', turnover: 1_240_000, commission: 12_400 },
-  { id: 'f2', maskedName: 'วิ***ร', joinedAt: '2026-07-24T09:30:00.000Z', turnover: 860_000, commission: 8_600 },
-  { id: 'f3', maskedName: 'ณั***า', joinedAt: '2026-07-11T12:05:00.000Z', turnover: 3_120_000, commission: 31_200 },
-  { id: 'f4', maskedName: 'ธน***ก', joinedAt: '2026-06-28T17:45:00.000Z', turnover: 410_000, commission: 4_100 },
+export const PROVIDER_GAMES: Record<
+  string,
+  Array<{ id: string; provider: string; gameName: string; image: { vertical: string }; status: string }>
+> = {
+  pgsoft: [
+    { id: 'g_ganesha', provider: 'pgsoft', gameName: 'Ganesha Fortune', image: { vertical: 'https://placehold.co/200x300?text=Ganesha' }, status: 'ACTIVE' },
+    { id: 'g_dragon', provider: 'pgsoft', gameName: 'Dragon Tiger Luck', image: { vertical: 'https://placehold.co/200x300?text=Dragon+Tiger' }, status: 'ACTIVE' },
+  ],
+  jili: [
+    { id: 'g_fortune', provider: 'jili', gameName: 'Fortune Gems', image: { vertical: 'https://placehold.co/200x300?text=Fortune+Gems' }, status: 'ACTIVE' },
+  ],
+  sagaming: [
+    { id: 'g_baccarat', provider: 'sagaming', gameName: 'SA Baccarat', image: { vertical: 'https://placehold.co/200x300?text=Baccarat' }, status: 'ACTIVE' },
+  ],
+};
+
+export const WHEEL_SEGMENTS: WheelSegment[] = [
+  { code: 1, prize: 5, label: '5 บาท', imageUrl: 'https://placehold.co/120x120?text=5', fillStyle: '#eb198d', name: 'เงินสด', types: 'cash' },
+  { code: 2, prize: 10, label: '10 บาท', imageUrl: 'https://placehold.co/120x120?text=10', fillStyle: '#1ba5e1', name: 'เงินสด', types: 'cash' },
+  { code: 3, prize: 0, label: 'เสียใจด้วย', imageUrl: 'https://placehold.co/120x120?text=X', fillStyle: '#6d6e71', name: 'ไม่ได้รางวัล', types: 'none' },
+  { code: 4, prize: 20, label: '20 บาท', imageUrl: 'https://placehold.co/120x120?text=20', fillStyle: '#fec43b', name: 'เงินสด', types: 'cash' },
+  { code: 5, prize: 3, label: '3 บาท', imageUrl: 'https://placehold.co/120x120?text=3', fillStyle: '#138f2d', name: 'เงินสด', types: 'cash' },
+  { code: 6, prize: 100, label: '100 บาท', imageUrl: 'https://placehold.co/120x120?text=100', fillStyle: '#4e2e7f', name: 'แจ็คพอต', types: 'cash' },
+  { code: 7, prize: 0, label: 'เสียใจด้วย', imageUrl: 'https://placehold.co/120x120?text=X', fillStyle: '#6d6e71', name: 'ไม่ได้รางวัล', types: 'none' },
+  { code: 8, prize: 50, label: '50 บาท', imageUrl: 'https://placehold.co/120x120?text=50', fillStyle: '#1e4598', name: 'เงินสด', types: 'cash' },
+];
+
+export const WHEEL_ENABLED = true;
+
+/** DD/MM/YYYY in the Buddhist era, matching the real `wheel/history` date format. */
+function wheelDate(daysAgo: number) {
+  const d = new Date(Date.now() - daysAgo * 86_400_000);
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  return `${dd}/${mm}/${d.getFullYear() + 543}`;
+}
+
+export const WHEEL_HISTORY: WheelHistoryGroup[] = [
+  {
+    date: wheelDate(0),
+    items: [
+      { credit: '+10 บาท', time: '14:22' },
+      { credit: '+3 บาท', time: '09:05' },
+    ],
+  },
+  {
+    date: wheelDate(1),
+    items: [
+      { credit: '+100 บาท', time: '20:41' },
+      { credit: 'ไม่ได้รางวัล', time: '11:12' },
+    ],
+  },
 ];
 
 function hoursAgo(h: number) {
@@ -298,35 +429,35 @@ const MOCK_BANK_REF = {
 
 export const TRANSACTIONS: Transaction[] = [
   {
-    id: 't1', reference: 'DP26082401', type: 'deposit', status: 'success',
-    amount: 100_000, balanceAfter: 1_284_550, bankAccount: MOCK_BANK_REF,
-    createdAt: hoursAgo(3), completedAt: hoursAgo(3),
+    id: 't1', reference: 'DP26082401', type: 'deposit', direction: 'credit', status: 'success',
+    title: 'ฝากเงิน', amount: 100_000, signedAmount: 100_000, balanceAfter: 1_284_550,
+    bankAccount: MOCK_BANK_REF, createdAt: hoursAgo(3), completedAt: hoursAgo(3),
   },
   {
-    id: 't2', reference: 'WD26082302', type: 'withdraw', status: 'processing',
-    amount: 50_000, balanceAfter: 1_184_550, bankAccount: MOCK_BANK_REF,
-    createdAt: hoursAgo(9), completedAt: null,
+    id: 't2', reference: 'WD26082302', type: 'withdraw', direction: 'debit', status: 'processing',
+    title: 'ถอนเงิน', amount: 50_000, signedAmount: -50_000, balanceAfter: 1_184_550,
+    bankAccount: MOCK_BANK_REF, createdAt: hoursAgo(9), completedAt: null,
   },
   {
-    id: 't3', reference: 'BN26082201', type: 'bonus', status: 'success',
-    amount: 10_000, balanceAfter: 1_234_550, note: 'โบนัสฝากประจำวัน 10%',
-    createdAt: hoursAgo(26), completedAt: hoursAgo(26),
+    id: 't3', reference: 'BN26082201', type: 'bonus', direction: 'credit', status: 'success',
+    title: 'โบนัส', amount: 10_000, signedAmount: 10_000, balanceAfter: 1_234_550,
+    note: 'โบนัสฝากประจำวัน 10%', createdAt: hoursAgo(26), completedAt: hoursAgo(26),
   },
   {
-    id: 't4', reference: 'DP26082102', type: 'deposit', status: 'success',
-    amount: 300_000, balanceAfter: 1_224_550, bankAccount: MOCK_BANK_REF,
-    createdAt: hoursAgo(52), completedAt: hoursAgo(52),
+    id: 't4', reference: 'DP26082102', type: 'deposit', direction: 'credit', status: 'success',
+    title: 'ฝากเงิน', amount: 300_000, signedAmount: 300_000, balanceAfter: 1_224_550,
+    bankAccount: MOCK_BANK_REF, createdAt: hoursAgo(52), completedAt: hoursAgo(52),
   },
   {
-    id: 't5', reference: 'WD26082001', type: 'withdraw', status: 'failed',
-    amount: 200_000, balanceAfter: null, bankAccount: MOCK_BANK_REF,
-    note: 'ชื่อบัญชีไม่ตรงกับข้อมูลสมาชิก',
+    id: 't5', reference: 'WD26082001', type: 'withdraw', direction: 'debit', status: 'failed',
+    title: 'ถอนเงิน', amount: 200_000, signedAmount: -200_000, balanceAfter: null,
+    bankAccount: MOCK_BANK_REF, note: 'ชื่อบัญชีไม่ตรงกับข้อมูลสมาชิก',
     createdAt: hoursAgo(74), completedAt: hoursAgo(73),
   },
   {
-    id: 't6', reference: 'CB26081901', type: 'cashback', status: 'success',
-    amount: 32_800, balanceAfter: 924_550, note: 'คืนยอดเสียรายสัปดาห์ 5%',
-    createdAt: hoursAgo(96), completedAt: hoursAgo(96),
+    id: 't6', reference: 'CB26081901', type: 'cashback', direction: 'credit', status: 'success',
+    title: 'เงินคืน', amount: 32_800, signedAmount: 32_800, balanceAfter: 924_550,
+    note: 'คืนยอดเสียรายสัปดาห์ 5%', createdAt: hoursAgo(96), completedAt: hoursAgo(96),
   },
 ];
 
@@ -384,35 +515,3 @@ export function buildTickets(): MockTicket[] {
   ];
 }
 
-export function buildResults(): DrawResult[] {
-  return [
-    {
-      roundId: 'hanoi-special',
-      roundName: 'ฮานอย พิเศษ',
-      roundLabel: 'ประจำวันที่ 23/08/2569',
-      drawnAt: hoursAgo(18),
-      numbers: { '3top': '758', '2top': '58', '2bottom': '46' },
-    },
-    {
-      roundId: 'laos-hd',
-      roundName: 'ลาว HD',
-      roundLabel: 'ประจำวันที่ 22/08/2569',
-      drawnAt: hoursAgo(42),
-      numbers: { '3top': '204', '2top': '04', '2bottom': '77' },
-    },
-    {
-      roundId: 'gov-thai',
-      roundName: 'หวยรัฐบาลไทย',
-      roundLabel: 'งวดวันที่ 16/08/2569',
-      drawnAt: hoursAgo(190),
-      numbers: { '3top': '619', '2bottom': '84' },
-    },
-    {
-      roundId: 'nikkei-vip',
-      roundName: 'หุ้นนิเคอิ (เช้า)',
-      roundLabel: 'รอบเช้า 23/08/2569',
-      drawnAt: hoursAgo(24),
-      numbers: { '3top': '390', '2top': '90', '2bottom': '12' },
-    },
-  ];
-}

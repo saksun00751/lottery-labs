@@ -29,7 +29,7 @@ function Row({
     <div className={styles.row}>
       <span className={styles.rowLabel}>{label}</span>
       <span className={cn(styles.rowValue, mono && styles.mono)}>
-        {value ?? '—'}
+        {value || '—'}
       </span>
     </div>
   );
@@ -47,15 +47,16 @@ export function ProfileView() {
   const user = data as User | undefined;
   const accounts = (accountsData as BankAccount[] | undefined) ?? [];
 
+  // The real `member/profile` payload doesn't carry `created_at` at all
+  // (lotto-seed-app's own profile page never reads it either) — guard
+  // against the empty string so `formatDate` doesn't throw on `new Date('')`.
+  const memberSince = user?.createdAt && !Number.isNaN(Date.parse(user.createdAt))
+    ? t('memberSince', { date: formatDate(user.createdAt, locale) })
+    : undefined;
+
   return (
     <div className={styles.page}>
-      <PageHeader
-        icon={<UserIcon size={22} />}
-        title={t('title')}
-        subtitle={
-          user ? t('memberSince', { date: formatDate(user.createdAt, locale) }) : undefined
-        }
-      />
+      <PageHeader icon={<UserIcon size={22} />} title={t('title')} subtitle={memberSince} />
 
       <WalletSummary showActions={false} />
 

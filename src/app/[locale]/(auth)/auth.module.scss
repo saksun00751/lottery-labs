@@ -63,6 +63,15 @@
   box-shadow: var(--shadow-accent);
 }
 
+.brandLogo {
+  width: 62px;
+  height: 62px;
+  object-fit: contain;
+  border-radius: var(--radius-lg);
+  display: block;
+  box-shadow: var(--shadow-accent);
+}
+
 .brandName {
   font-size: var(--fs-xl);
   font-weight: var(--fw-bold);

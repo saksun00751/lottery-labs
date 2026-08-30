@@ -23,6 +23,15 @@
   min-width: 0;
 }
 
+/** A single stacked column, capped to a comfortable form width and centered — for pages
+    that read top-to-bottom as one flow (e.g. deposit) instead of a two-column dashboard. */
+.singleColumn {
+  display: block;
+  max-width: 900px;
+  margin-inline: auto;
+  width: 100%;
+}
+
 .card {
   @include card;
   padding: var(--sp-5);
@@ -165,6 +174,188 @@
   @include truncate;
   font-size: var(--fs-2xs);
   color: var(--text-3);
+}
+
+/* -------------------------------- promo row -------------------------------- */
+
+.promoScroll {
+  display: flex;
+  gap: var(--sp-3);
+  overflow-x: auto;
+  padding-bottom: var(--sp-1);
+  @include scrollbar;
+}
+
+.promoMini {
+  @include tappable;
+  @include transition(transform, box-shadow, border-color);
+  flex: 0 0 auto;
+  width: 132px;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  text-align: start;
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent-tint-strong);
+    box-shadow: var(--shadow-pop);
+  }
+}
+
+.promoMiniImage {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  display: grid;
+  place-items: center;
+  background: var(--accent-gradient-soft), var(--surface-3);
+  color: var(--accent);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.promoMiniBadge {
+  position: absolute;
+  top: var(--sp-2);
+  right: var(--sp-2);
+  padding: 1px var(--sp-2);
+  border-radius: var(--radius-pill);
+  background: var(--accent-gradient);
+  color: var(--text-on-accent);
+  font-size: 10px;
+  font-weight: var(--fw-bold);
+  box-shadow: var(--shadow-accent);
+}
+
+.promoMiniTitle {
+  @include truncate;
+  padding: var(--sp-2);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semibold);
+}
+
+/* ------------------------------ promo detail modal ------------------------- */
+
+.promoModalImage {
+  display: block;
+  width: 100%;
+  max-height: 220px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  margin-bottom: var(--sp-4);
+}
+
+.promoModalDesc {
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+  line-height: var(--lh-snug);
+  margin-bottom: var(--sp-4);
+}
+
+.promoModalMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
+}
+
+/* ------------------------------- payment QR -------------------------------- */
+
+.paymentQr {
+  display: block;
+  width: 200px;
+  height: 200px;
+  margin: var(--sp-2) auto;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: #fff;
+  object-fit: contain;
+  padding: var(--sp-2);
+}
+
+/* ------------------------------ channel tiles ----------------------------- */
+
+.channelGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--sp-3);
+}
+
+.channelTile {
+  @include tappable;
+  @include transition(border-color, background, transform, box-shadow);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  text-align: start;
+
+  &:hover {
+    border-color: var(--accent-tint-strong);
+    transform: translateY(-1px);
+  }
+}
+
+.channelTileActive {
+  border-color: transparent;
+  background: var(--accent-gradient);
+  color: var(--text-on-accent);
+  box-shadow: var(--shadow-accent);
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+}
+
+.channelIcon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  background: var(--surface-1);
+  color: var(--accent);
+}
+
+.channelTileActive .channelIcon {
+  background: color-mix(in srgb, var(--text-on-accent) 18%, transparent);
+  color: var(--text-on-accent);
+}
+
+.channelTileText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.channelTileTitle {
+  @include truncate;
+  display: block;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+}
+
+.channelTileDesc {
+  @include truncate;
+  display: block;
+  margin-top: 1px;
+  font-size: var(--fs-2xs);
+  color: var(--text-3);
+}
+
+.channelTileActive .channelTileDesc {
+  color: color-mix(in srgb, var(--text-on-accent) 80%, transparent);
 }
 
 /* ------------------------------ destination ------------------------------ */
@@ -379,6 +570,52 @@
 
 /* -------------------------------- history -------------------------------- */
 
+.searchForm {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+
+  > *:first-child,
+  > *:nth-child(2) {
+    flex: 1;
+    min-width: 160px;
+  }
+}
+
+.summaryBar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+
+  @include down('sm') {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.summaryCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.summaryCellLabel {
+  font-size: var(--fs-2xs);
+  color: var(--text-3);
+}
+
+.summaryCellValue {
+  @include numeric;
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
+}
+
 .txList {
   display: flex;
   flex-direction: column;
@@ -386,7 +623,8 @@
 
 .tx {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  justify-content: space-between;
   gap: var(--sp-3);
   padding: var(--sp-4) 0;
 
@@ -395,47 +633,30 @@
   }
 }
 
-.txIcon {
-  display: grid;
-  place-items: center;
-  width: 42px;
-  height: 42px;
-  flex-shrink: 0;
-  border-radius: var(--radius-md);
-  background: var(--surface-3);
-  color: var(--text-2);
-}
-
-.txDeposit {
-  background: var(--success-tint);
-  color: var(--success);
-}
-.txWithdraw {
-  background: var(--danger-tint);
-  color: var(--danger);
-}
-.txBonus {
-  background: var(--accent-tint);
-  color: var(--accent);
-}
-
 .txInfo {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .txTitle {
-  @include truncate;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
   font-size: var(--fs-sm);
   font-weight: var(--fw-medium);
 }
 
 .txMeta {
-  @include numeric;
   @include truncate;
-  margin-top: 2px;
   font-size: var(--fs-2xs);
   color: var(--text-3);
+}
+
+.txStatusRow {
+  margin-top: 2px;
 }
 
 .txAmounts {
@@ -444,4 +665,29 @@
   align-items: flex-end;
   gap: var(--sp-1);
   flex-shrink: 0;
+}
+
+.txBalance {
+  @include numeric;
+  font-size: var(--fs-2xs);
+  color: var(--text-3);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+  padding-top: var(--sp-4);
+  margin-top: var(--sp-2);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.paginationLabel {
+  @include numeric;
+  font-size: var(--fs-xs);
+  color: var(--text-2);
 }

@@ -35,9 +35,14 @@ export function PromotionCard({
   return (
     <article className={styles.card}>
       <div className={styles.banner}>
-        <span className={styles.bannerIcon} aria-hidden>
-          <Gift size={24} />
-        </span>
+        {promotion.imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={promotion.imageUrl} alt={promotion.title} className={styles.bannerImage} />
+        ) : (
+          <span className={styles.bannerIcon} aria-hidden>
+            <Gift size={24} />
+          </span>
+        )}
         {promotion.badge && <span className={styles.badge}>{promotion.badge}</span>}
       </div>
 
@@ -74,18 +79,20 @@ export function PromotionCard({
           </div>
         )}
 
-        <div className={styles.footer}>
-          <Button
-            block
-            variant={promotion.claimed ? 'secondary' : 'primary'}
-            disabled={promotion.claimed || !promotion.claimable}
-            loading={claim.isPending && claim.variables === promotion.id}
-            leftIcon={promotion.claimed ? <Check size={17} /> : <Gift size={17} />}
-            onClick={onClaim}
-          >
-            {promotion.claimed ? t('claimed') : t('claim')}
-          </Button>
-        </div>
+        {!promotion.hideClaimButton && (
+          <div className={styles.footer}>
+            <Button
+              block
+              variant={promotion.claimed ? 'secondary' : 'primary'}
+              disabled={promotion.claimed || !promotion.claimable}
+              loading={claim.isPending && claim.variables === promotion.id}
+              leftIcon={promotion.claimed ? <Check size={17} /> : <Gift size={17} />}
+              onClick={onClaim}
+            >
+              {promotion.claimed ? t('claimed') : t('claim')}
+            </Button>
+          </div>
+        )}
       </div>
     </article>
   );

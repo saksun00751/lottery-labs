@@ -20,22 +20,21 @@
 .channelGrid {
   display: grid;
   gap: var(--sp-3);
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
 }
 
 .channel {
   @include card;
-  @include transition(border-color, transform);
+  padding: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.channelHead {
   display: flex;
   align-items: center;
   gap: var(--sp-3);
-  padding: var(--sp-4);
-  min-height: var(--tap);
-
-  &:hover {
-    border-color: var(--accent-tint-strong);
-    transform: translateY(-2px);
-  }
 }
 
 .channelIcon {
@@ -49,83 +48,44 @@
   color: var(--accent);
 }
 
-.channelText {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.channelLabel {
-  font-size: var(--fs-2xs);
-  color: var(--text-3);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.channelValue {
+.channelTitle {
   @include truncate;
   font-size: var(--fs-sm);
   font-weight: var(--fw-semibold);
 }
 
-.card {
-  @include card;
-  padding: var(--sp-5);
+.channelId {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
 }
 
-.cardTitle {
-  margin-bottom: var(--sp-4);
-  font-size: var(--fs-md);
+.channelIdLabel {
+  font-size: var(--fs-2xs);
+  color: var(--text-3);
+}
+
+.channelIdValue {
+  @include truncate;
+  @include numeric;
+  font-size: var(--fs-sm);
   font-weight: var(--fw-semibold);
 }
 
-.faqList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-2);
-}
-
-.faq {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background: var(--surface-2);
-  overflow: hidden;
-
-  &[open] {
-    border-color: var(--accent-tint-strong);
-  }
-}
-
-.faqQuestion {
+.channelBtn {
   @include tappable;
   display: flex;
   align-items: center;
-  padding: var(--sp-4);
+  justify-content: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  border-radius: var(--radius-md);
   font-size: var(--fs-sm);
-  font-weight: var(--fw-medium);
-  list-style: none;
-
-  &::-webkit-details-marker {
-    display: none;
-  }
-
-  &::after {
-    content: '+';
-    margin-inline-start: auto;
-    font-size: var(--fs-lg);
-    color: var(--accent);
-    line-height: 1;
-  }
-}
-
-.faq[open] .faqQuestion::after {
-  content: '−';
-}
-
-.faqAnswer {
-  padding: 0 var(--sp-4) var(--sp-4);
-  font-size: var(--fs-sm);
-  color: var(--text-2);
-  line-height: var(--lh-base);
+  font-weight: var(--fw-semibold);
+  color: #fff;
+  text-align: center;
 }

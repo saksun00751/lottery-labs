@@ -1,6 +1,8 @@
 import {
   ArrowDownToLine,
   ArrowUpFromLine,
+  Disc3,
+  Gamepad2,
   Gift,
   Headphones,
   History,
@@ -44,6 +46,10 @@ export const navSections: NavSection[] = [
     ],
   },
   {
+    titleKey: 'sectionGames',
+    items: [{ href: '/games', labelKey: 'games', icon: Gamepad2 }],
+  },
+  {
     titleKey: 'sectionWallet',
     items: [
       { href: '/deposit', labelKey: 'deposit', icon: ArrowDownToLine },
@@ -53,6 +59,12 @@ export const navSections: NavSection[] = [
         labelKey: 'promotion',
         icon: Gift,
         enabled: publicEnv.features.promotion,
+      },
+      {
+        href: '/spin',
+        labelKey: 'spin',
+        icon: Disc3,
+        enabled: publicEnv.features.diamond,
       },
       { href: '/history', labelKey: 'history', icon: History },
     ],

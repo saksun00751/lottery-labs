@@ -1,0 +1,217 @@
+@use 'styles/abstracts' as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  max-width: 480px;
+  margin-inline: auto;
+  width: 100%;
+}
+
+.card {
+  @include card;
+  // The wheel's background art (pointer triangle + stand legs) deliberately
+  // overflows the canvas square below — see `.canvasBg` — so this card can't
+  // clip it the way every other card in the app does.
+  overflow: visible;
+  padding: var(--sp-5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-4);
+}
+
+.diamondChip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-end;
+  padding: 6px var(--sp-3);
+  border-radius: 999px;
+  background: var(--info-tint);
+  border: 1px solid var(--info);
+  color: var(--info);
+}
+
+.diamondValue {
+  @include numeric;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+}
+
+.diamondLabel {
+  font-size: var(--fs-2xs);
+  color: var(--text-3);
+}
+
+// The wheel is drawn by Winwheel at outerRadius:170 on a 400×400 canvas, i.e.
+// its circle is 85% of the canvas's own width — that fraction is what
+// `wheel_back.png`'s circle has to match, or the octagon segments spill past
+// the artwork's black backdrop. The background is a *taller-than-wide* image
+// (425×564 — circle + pointer triangle above it + stand legs below), so it's
+// given a fixed box taller than the canvas and let overflow top/bottom rather
+// than squeezed into a square, which would shrink its circle out of alignment.
+.canvasWrap {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  margin: 44px auto 40px;
+}
+
+.canvas {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+}
+
+.canvasBg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 150%; // mirrors lotto-seed-app's 600px-tall box on its 400px canvas (600/400)
+  transform: translate(-50%, -50%);
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.canvasSkeleton {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+.pointer {
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+}
+
+.backIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+
+  &:hover {
+    background: var(--surface-2);
+  }
+}
+
+.historyLink {
+  width: 100%;
+  text-align: center;
+  padding: var(--sp-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+
+  &:hover {
+    background: var(--surface-2);
+  }
+}
+
+/* -------------------------------- history -------------------------------- */
+
+.filterRow {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+
+.dateGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin: var(--sp-4) 0 var(--sp-2);
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+.dateChip {
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semibold);
+  color: var(--text-3);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px var(--sp-3);
+}
+
+.spinList {
+  display: flex;
+  flex-direction: column;
+}
+
+.spinRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-3) 0;
+
+  & + & {
+    border-top: 1px solid var(--border-subtle);
+  }
+}
+
+.spinRowIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: var(--info-tint);
+  color: var(--info);
+  flex-shrink: 0;
+}
+
+.spinRowInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-width: 0;
+}
+
+.spinRowCredit {
+  @include truncate;
+  font-size: var(--fs-sm);
+}
+
+.spinRowTime {
+  @include numeric;
+  font-size: var(--fs-2xs);
+  color: var(--text-3);
+  flex-shrink: 0;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+  padding-top: var(--sp-4);
+  margin-top: var(--sp-2);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.paginationLabel {
+  @include numeric;
+  font-size: var(--fs-xs);
+  color: var(--text-2);
+}

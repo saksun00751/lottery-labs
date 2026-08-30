@@ -1,10 +1,13 @@
 import type { MetadataRoute } from 'next';
 
-import { publicEnv } from '@/config/env.public';
+import { getSiteMeta } from '@/lib/site-meta';
 
-export default function manifest(): MetadataRoute.Manifest {
+export default async function manifest(): Promise<MetadataRoute.Manifest> {
+  const siteMeta = await getSiteMeta();
+  const siteName = siteMeta.name ?? siteMeta.site_name ?? 'Lottery Labs';
+
   return {
-    name: publicEnv.siteName,
+    name: siteName,
     short_name: 'LL',
     description: 'แทงหวยออนไลน์ — ปลอดภัย รวดเร็ว ทุกที่ทุกเวลา',
     start_url: '/',

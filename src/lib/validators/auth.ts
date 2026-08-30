@@ -92,9 +92,11 @@ export interface RegisterValues {
   referralCode?: string;
 }
 
+// The real `POST member/change-password` takes only `password` +
+// `password_confirmation` — verified against lotto-seed-app's working
+// `changePasswordAction`, which never asks for (or sends) a current password.
 export const changePasswordSchema = z
   .object({
-    currentPassword: z.string().min(1, 'required'),
     newPassword: z.string().min(6, 'passwordWeak'),
     confirmPassword: z.string().min(1, 'required'),
   })
@@ -104,7 +106,6 @@ export const changePasswordSchema = z
   });
 
 export interface ChangePasswordValues {
-  currentPassword: string;
   newPassword: string;
   confirmPassword: string;
 }

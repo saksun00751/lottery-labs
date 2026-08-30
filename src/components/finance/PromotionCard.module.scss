@@ -17,6 +17,12 @@
   padding: var(--sp-5);
   background: var(--accent-gradient-soft), var(--surface-2);
   border-bottom: 1px solid var(--border);
+  overflow: hidden;
+
+  &:has(.bannerImage) {
+    padding: 0;
+    aspect-ratio: 1600 / 576;
+  }
 }
 
 .bannerIcon {
@@ -29,6 +35,12 @@
   background: var(--accent-gradient);
   color: var(--text-on-accent);
   box-shadow: var(--shadow-accent);
+}
+
+.bannerImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .badge {
@@ -44,6 +56,13 @@
   font-size: var(--fs-lg);
   font-weight: var(--fw-bold);
   letter-spacing: -0.02em;
+
+  .banner:has(.bannerImage) & {
+    position: absolute;
+    top: var(--sp-3);
+    right: var(--sp-3);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.25);
+  }
 }
 
 .body {

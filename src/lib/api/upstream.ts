@@ -69,7 +69,9 @@ export async function callUpstream(
       method: init.method,
       headers: {
         Accept: 'application/json',
-        'Content-Type': 'application/json',
+        // Pusher private-channel authorisation posts URL-encoded form data.
+        // All ordinary browser requests remain JSON through the generic relay.
+        'Content-Type': init.contentType ?? 'application/json',
         'X-Language': language,
         ...(init.token ? { Authorization: `Bearer ${init.token}` } : {}),
         ...(serverEnv.apiKey ? { 'X-Api-Key': serverEnv.apiKey } : {}),

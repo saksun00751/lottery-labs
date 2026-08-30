@@ -29,6 +29,7 @@ export function LoginForm() {
   const searchParams = useSearchParams();
 
   const [formError, setFormError] = useState<string | null>(null);
+  const sessionExpired = searchParams.get('expired') === '1';
 
   const schema = useMemo(() => loginSchema(mode), [mode]);
   const {
@@ -61,10 +62,10 @@ export function LoginForm() {
 
   return (
     <form className={styles.form} onSubmit={onSubmit} noValidate>
-      {formError && (
+      {(formError || sessionExpired) && (
         <div className={styles.formError} role="alert">
           <AlertCircle size={17} aria-hidden />
-          {formError}
+          {formError || t('sessionExpired')}
         </div>
       )}
 

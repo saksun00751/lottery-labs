@@ -6,10 +6,10 @@ import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/Button';
 import { Money } from '@/components/ui/Money';
 import { Skeleton } from '@/components/ui/Feedback';
-import { publicEnv } from '@/config/env.public';
 import { Link, useRouter } from '@/i18n/navigation';
 import { authApi } from '@/lib/api/endpoints';
 import { useWallet } from '@/lib/api/queries';
+import { useSiteMeta } from '@/lib/site-meta-client';
 import { useUiStore } from '@/store/ui-store';
 import type { Wallet as WalletType } from '@/types';
 
@@ -22,6 +22,7 @@ export function Navbar() {
   const openDrawer = useUiStore((s) => s.openDrawer);
   const router = useRouter();
   const { data: wallet, isLoading } = useWallet();
+  const { name: siteName, logo } = useSiteMeta();
 
   const logout = async () => {
     await authApi.logout().catch(() => undefined);
@@ -40,11 +41,14 @@ export function Navbar() {
         <Menu size={22} />
       </button>
 
-      <Link href="/" className={styles.brand}>
-        <span className={styles.brandMark} aria-hidden>
-          LL
-        </span>
-        <span className={styles.brandText}>{publicEnv.siteName}</span>
+      <Link href="/" className={styles.brand} aria-label={siteName || 'Brand'}>
+        {logo ? (
+          <img src={logo} alt={siteName || 'Brand'} className={styles.brandLogo} />
+        ) : (
+          <span className={styles.brandMark} aria-hidden>
+            LL
+          </span>
+        )}
       </Link>
 
       <div className={styles.spacer} />

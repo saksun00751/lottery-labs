@@ -32,6 +32,8 @@ export interface User {
   referralCode: string;
   createdAt: string;
   bankAccounts: BankAccount[];
+  /** Title of the promotion currently claimed on this account, if any. */
+  activePromotionName: string | null;
 }
 
 export interface Wallet {
@@ -43,6 +45,29 @@ export interface Wallet {
   monthlyTurnover: Minor;
   currency: string;
   updatedAt: string;
+}
+
+/** Withdrawal eligibility for a promotion currently claimed on the account. */
+export interface WithdrawPromoInfo {
+  active: boolean;
+  name: string | null;
+  /** Balance the member must reach before a withdrawal is allowed. */
+  turnoverRequired: Minor;
+  /** Once turnover is cleared, a withdrawal is forced to exactly this amount. */
+  withdrawLimit: Minor;
+}
+
+/** Everything the withdraw page needs beyond the wallet balance itself. */
+export interface WithdrawInfo {
+  canWithdraw: boolean;
+  notice: string | null;
+  min: Minor;
+  max: Minor;
+  maxPerDay: Minor;
+  sumToday: Minor;
+  remainToday: Minor;
+  bankAccount: { bankCode: string; accountNumber: string; accountName: string } | null;
+  promo: WithdrawPromoInfo;
 }
 
 /* --------------------------------- Lottery ------------------------------ */
@@ -190,18 +215,46 @@ export interface TicketDetail extends Ticket {
   items: TicketItem[];
 }
 
-export interface DrawResult {
-  roundId: string;
-  roundName: string;
-  roundLabel: string;
-  drawnAt: string;
+/** One market's latest (or searched-date) draw, as shown on the results-check page. */
+export interface ResultMarket {
+  marketId: number;
+  /** Matches `Ticket.roundId` — lets the check-result modal find the member's own slips for this draw. */
+  drawId?: number;
+  marketName: string;
+  iconUrl?: string;
+  /** e.g. "23/08/2569". */
+  drawLabel: string;
+  hasResult: boolean;
   /** Keyed by bet type — e.g. `{ '3top': '482', '2bottom': '15' }`. */
   numbers: Partial<Record<BetTypeId, string>>;
 }
 
+/** A lottery group (หวยไทย/หวยต่างประเทศ/...) with its markets' latest results. */
+export interface ResultGroup {
+  groupCode: string;
+  groupName: string;
+  description?: string;
+  markets: ResultMarket[];
+}
+
 /* --------------------------------- Money -------------------------------- */
 
-export type TransactionType = 'deposit' | 'withdraw' | 'bonus' | 'cashback';
+// Mirrors lotto-seed-app's `wallet/transactions` tab set (`TAB_IDS` in
+// `TransactionsPageClient.tsx`) — 'all' is a UI-only filter value, not a real type.
+export type TransactionType =
+  | 'deposit'
+  | 'withdraw'
+  | 'lotto_bet'
+  | 'lotto_refund'
+  | 'referral'
+  | 'cashback'
+  | 'ic'
+  | 'bonus'
+  | 'game'
+  | 'admin_adjust'
+  | 'rollback'
+  | 'other';
+export type TransactionDirection = 'credit' | 'debit';
 export type TransactionStatus =
   | 'pending'
   | 'processing'
@@ -213,8 +266,13 @@ export interface Transaction {
   id: string;
   reference: string;
   type: TransactionType;
+  direction: TransactionDirection;
   status: TransactionStatus;
+  title: string;
+  detail?: string;
   amount: Minor;
+  /** Signed by direction — negative for a debit. Matches lotto-seed-app's `TxRow.signedAmount`. */
+  signedAmount: Minor;
   balanceAfter: Minor | null;
   bankAccount?: Pick<BankAccount, 'bankCode' | 'bankName' | 'accountNumber'>;
   note?: string;
@@ -222,15 +280,43 @@ export interface Transaction {
   completedAt: string | null;
 }
 
+export interface TransactionSummary {
+  count: number;
+  totalCredit: Minor;
+  totalDebit: Minor;
+  netAmount: Minor;
+}
+
+export interface TransactionHistoryPage {
+  items: Transaction[];
+  summary: TransactionSummary;
+  page: number;
+  pageSize: number;
+  total: number;
+  hasMore: boolean;
+}
+
+/** A destination account for the bank / TrueMoney / slip-upload deposit methods. */
 export interface DepositChannel {
   id: string;
-  type: 'bank_transfer' | 'qr_promptpay' | 'truemoney';
   bankName: string;
+  bankLogoUrl?: string;
   accountNumber: string;
   accountName: string;
-  qrPayload?: string;
+  /** Static scan-to-pay QR for this account, when the backend has one on file. */
+  qrImageUrl?: string;
   minAmount: Minor;
-  maxAmount: Minor;
+  remark?: string;
+}
+
+export type DepositMethod = 'bank' | 'payment' | 'tw' | 'slip';
+
+/** An online payment gateway offered under the "payment" deposit method. */
+export interface DepositPaymentProvider {
+  id: string;
+  name: string;
+  minAmount: Minor;
+  remark?: string;
 }
 
 /* ------------------------------- Promotion ------------------------------ */
@@ -249,27 +335,109 @@ export interface Promotion {
   endsAt: string | null;
   claimed: boolean;
   claimable: boolean;
+  /** Backend-designated promo type (cashback/IC/fast-start/spin/coupon) whose claim button lotto-seed-app hides — these are informational-only entries. */
+  hideClaimButton: boolean;
   terms: string[];
 }
 
 /* ------------------------------- Referral ------------------------------- */
 
+/** The active commission rule, as returned by `GET member/contributor`. */
+export interface ReferralRule {
+  bonusPercent: number;
+  bonusPrice: Minor;
+  displayValue: string | null;
+}
+
 export interface ReferralSummary {
   code: string;
-  link: string;
-  totalFriends: number;
-  activeFriends: number;
-  totalCommission: Minor;
-  pendingCommission: Minor;
-  commissionPercent: number;
+  referredCount: number;
+  totalEarned: Minor;
+  promotionBonusIncome: Minor;
+  promotionBonusCount: number;
+  /** Backend-supplied blurb describing the current commission terms. */
+  moreMessage: string;
+  rule: ReferralRule | null;
 }
 
 export interface ReferralFriend {
   id: string;
-  maskedName: string;
+  /** `null` when the backend has no display name on file — fall back to a masked phone. */
+  name: string | null;
+  phone: string;
   joinedAt: string;
-  turnover: Minor;
-  commission: Minor;
+  earned: Minor;
+}
+
+/* -------------------------------- Contact -------------------------------- */
+
+/** `type` drives the icon/color/label chosen client-side (`line`, `telegram`, or anything else). */
+export interface ContactChannel {
+  code: number;
+  type: string;
+  label: string;
+  link: string;
+  sort: number;
+}
+
+/* ---------------------------------- Games --------------------------------- */
+
+/** A game provider (ค่ายเกม) within one category, e.g. "PG Soft" under SLOT. */
+export interface GameProvider {
+  id: string;
+  name: string;
+  imageUrl: string;
+  /** Raw backend type id, lowercase (e.g. `card`, `poker`, `keno`) — distinct from the merged `GameCategory.type`. */
+  gameType: string;
+}
+
+/**
+ * One category section on the games hub — mirrors lotto-seed-app's `GameGroup`.
+ * `card`/`poker`/`keno` are merged into a single `CARDGROUP` here, same as the reference.
+ */
+export interface GameCategory {
+  type: string;
+  providers: GameProvider[];
+}
+
+/** A single playable game offered by one provider. */
+export interface GameItem {
+  id: string;
+  provider: string;
+  name: string;
+  imageUrl?: string;
+  active: boolean;
+}
+
+/* ------------------------------- Lucky wheel ----------------------------- */
+
+/** One slice of the lucky wheel — mirrors lotto-seed-app's `WheelSegment`. */
+export interface WheelSegment {
+  code: number;
+  prize: number;
+  label: string;
+  imageUrl: string;
+  fillStyle: string;
+  name: string;
+  types: string;
+}
+
+export interface WheelSpinResult {
+  point?: number;
+  diamond?: number;
+  title?: string;
+  msg?: string;
+  imageUrl?: string;
+}
+
+export interface WheelHistoryItem {
+  credit: string;
+  time: string;
+}
+
+export interface WheelHistoryGroup {
+  date: string;
+  items: WheelHistoryItem[];
 }
 
 /* --------------------------------- API ---------------------------------- */

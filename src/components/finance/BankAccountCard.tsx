@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/Badge';
 import { formatAccountNumber } from '@/lib/utils/bank';
 import { cn } from '@/lib/utils/cn';
 import { formatNumber } from '@/lib/utils/intl';
+import { formatMoney } from '@/lib/utils/money';
 import { pushToast } from '@/lib/toast';
 
 import styles from './BankAccountCard.module.scss';
@@ -65,6 +66,93 @@ export function BankAccountCard({
           </button>
         )}
       </div>
+    </div>
+  );
+}
+
+/* ------------------------ deposit destination card ------------------------ */
+
+export interface DepositAccountCardProps {
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
+  color?: string;
+  /** Photo of the bank's own logo, when the backend has one on file — falls back to initials. */
+  bankLogoUrl?: string;
+  /** Static scan-to-pay QR for this account. */
+  qrImageUrl?: string;
+  /** Minor units — shown as a "min deposit" hint when set. */
+  minAmount?: number;
+  remark?: string;
+}
+
+export function DepositAccountCard({
+  bankName,
+  accountNumber,
+  accountName,
+  color = 'var(--accent)',
+  bankLogoUrl,
+  qrImageUrl,
+  minAmount,
+  remark,
+}: DepositAccountCardProps) {
+  const t = useTranslations('common');
+  const tDeposit = useTranslations('deposit');
+  const locale = useLocale();
+  const [copied, setCopied] = useState(false);
+
+  const onCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(accountNumber);
+      setCopied(true);
+      pushToast({ tone: 'success', title: t('copied') });
+      setTimeout(() => setCopied(false), 2_000);
+    } catch {
+      pushToast({ tone: 'danger', title: t('error') });
+    }
+  };
+
+  const initials = bankName.replace(/^ธนาคาร/, '').slice(0, 3);
+
+  return (
+    <div className={styles.depositCard}>
+      <div className={styles.depositHead}>
+        <span className={styles.logo} style={{ background: bankLogoUrl ? 'transparent' : color }} aria-hidden>
+          {bankLogoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={bankLogoUrl} alt="" className={styles.logoImg} />
+          ) : (
+            initials
+          )}
+        </span>
+        <div className={styles.depositInfo}>
+          <div className={styles.bankName}>{bankName}</div>
+          <div className={styles.holder}>{accountName}</div>
+        </div>
+        {!!minAmount && (
+          <span className={styles.depositMin}>
+            {tDeposit('minShort', { amount: formatMoney(minAmount, { locale }) })}
+          </span>
+        )}
+      </div>
+
+      <div className={styles.depositNumberBox}>
+        <div>
+          <div className={styles.depositNumberLabel}>{tDeposit('accountNoLabel')}</div>
+          <div className={styles.depositNumber}>{formatAccountNumber(accountNumber)}</div>
+        </div>
+        <button type="button" className={styles.depositCopy} onClick={onCopy}>
+          {copied ? <Check size={14} /> : <Copy size={14} />}
+          {copied ? t('copied') : t('copy')}
+        </button>
+      </div>
+
+      {qrImageUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={qrImageUrl} alt={tDeposit('scanQr')} className={styles.depositQr} />
+      )}
+
+      {remark && <p className={styles.depositRemark}>{remark}</p>}
     </div>
   );
 }

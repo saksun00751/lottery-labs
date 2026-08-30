@@ -6,6 +6,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import { ApiError } from '@/lib/api/client';
+import { RealtimeProvider } from '@/components/providers/RealtimeProvider';
 import { useThemeStore } from '@/store/theme-store';
 
 function makeQueryClient() {
@@ -37,7 +38,7 @@ export function Providers({ children }: { children: ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      <RealtimeProvider>{children}</RealtimeProvider>
       {/* No `limit` here — src/lib/toast.tsx owns capping via FIFO dismissal
           so a 4th toast closes the oldest immediately instead of queueing. */}
       <ToastContainer

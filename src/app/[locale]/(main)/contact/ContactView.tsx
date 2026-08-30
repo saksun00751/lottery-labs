@@ -12,91 +12,76 @@ import { useTranslations } from 'next-intl';
 import type { LucideIcon } from 'lucide-react';
 
 import { PageHeader } from '@/components/layout/PageHeader';
-import { publicEnv } from '@/config/env.public';
+import { EmptyState, Skeleton } from '@/components/ui/Feedback';
+import { useContactChannels } from '@/lib/api/queries';
+import type { ContactChannel } from '@/types';
 
 import styles from './contact.module.scss';
 
-interface Channel {
-  icon: LucideIcon;
-  labelKey: string;
-  value: string;
-  href?: string;
-  accent?: string;
+/** Icon + accent + CTA copy per channel `type` — mirrors lotto-seed-app's `getChannelMeta`. */
+function channelMeta(
+  type: string,
+  t: ReturnType<typeof useTranslations<'contact'>>,
+): { icon: LucideIcon; accent: string; btnLabel: string } {
+  switch (type) {
+    case 'line':
+      return { icon: MessageCircle, accent: '#06c755', btnLabel: t('lineBtn') };
+    case 'telegram':
+      return { icon: Send, accent: '#229ed9', btnLabel: t('telegramBtn') };
+    case 'phone':
+      return { icon: Phone, accent: 'var(--accent)', btnLabel: t('defaultBtn') };
+    case 'email':
+      return { icon: Mail, accent: 'var(--accent)', btnLabel: t('defaultBtn') };
+    default:
+      return { icon: Headphones, accent: 'var(--accent)', btnLabel: t('defaultBtn') };
+  }
 }
 
-function ChannelCard({ channel, label }: { channel: Channel; label: string }) {
-  const Icon = channel.icon;
+const KNOWN_TYPE_KEYS = new Set(['line', 'telegram', 'phone', 'email']);
 
-  const content = (
-    <>
-      <span
-        className={styles.channelIcon}
-        style={channel.accent ? { background: channel.accent, color: '#fff' } : undefined}
-        aria-hidden
-      >
-        <Icon size={22} />
-      </span>
-      <span className={styles.channelText}>
-        <span className={styles.channelLabel}>{label}</span>
-        <span className={styles.channelValue}>{channel.value}</span>
-      </span>
-    </>
-  );
+function ChannelCard({
+  channel,
+  title,
+  t,
+}: {
+  channel: ContactChannel;
+  title: string;
+  t: ReturnType<typeof useTranslations<'contact'>>;
+}) {
+  const { icon: Icon, accent, btnLabel } = channelMeta(channel.type, t);
 
-  if (channel.href) {
-    return (
+  return (
+    <div className={styles.channel}>
+      <div className={styles.channelHead}>
+        <span className={styles.channelIcon} style={{ background: accent, color: '#fff' }} aria-hidden>
+          <Icon size={22} />
+        </span>
+        <span className={styles.channelTitle}>{title}</span>
+      </div>
+
+      <div className={styles.channelId}>
+        <span className={styles.channelIdLabel}>ID</span>
+        <span className={styles.channelIdValue}>{channel.label}</span>
+      </div>
+
       <a
-        className={styles.channel}
-        href={channel.href}
+        className={styles.channelBtn}
+        style={{ background: accent }}
+        href={channel.link}
         target="_blank"
         rel="noopener noreferrer"
       >
-        {content}
+        {btnLabel}
       </a>
-    );
-  }
-  return <div className={styles.channel}>{content}</div>;
+    </div>
+  );
 }
 
 export function ContactView() {
   const t = useTranslations('contact');
 
-  const channels: Channel[] = [
-    {
-      icon: MessageCircle,
-      labelKey: 'line',
-      value: publicEnv.contact.line,
-      href: publicEnv.contact.line
-        ? `https://line.me/R/ti/p/${encodeURIComponent(publicEnv.contact.line)}`
-        : undefined,
-      accent: '#06c755',
-    },
-    {
-      icon: Send,
-      labelKey: 'telegram',
-      value: publicEnv.contact.telegram,
-      href: publicEnv.contact.telegram || undefined,
-      accent: '#229ed9',
-    },
-    {
-      icon: Phone,
-      labelKey: 'phone',
-      value: publicEnv.contact.phone,
-      href: publicEnv.contact.phone ? `tel:${publicEnv.contact.phone}` : undefined,
-    },
-    {
-      icon: Mail,
-      labelKey: 'email',
-      value: publicEnv.contact.email,
-      href: publicEnv.contact.email ? `mailto:${publicEnv.contact.email}` : undefined,
-    },
-  ].filter((channel) => channel.value);
-
-  const faqs = [
-    { q: t('faqDepositQ'), a: t('faqDepositA') },
-    { q: t('faqWithdrawQ'), a: t('faqWithdrawA') },
-    { q: t('faqBankQ'), a: t('faqBankA') },
-  ];
+  const { data, isLoading, isError } = useContactChannels();
+  const channels = data ?? [];
 
   return (
     <div className={styles.page}>
@@ -113,27 +98,26 @@ export function ContactView() {
         </span>
       </div>
 
-      <div className={styles.channelGrid}>
-        {channels.map((channel) => (
-          <ChannelCard
-            key={channel.labelKey}
-            channel={channel}
-            label={t(channel.labelKey)}
-          />
-        ))}
-      </div>
-
-      <div className={styles.card}>
-        <h2 className={styles.cardTitle}>{t('faq')}</h2>
-        <div className={styles.faqList}>
-          {faqs.map((faq) => (
-            <details key={faq.q} className={styles.faq}>
-              <summary className={styles.faqQuestion}>{faq.q}</summary>
-              <p className={styles.faqAnswer}>{faq.a}</p>
-            </details>
+      {isLoading ? (
+        <div className={styles.channelGrid}>
+          {[0, 1].map((i) => (
+            <Skeleton key={i} height={150} radius={16} />
           ))}
         </div>
-      </div>
+      ) : isError || channels.length === 0 ? (
+        <EmptyState title={t('noChannels')} />
+      ) : (
+        <div className={styles.channelGrid}>
+          {channels.map((channel) => (
+            <ChannelCard
+              key={channel.code}
+              channel={channel}
+              title={KNOWN_TYPE_KEYS.has(channel.type) ? t(channel.type) : channel.type}
+              t={t}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

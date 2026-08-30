@@ -1,0 +1,473 @@
+@use 'styles/abstracts' as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+/* The games hub follows the betting screen: an information band, a compact
+   tab rail, then clearly bounded working panels. */
+
+.betBanner {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: 76px;
+  padding: var(--sp-3) var(--sp-4);
+  overflow: hidden;
+  color: var(--text-on-accent);
+  background: var(--accent-gradient);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-accent);
+}
+
+.bannerIcon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  border: 1px solid rgb(255 255 255 / 30%);
+  border-radius: var(--radius-md);
+  background: rgb(255 255 255 / 14%);
+}
+
+.bannerCopy {
+  min-width: 0;
+
+  h1 {
+    font-size: var(--fs-lg);
+    font-weight: var(--fw-bold);
+    line-height: var(--lh-tight);
+  }
+
+  p {
+    margin-top: 2px;
+    color: rgb(255 255 255 / 78%);
+    font-size: var(--fs-xs);
+    line-height: var(--lh-snug);
+  }
+}
+
+.bannerCount {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-inline-start: auto;
+  padding: 6px 9px;
+  border-radius: var(--radius-pill);
+  background: rgb(255 255 255 / 15%);
+  color: rgb(255 255 255 / 92%);
+  font: var(--fw-semibold) var(--fs-xs) var(--numeric);
+}
+
+.categoryTabs {
+  @include scrollbar;
+  display: flex;
+  gap: var(--sp-1);
+  padding: var(--sp-1);
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-1);
+  box-shadow: var(--shadow-card);
+}
+
+.categoryTab {
+  @include tappable;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 38px;
+  flex: 1 0 max-content;
+  padding: 0 var(--sp-3);
+  border-radius: calc(var(--radius-md) - 4px);
+  color: var(--text-2);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+  transition: background var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+
+  &:hover,
+  &:focus-visible {
+    background: var(--accent-tint);
+    color: var(--accent);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+/* -------------------------------- category section (hub) ------------------ */
+
+.section {
+  @include card;
+  overflow: hidden;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--accent-gradient);
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  color: #fff;
+}
+
+.sectionViewAll {
+  @include tappable;
+  flex-shrink: 0;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  padding: 5px 8px;
+  border-radius: var(--radius-pill);
+  background: rgb(255 255 255 / 12%);
+  color: rgb(255 255 255 / 88%);
+
+  &:hover {
+    color: #fff;
+  }
+}
+
+.slider {
+  @include scrollbar;
+  display: flex;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+}
+
+/* -------------------------------- tiles ------------------------------------ */
+
+.tile {
+  @include tappable;
+  flex-shrink: 0;
+  width: 96px;
+
+  @include up('sm') {
+    width: 140px;
+  }
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  text-align: center;
+  scroll-snap-align: start;
+  // Reset when rendered as a <button> (provider-games grid) instead of a link.
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}
+
+.spin {
+  animation: games-spin 0.8s linear infinite;
+}
+
+@keyframes games-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.tileImage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 3 / 5;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  box-shadow: 0 6px 16px rgb(0 0 0 / 10%);
+  font-size: var(--fs-2xl, 28px);
+  font-weight: var(--fw-bold);
+  color: var(--text-3);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.25s ease;
+  }
+
+  .tile:hover & img {
+    transform: scale(1.08);
+  }
+}
+
+.tileName {
+  @include truncate(2);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-snug);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .section {
+    animation: section-enter 360ms var(--ease-out) both;
+  }
+
+  .section:nth-child(2) { animation-delay: 45ms; }
+  .section:nth-child(3) { animation-delay: 90ms; }
+  .section:nth-child(4) { animation-delay: 135ms; }
+}
+
+@keyframes section-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* -------------------------------- grid (category / provider pages) --------- */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+
+  @include up('sm') {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  @include up('md') {
+    grid-template-columns: repeat(5, 1fr);
+  }
+  @include up('lg') {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  // `.tile`'s fixed width is for the horizontal slider on the hub page —
+  // inside this grid it must stretch to fill its cell instead, or tiles sit
+  // left-aligned in whatever extra space the column leaves.
+  .tile {
+    width: 100%;
+  }
+}
+
+.groupList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  padding: var(--sp-3);
+}
+
+.groupSection {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.groupHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  background: var(--surface-2);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+}
+
+.groupCount {
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-regular);
+  color: var(--text-3);
+}
+
+/* -------------------------------- category page (type) ---------------------
+   Header + grid live inside one card, mirroring lotto-seed-app's
+   `games/[type]` page exactly (single bordered card, not two). */
+
+.typeCard {
+  @include card;
+  overflow: hidden;
+}
+
+.typeHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: 1px solid var(--border);
+}
+
+.typeTitle {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-snug);
+}
+
+.typeCount {
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+}
+
+.backIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+
+  &:hover {
+    background: var(--surface-3, var(--surface-2));
+  }
+}
+
+.playOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(0 0 0 / 45%);
+  border-radius: var(--radius-md);
+}
+
+/* -------------------------------- provider-games page ----------------------
+   Header + grid live inside one card, mirroring lotto-seed-app's
+   `games/[type]/[id]` page exactly (single bordered card, not two). */
+
+.providerCard {
+  @include card;
+  overflow: hidden;
+}
+
+.providerHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: 1px solid var(--border);
+}
+
+.providerType {
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-medium);
+  color: var(--text-3);
+}
+
+.providerTitle {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-snug);
+}
+
+.providerCount {
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+}
+
+.gameGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+
+  @include up('sm') {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  @include up('md') {
+    grid-template-columns: repeat(5, 1fr);
+  }
+  @include up('lg') {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+.gameTile {
+  @include tappable;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  text-align: center;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}
+
+.gameTileImage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  font-size: 32px;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.25s ease;
+  }
+
+  .gameTile:hover & img {
+    transform: scale(1.05);
+  }
+}
+
+.gameName {
+  @include truncate(2);
+  width: 100%;
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-snug);
+}
+
+.gameEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 64px 0;
+  color: var(--text-3);
+}
+
+.gameEmptyEmoji {
+  font-size: 48px;
+}

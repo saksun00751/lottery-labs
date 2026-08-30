@@ -12,7 +12,7 @@ import type { Ticket, TicketStatus } from '@/types';
 import { TicketDetailModal } from './TicketDetailModal';
 import styles from './TicketCard.module.scss';
 
-const STATUS_TONE: Record<TicketStatus, BadgeTone> = {
+export const STATUS_TONE: Record<TicketStatus, BadgeTone> = {
   pending: 'warning',
   won: 'success',
   lost: 'neutral',
