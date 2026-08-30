@@ -17,6 +17,7 @@ import {
 import type { LucideIcon } from 'lucide-react';
 
 import { publicEnv } from './env.public';
+import { gamesEnabled, lotteryEnabled } from './site-mode';
 
 export interface NavItem {
   href: string;
@@ -40,14 +41,14 @@ export const navSections: NavSection[] = [
   {
     titleKey: 'sectionPlay',
     items: [
-      { href: '/lottery', labelKey: 'lottery', icon: Ticket },
-      { href: '/slip', labelKey: 'slip', icon: ScrollText },
-      { href: '/results', labelKey: 'results', icon: Trophy },
+      { href: '/lottery', labelKey: 'lottery', icon: Ticket, enabled: lotteryEnabled },
+      { href: '/slip', labelKey: 'slip', icon: ScrollText, enabled: lotteryEnabled },
+      { href: '/results', labelKey: 'results', icon: Trophy, enabled: lotteryEnabled },
     ],
   },
   {
     titleKey: 'sectionGames',
-    items: [{ href: '/games', labelKey: 'games', icon: Gamepad2 }],
+    items: [{ href: '/games', labelKey: 'games', icon: Gamepad2, enabled: gamesEnabled }],
   },
   {
     titleKey: 'sectionWallet',
@@ -94,10 +95,18 @@ export const visibleNavSections = navSections
   .filter((section) => section.items.length > 0);
 
 /** The four destinations that fit comfortably in the mobile tab bar. */
-export const bottomNavItems: NavItem[] = [
-  { href: '/', labelKey: 'home', icon: Home },
-  { href: '/lottery', labelKey: 'lottery', icon: Ticket },
-  { href: '/deposit', labelKey: 'deposit', icon: ArrowDownToLine },
-  { href: '/slip', labelKey: 'slip', icon: ScrollText },
-  { href: '/profile', labelKey: 'profile', icon: User },
-];
+export const bottomNavItems: NavItem[] = gamesEnabled && !lotteryEnabled
+  ? [
+      { href: '/', labelKey: 'home', icon: Home },
+      { href: '/games', labelKey: 'games', icon: Gamepad2 },
+      { href: '/deposit', labelKey: 'deposit', icon: ArrowDownToLine },
+      { href: '/history', labelKey: 'history', icon: History },
+      { href: '/profile', labelKey: 'profile', icon: User },
+    ]
+  : [
+      { href: '/', labelKey: 'home', icon: Home },
+      { href: '/lottery', labelKey: 'lottery', icon: Ticket },
+      { href: '/deposit', labelKey: 'deposit', icon: ArrowDownToLine },
+      { href: '/slip', labelKey: 'slip', icon: ScrollText },
+      { href: '/profile', labelKey: 'profile', icon: User },
+    ];
