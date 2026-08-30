@@ -16,6 +16,7 @@ const booleanish = z
 const schema = z.object({
   useMock: booleanish,
   loginMode: z.enum(['username', 'phone']).default('username'),
+  siteMode: z.enum(['lottery', 'games', 'both']).default('both'),
   locales: z
     .string()
     .default('th,en,my,lo,km')
@@ -40,6 +41,7 @@ const schema = z.object({
 const parsed = schema.safeParse({
   useMock: process.env.NEXT_PUBLIC_USE_MOCK,
   loginMode: process.env.NEXT_PUBLIC_LOGIN_MODE,
+  siteMode: process.env.NEXT_PUBLIC_SITE_MODE,
   locales: process.env.NEXT_PUBLIC_LOCALES,
   defaultLocale: process.env.NEXT_PUBLIC_DEFAULT_LOCALE,
   defaultTheme: process.env.NEXT_PUBLIC_DEFAULT_THEME,
