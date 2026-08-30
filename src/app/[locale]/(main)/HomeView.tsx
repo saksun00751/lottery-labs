@@ -3,6 +3,7 @@
 import {
   ArrowDownToLine,
   ArrowUpFromLine,
+  Gamepad2,
   Gift,
   History,
   ScrollText,
@@ -11,14 +12,18 @@ import {
   Users,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
 
-import { LotteryGroups } from '@/components/home/LotteryGroups';
-import { TodayLottery } from '@/components/home/TodayLottery';
 import { WalletSummary } from '@/components/home/WalletSummary';
 import { publicEnv } from '@/config/env.public';
+import { gamesEnabled, lotteryEnabled } from '@/config/site-mode';
 import { Link } from '@/i18n/navigation';
+import { cn } from '@/lib/utils/cn';
 
+import { GamesHomeSection } from './GamesHomeSection';
+import { LotteryHomeSection } from './LotteryHomeSection';
+import { SectionHead } from './SectionHead';
 import styles from './home.module.scss';
 
 interface QuickAction {
@@ -31,9 +36,10 @@ interface QuickAction {
 const QUICK_ACTIONS: QuickAction[] = [
   { href: '/deposit', labelKey: 'deposit', icon: ArrowDownToLine },
   { href: '/withdraw', labelKey: 'withdraw', icon: ArrowUpFromLine },
-  { href: '/lottery', labelKey: 'lottery', icon: Ticket },
-  { href: '/slip', labelKey: 'slip', icon: ScrollText },
-  { href: '/results', labelKey: 'results', icon: Trophy },
+  { href: '/lottery', labelKey: 'lottery', icon: Ticket, enabled: lotteryEnabled },
+  { href: '/slip', labelKey: 'slip', icon: ScrollText, enabled: lotteryEnabled },
+  { href: '/results', labelKey: 'results', icon: Trophy, enabled: lotteryEnabled },
+  { href: '/games', labelKey: 'games', icon: Gamepad2, enabled: gamesEnabled },
   { href: '/history', labelKey: 'history', icon: History },
   {
     href: '/promotion',
@@ -49,12 +55,15 @@ const QUICK_ACTIONS: QuickAction[] = [
   },
 ];
 
+type HomeTab = 'lottery' | 'games';
+
 export function HomeView() {
   const t = useTranslations('home');
   const tNav = useTranslations('nav');
-  const tCommon = useTranslations('common');
+  const [tab, setTab] = useState<HomeTab>('lottery');
 
   const actions = QUICK_ACTIONS.filter((action) => action.enabled !== false);
+  const showTabs = lotteryEnabled && gamesEnabled;
 
   return (
     <div className={styles.page}>
@@ -77,15 +86,35 @@ export function HomeView() {
         </div>
       </section>
 
-      <section className={styles.section}>
-        <SectionHead icon={Ticket} title={t('lotteryGroups')} href="/lottery" seeAllLabel={tCommon('seeAll')} />
-        <LotteryGroups />
-      </section>
-
-      <section className={styles.section}>
-        <SectionHead icon={Trophy} title={t('todayLottery')} />
-        <TodayLottery />
-      </section>
+      {showTabs ? (
+        <>
+          <div className={styles.homeTabs} role="tablist">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={tab === 'lottery'}
+              className={cn(styles.homeTab, tab === 'lottery' && styles.homeTabActive)}
+              onClick={() => setTab('lottery')}
+            >
+              {tNav('lottery')}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={tab === 'games'}
+              className={cn(styles.homeTab, tab === 'games' && styles.homeTabActive)}
+              onClick={() => setTab('games')}
+            >
+              {tNav('games')}
+            </button>
+          </div>
+          {tab === 'lottery' ? <LotteryHomeSection /> : <GamesHomeSection />}
+        </>
+      ) : lotteryEnabled ? (
+        <LotteryHomeSection />
+      ) : (
+        <GamesHomeSection />
+      )}
     </div>
   );
 }
