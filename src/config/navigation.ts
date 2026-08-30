@@ -9,7 +9,6 @@ import {
   History,
   Home,
   KeyRound,
-  Layers,
   ScrollText,
   Ticket,
   Trophy,
@@ -44,12 +43,6 @@ export const navSections: NavSection[] = [
     titleKey: 'sectionPlay',
     items: [
       { href: '/lottery', labelKey: 'lottery', icon: Ticket, enabled: lotteryEnabled },
-      {
-        href: '/lottery/groups',
-        labelKey: 'lotteryGroups',
-        icon: Layers,
-        enabled: lotteryEnabled,
-      },
       {
         href: '/lottery/today',
         labelKey: 'todayLottery',
