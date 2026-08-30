@@ -45,13 +45,13 @@ export const navSections: NavSection[] = [
     items: [
       { href: '/lottery', labelKey: 'lottery', icon: Ticket, enabled: lotteryEnabled },
       {
-        href: '/#lottery-groups',
+        href: '/lottery/groups',
         labelKey: 'lotteryGroups',
         icon: Layers,
         enabled: lotteryEnabled,
       },
       {
-        href: '/#today-lottery',
+        href: '/lottery/today',
         labelKey: 'todayLottery',
         icon: CalendarDays,
         enabled: lotteryEnabled,
