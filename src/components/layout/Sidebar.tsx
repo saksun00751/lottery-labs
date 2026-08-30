@@ -28,8 +28,16 @@ export function Sidebar() {
     else delete document.body.dataset.scrollLocked;
   }, [drawerOpen]);
 
-  const isActive = (href: string) =>
-    href === '/' ? pathname === '/' : pathname.startsWith(href);
+  // Only the most specific matching link should light up — otherwise a
+  // sub-page like /lottery/today also activates its parent /lottery link.
+  const activeHref = visibleNavSections
+    .flatMap((section) => section.items.map((item) => item.href))
+    .filter((href) =>
+      href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`),
+    )
+    .sort((a, b) => b.length - a.length)[0];
+
+  const isActive = (href: string) => href === activeHref;
 
   return (
     <>
