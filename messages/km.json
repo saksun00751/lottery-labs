@@ -537,7 +537,8 @@
     "loadError": "មិនអាចទាញយកប្រវត្តិការបង្វិលបានទេ",
     "pagePrev": "មុន",
     "pageNext": "បន្ទាប់",
-    "pageOf": "ទំព័រ {cur} នៃ {total}"
+    "pageOf": "ទំព័រ {cur} នៃ {total}",
+    "bonusNotice": "ទទួលរង្វាន់ក្រេឌីតនៅម៉ឺនុយ Bonus"
   },
   "games": {
     "title": "ហ្គេម",

@@ -537,7 +537,8 @@
     "loadError": "ဘီးလှည့်မှတ်တမ်း ဖတ်ရှုမရပါ",
     "pagePrev": "ယခင်",
     "pageNext": "နောက်",
-    "pageOf": "စာမျက်နှာ {cur} / {total}"
+    "pageOf": "စာမျက်နှာ {cur} / {total}",
+    "bonusNotice": "Bonus မီနူးတွင် ခရက်ဒစ်ဆုများ ရယူနိုင်ပါသည်"
   },
   "games": {
     "title": "ဂိမ်းများ",

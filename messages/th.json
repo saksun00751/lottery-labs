@@ -537,7 +537,8 @@
     "loadError": "โหลดประวัติการหมุนไม่สำเร็จ",
     "pagePrev": "ก่อนหน้า",
     "pageNext": "ถัดไป",
-    "pageOf": "หน้า {cur} จาก {total}"
+    "pageOf": "หน้า {cur} จาก {total}",
+    "bonusNotice": "รับรางวัลเครดิตได้ที่เมนู Bonus"
   },
   "games": {
     "title": "เกม",

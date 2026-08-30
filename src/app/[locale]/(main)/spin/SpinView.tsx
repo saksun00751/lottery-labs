@@ -1,6 +1,6 @@
 'use client';
 
-import { Disc3, Gem } from 'lucide-react';
+import { Award, Disc3, Gem } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 
@@ -19,6 +19,7 @@ import styles from './spin.module.scss';
  * ported from lotto-seed-app's `/spin` page, same library, same canvas draw mode. */
 interface WinwheelInstance {
   animation: { duration?: number; stopAngle?: number; callbackFinished?: (() => void) | undefined };
+  rotationAngle: number;
   draw(): void;
   startAnimation(): void;
   stopAnimation(canvasRest?: boolean): void;
@@ -159,6 +160,7 @@ export function SpinView() {
     wheelRef.current.stopAnimation(false);
     wheelRef.current.animation.stopAngle = undefined;
     wheelRef.current.animation.callbackFinished = undefined;
+    wheelRef.current.rotationAngle = 0;
     wheelRef.current.draw();
 
     let result;
@@ -219,6 +221,11 @@ export function SpinView() {
   return (
     <div className={styles.page}>
       <PageHeader icon={<Disc3 size={22} />} title={t('title')} subtitle={t('subtitle')} />
+
+      <Link href="/bonus" className={styles.bonusNotice}>
+        <Award size={16} />
+        <span>{t('bonusNotice')}</span>
+      </Link>
 
       <div className={styles.card}>
         <div className={styles.diamondChip}>

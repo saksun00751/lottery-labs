@@ -537,7 +537,8 @@
     "loadError": "Failed to load spin history",
     "pagePrev": "Previous",
     "pageNext": "Next",
-    "pageOf": "Page {cur} of {total}"
+    "pageOf": "Page {cur} of {total}",
+    "bonusNotice": "Claim your credit rewards in the Bonus menu"
   },
   "games": {
     "title": "Games",

@@ -537,7 +537,8 @@
     "loadError": "ໂຫລດປະຫວັດການໝູນບໍ່ສຳເລັດ",
     "pagePrev": "ກ່ອນໜ້າ",
     "pageNext": "ຖັດໄປ",
-    "pageOf": "ໜ້າ {cur} ຈາກ {total}"
+    "pageOf": "ໜ້າ {cur} ຈາກ {total}",
+    "bonusNotice": "ຮັບລາງວັນເຄຣດິດໄດ້ທີ່ເມນູ Bonus"
   },
   "games": {
     "title": "ເກມ",

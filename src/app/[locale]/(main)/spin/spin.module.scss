@@ -9,6 +9,23 @@
   width: 100%;
 }
 
+.bonusNotice {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius-md);
+  background: var(--accent-tint);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+
+  &:hover {
+    background: var(--accent-tint-strong);
+  }
+}
+
 .card {
   @include card;
   // The wheel's background art (pointer triangle + stand legs) deliberately
