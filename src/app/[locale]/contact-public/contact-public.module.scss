@@ -1,0 +1,49 @@
+@use 'styles/abstracts' as *;
+
+.center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-4) var(--sp-4) var(--sp-10);
+}
+
+.panel {
+  width: 100%;
+  max-width: 720px;
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--sp-5);
+}
+
+.titleIcon {
+  margin-inline-end: var(--sp-2);
+  vertical-align: -3px;
+  color: var(--accent);
+}
+
+.loginLink {
+  @include tappable;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-shrink: 0;
+  padding: var(--sp-2) var(--sp-4);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--text);
+
+  &:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+}

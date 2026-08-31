@@ -5,7 +5,8 @@ import { z } from 'zod';
  * resolved at render time so the same schema works in all five languages.
  */
 
-const THAI_PHONE = /^0\d{8,9}$/;
+// Covers TH/KH (0 + 8-9 digits) and MM mobiles, which run longer (0 + up to 11 digits).
+const PHONE_REGEX = /^0\d{8,11}$/;
 const USERNAME = /^[a-z0-9_]+$/i;
 const REFERRAL_CODE = /^[A-Z0-9]*$/;
 
@@ -22,7 +23,7 @@ export const identifierSchema = (mode: 'username' | 'phone') =>
         .string()
         .min(1, 'required')
         .transform((v) => v.replace(/[\s-]/g, ''))
-        .refine((v) => THAI_PHONE.test(v), 'phoneInvalid')
+        .refine((v) => PHONE_REGEX.test(v), 'phoneInvalid')
     : z
         .string()
         .min(4, 'usernameInvalid')
@@ -66,7 +67,7 @@ export const registerSchema = (mode: 'username' | 'phone') =>
               .string()
               .min(1, 'required')
               .transform((v) => v.replace(/\D/g, ''))
-              .refine((v) => THAI_PHONE.test(v), 'phoneInvalid'),
+              .refine((v) => PHONE_REGEX.test(v), 'phoneInvalid'),
       referralCode: z
         .string()
         .max(REFERRAL_CODE_MAX, 'referralInvalid')

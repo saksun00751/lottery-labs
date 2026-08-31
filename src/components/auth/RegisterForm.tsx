@@ -37,9 +37,12 @@ const NAME_ALLOWED = /[^a-zA-Z฀-๿຀-໿ក-៿0-9\s]/g;
 const PASSWORD_ALLOWED = /[^a-zA-Z0-9]/g;
 const REFERRAL_ALLOWED = /[^A-Z0-9]/g;
 
-/** Formats a Thai mobile number as the member types: 0XX-XXX-XXXX. */
+/**
+ * Formats a mobile number as the member types: 0XX-XXX-XXXX(XX). Capped at
+ * 12 digits (0 + 11) to fit Myanmar numbers, which run longer than TH/KH's.
+ */
 function formatPhone(raw: string) {
-  const digits = raw.replace(/\D/g, '').slice(0, 10);
+  const digits = raw.replace(/\D/g, '').slice(0, 12);
   if (digits.length <= 3) return digits;
   if (digits.length <= 6) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
   return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;

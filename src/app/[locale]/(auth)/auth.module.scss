@@ -51,8 +51,8 @@
 }
 
 .brandLogo {
-  width: 62px;
-  height: 62px;
+  width: 96px;
+  height: 96px;
   object-fit: contain;
   border-radius: var(--radius-lg);
   display: block;
@@ -60,7 +60,7 @@
 }
 
 .brandName {
-  font-size: var(--fs-xl);
+  font-size: var(--fs-2xl);
   font-weight: var(--fw-bold);
   letter-spacing: -0.025em;
 }

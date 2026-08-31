@@ -17,7 +17,7 @@ import { routing } from '@/i18n/routing';
 const intlMiddleware = createIntlMiddleware(routing);
 
 /** Route segments (locale prefix stripped) reachable while signed out. */
-const PUBLIC_SEGMENTS = ['/login', '/register', '/contact', '/promotion'];
+const PUBLIC_SEGMENTS = ['/login', '/register', '/contact', '/contact-public', '/promotion'];
 
 /** Route segments that always require a session. */
 const PRIVATE_SEGMENTS = [
