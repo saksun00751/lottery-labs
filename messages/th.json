@@ -35,6 +35,7 @@
     "todayLottery": "หวยวันนี้",
     "slip": "โพยหวย",
     "results": "ตรวจผลหวย",
+    "resultsHistory": "ดูผลหวยย้อนหลัง",
     "deposit": "ฝากเงิน",
     "withdraw": "ถอนเงิน",
     "promotion": "โปรโมชั่น",
@@ -117,7 +118,7 @@
     "itemsCount": "รายการ"
   },
   "lottery": {
-    "title": "แทงหวย",
+    "title": "หวย",
     "chooseRound": "เลือกงวดที่ต้องการเล่น",
     "closesIn": "ปิดรับใน",
     "closed": "ปิดรับแล้ว",

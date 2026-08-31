@@ -9,10 +9,10 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { EmptyState, Skeleton } from '@/components/ui/Feedback';
 import { useRouter } from '@/i18n/navigation';
-import { useBankAccounts, useMe } from '@/lib/api/queries';
+import { useBankAccounts, useBanks, useMe } from '@/lib/api/queries';
 import { cn } from '@/lib/utils/cn';
 import { formatDate } from '@/lib/utils/intl';
-import type { BankAccount, User } from '@/types';
+import type { Bank, BankAccount, User } from '@/types';
 
 import styles from './profile.module.scss';
 
@@ -43,9 +43,11 @@ export function ProfileView() {
 
   const { data, isLoading } = useMe();
   const { data: accountsData, isLoading: accountsLoading } = useBankAccounts();
+  const { data: banksData } = useBanks();
 
   const user = data as User | undefined;
   const accounts = (accountsData as BankAccount[] | undefined) ?? [];
+  const banks = (banksData as Bank[] | undefined) ?? [];
 
   // The real `member/profile` payload doesn't carry `created_at` at all
   // (lotto-seed-app's own profile page never reads it either) — guard
@@ -104,7 +106,7 @@ export function ProfileView() {
                   bankName={account.bankName}
                   accountNumber={account.accountNumber}
                   accountName={account.accountName}
-                  isPrimary={account.isPrimary}
+                  logoUrl={banks.find((bank) => bank.code === account.bankCode)?.logoUrl}
                 />
               ))}
             </div>

@@ -134,7 +134,7 @@
 
 .statValue {
   @include numeric;
-  font-size: var(--fs-lg);
+  font-size: var(--fs-xl);
   font-weight: var(--fw-semibold);
   letter-spacing: -0.02em;
 }

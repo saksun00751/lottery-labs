@@ -57,6 +57,16 @@
   flex-direction: column;
   align-items: flex-end;
   gap: var(--sp-2);
+
+  @include down('sm') {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-3);
+    width: 100%;
+    padding-top: var(--sp-3);
+    border-top: 1px solid var(--border);
+  }
 }
 
 .roundTimerLabel {

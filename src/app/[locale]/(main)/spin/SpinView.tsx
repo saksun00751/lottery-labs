@@ -18,7 +18,12 @@ import styles from './spin.module.scss';
 /* Minimal shape of the Winwheel.js instance/constructor this page relies on —
  * ported from lotto-seed-app's `/spin` page, same library, same canvas draw mode. */
 interface WinwheelInstance {
-  animation: { duration?: number; stopAngle?: number; callbackFinished?: (() => void) | undefined };
+  animation: {
+    duration?: number;
+    spins?: number;
+    stopAngle?: number;
+    callbackFinished?: (() => void) | undefined;
+  };
   rotationAngle: number;
   draw(): void;
   startAnimation(): void;
@@ -183,6 +188,7 @@ export function SpinView() {
 
     const wheel = wheelRef.current;
     wheel.animation.stopAngle = result.point;
+    wheel.animation.spins = 3 + Math.floor(Math.random() * 3); // 3-5 full turns before landing
     const animDuration = (wheel.animation.duration ?? 5) * 1000;
 
     let shown = false;

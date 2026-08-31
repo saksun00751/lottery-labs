@@ -33,13 +33,7 @@ export default async function LoginPage({
   return (
     <div className={styles.panel}>
       <div className={styles.brand}>
-        {logo ? (
-          <img src={logo} alt={siteName} className={styles.brandLogo} />
-        ) : (
-          <span className={styles.brandMark} aria-hidden>
-            LL
-          </span>
-        )}
+        {logo && <img src={logo} alt={siteName} className={styles.brandLogo} />}
         <span className={styles.brandName}>{siteName}</span>
       </div>
 

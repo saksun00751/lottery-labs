@@ -18,6 +18,8 @@ export interface BankAccountCardProps {
   accountNumber: string;
   accountName: string;
   color?: string;
+  /** Bank's own logo, when known — falls back to initials if unset or the image fails to load. */
+  logoUrl?: string;
   isPrimary?: boolean;
   copyable?: boolean;
 }
@@ -27,12 +29,14 @@ export function BankAccountCard({
   accountNumber,
   accountName,
   color = 'var(--accent)',
+  logoUrl,
   isPrimary,
   copyable = false,
 }: BankAccountCardProps) {
   const t = useTranslations('common');
   const tWallet = useTranslations('wallet');
   const [copied, setCopied] = useState(false);
+  const [logoFailed, setLogoFailed] = useState(false);
 
   const onCopy = async () => {
     try {
@@ -46,11 +50,17 @@ export function BankAccountCard({
   };
 
   const initials = bankName.replace(/^ธนาคาร/, '').slice(0, 3);
+  const showLogo = logoUrl && !logoFailed;
 
   return (
     <div className={styles.account}>
-      <span className={styles.logo} style={{ background: color }} aria-hidden>
-        {initials}
+      <span className={styles.logo} style={{ background: showLogo ? '#fff' : color }} aria-hidden>
+        {showLogo ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={logoUrl} alt="" className={styles.logoImg} onError={() => setLogoFailed(true)} />
+        ) : (
+          initials
+        )}
       </span>
       <div className={styles.info}>
         <div className={styles.bankName}>{bankName}</div>
@@ -137,7 +147,7 @@ export function DepositAccountCard({
       </div>
 
       <div className={styles.depositNumberBox}>
-        <div>
+        <div className={styles.depositNumberText}>
           <div className={styles.depositNumberLabel}>{tDeposit('accountNoLabel')}</div>
           <div className={styles.depositNumber}>{formatAccountNumber(accountNumber)}</div>
         </div>

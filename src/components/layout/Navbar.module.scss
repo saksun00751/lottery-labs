@@ -37,6 +37,22 @@
   }
 }
 
+.brandToggle {
+  @include tappable;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  color: var(--text-2);
+  flex-shrink: 0;
+
+  &:hover {
+    background: var(--surface-2);
+    color: var(--text);
+  }
+}
+
 .brand {
   display: flex;
   align-items: center;
@@ -46,22 +62,17 @@
   flex-shrink: 0;
 }
 
-.brandMark {
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  border-radius: var(--radius-xs);
-  background: var(--accent-gradient);
-  color: var(--text-on-accent);
-  font-size: var(--fs-2xs);
+.brandName {
+  @include truncate;
+  font-size: var(--fs-md);
   font-weight: var(--fw-bold);
+  letter-spacing: -0.02em;
 }
 
 .brandLogo {
   width: auto;
-  height: clamp(60px, 3.33vw + 46.7px, 100px);
-  max-width: 240px;
+  height: 50px;
+  max-width: 80px;
   max-height: 100%;
   flex-shrink: 0;
   object-fit: contain;
@@ -100,12 +111,15 @@
   font-weight: var(--fw-semibold);
 }
 
-.depositButton {
-  display: none;
-
-  @include up('sm') {
-    display: inline-flex;
-  }
+.balancePlus {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  color: var(--text-on-accent);
+  flex-shrink: 0;
 }
 
 .actions {

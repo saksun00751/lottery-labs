@@ -50,19 +50,6 @@
   text-align: center;
 }
 
-.brandMark {
-  display: grid;
-  place-items: center;
-  width: 62px;
-  height: 62px;
-  border-radius: var(--radius-lg);
-  background: var(--accent-gradient);
-  color: var(--text-on-accent);
-  font-weight: var(--fw-bold);
-  font-size: var(--fs-lg);
-  box-shadow: var(--shadow-accent);
-}
-
 .brandLogo {
   width: 62px;
   height: 62px;

@@ -17,7 +17,13 @@ import { Sidebar } from './Sidebar';
  */
 const LAPTOP_MAX_WIDTH = 1439;
 
-export function AppShell({ children }: { children: ReactNode }) {
+export function AppShell({
+  children,
+  siteMeta,
+}: {
+  children: ReactNode;
+  siteMeta: { name: string; logo: string };
+}) {
   const sidebarCollapsed = useUiStore((s) => s.sidebarCollapsed);
   const setSidebarCollapsed = useUiStore((s) => s.setSidebarCollapsed);
 
@@ -31,9 +37,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className={styles.shell}>
-      <Sidebar />
+      <Sidebar siteMeta={siteMeta} />
       <div className={cn(styles.main, sidebarCollapsed && styles.mainCollapsed)}>
-        <Navbar />
+        <Navbar siteMeta={siteMeta} />
         <main className={styles.content}>{children}</main>
       </div>
       <BottomNav />

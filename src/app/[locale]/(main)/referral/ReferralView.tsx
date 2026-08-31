@@ -62,11 +62,7 @@ export function ReferralView() {
 
   return (
     <div className={styles.page}>
-      <PageHeader
-        icon={<Users size={22} />}
-        title={t('title')}
-        subtitle={summary?.moreMessage || t('subtitle')}
-      />
+      <PageHeader icon={<Users size={22} />} title={t('title')} />
 
       <div className={styles.hero}>
         <div className={styles.heroTop}>

@@ -51,25 +51,11 @@
   border-bottom: 1px solid var(--border);
 }
 
-.brandMark {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  flex-shrink: 0;
-  border-radius: var(--radius-sm);
-  background: var(--accent-gradient);
-  color: var(--text-on-accent);
-  font-weight: var(--fw-bold);
-  font-size: var(--fs-sm);
-  box-shadow: var(--shadow-accent);
-}
-
 .brandLogo {
-  width: 30px;
-  height: 30px;
-  max-width: 30px;
-  max-height: 30px;
+  width: 200px;
+  height: 100px;
+  max-width: 200px;
+  max-height: 100px;
   object-fit: contain;
   border-radius: 8px;
   flex-shrink: 0;
@@ -83,12 +69,35 @@
   letter-spacing: -0.02em;
 }
 
+.brandToggle {
+  @include tappable;
+  display: none;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  color: var(--text-2);
+
+  &:hover {
+    background: var(--surface-2);
+    color: var(--text);
+  }
+}
+
+.collapsed .brandLogo,
 .collapsed .brandName,
 .collapsed .sectionTitle,
 .collapsed .navLabel,
 .collapsed .userMeta {
   @include desktop {
     display: none;
+  }
+}
+
+.collapsed .brandToggle {
+  @include desktop {
+    display: grid;
   }
 }
 

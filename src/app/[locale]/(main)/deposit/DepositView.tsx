@@ -28,6 +28,7 @@ import { ApiError } from '@/lib/api/client';
 import { isExpiredStatus, isPaidLikeStatus, type DepositPaymentSession } from '@/lib/api/endpoints';
 import {
   useBankAccounts,
+  useBanks,
   useClaimPromotion,
   useCreateDepositPayment,
   useDepositAccounts,
@@ -43,6 +44,7 @@ import { cn } from '@/lib/utils/cn';
 import { formatAmountInput, formatMoney, parseAmountInput, toMajor } from '@/lib/utils/money';
 import { pushToast } from '@/lib/toast';
 import type {
+  Bank,
   BankAccount,
   DepositChannel,
   DepositMethod,
@@ -82,18 +84,26 @@ export function DepositView() {
 
   const { data: walletData, isLoading: walletLoading } = useWallet();
   const { data: accounts } = useBankAccounts();
+  const { data: banksData } = useBanks();
   const { data: meData } = useMe();
   const { data: promotionsData, isLoading: promotionsLoading } = usePromotions();
 
   const wallet = walletData as WalletType | undefined;
   const bankAccounts = (accounts as BankAccount[] | undefined) ?? [];
+  const banks = (banksData as Bank[] | undefined) ?? [];
   const user = meData as User | undefined;
   const promotions = ((promotionsData as Promotion[] | undefined) ?? []).filter((p) => p.title);
 
   const activePromotion = user?.activePromotionName
     ? promotions.find((p) => p.title === user.activePromotionName)
     : undefined;
-  const browsablePromotions = promotions.filter((p) => p.title !== user?.activePromotionName);
+  const browsablePromotions = promotions.filter(
+    (p) =>
+      p.title !== user?.activePromotionName &&
+      p.claimable &&
+      !p.claimed &&
+      !p.hideClaimButton,
+  );
 
   const [method, setMethod] = useState<DepositMethod>('bank');
   const [openPromotion, setOpenPromotion] = useState<Promotion | null>(null);
@@ -134,7 +144,7 @@ export function DepositView() {
                   bankName={account.bankName}
                   accountNumber={account.accountNumber}
                   accountName={account.accountName}
-                  isPrimary={account.isPrimary}
+                  logoUrl={banks.find((bank) => bank.code === account.bankCode)?.logoUrl}
                 />
               ))}
             </div>
@@ -217,19 +227,52 @@ export function DepositView() {
 /* ---------------------------- promo mini card ------------------------------ */
 
 function PromoMiniCard({ promotion, onOpen }: { promotion: Promotion; onOpen: () => void }) {
+  const t = useTranslations('promotion');
+  const claim = useClaimPromotion();
+
   return (
-    <button type="button" className={styles.promoMini} onClick={onOpen}>
-      <div className={styles.promoMiniImage}>
-        {promotion.imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={promotion.imageUrl} alt="" />
-        ) : (
-          <Gift size={22} aria-hidden />
+    <div className={styles.promoMini}>
+      <button type="button" className={styles.promoMiniMedia} onClick={onOpen}>
+        <div className={styles.promoMiniImage}>
+          {promotion.imageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={promotion.imageUrl} alt="" />
+          ) : (
+            <Gift size={22} aria-hidden />
+          )}
+          {promotion.badge && <span className={styles.promoMiniBadge}>{promotion.badge}</span>}
+        </div>
+        <div className={styles.promoMiniTitle}>{promotion.title}</div>
+        {promotion.description && (
+          <div className={styles.promoMiniDesc}>{promotion.description}</div>
         )}
-        {promotion.badge && <span className={styles.promoMiniBadge}>{promotion.badge}</span>}
-      </div>
-      <div className={styles.promoMiniTitle}>{promotion.title}</div>
-    </button>
+      </button>
+
+      {!promotion.hideClaimButton && (
+        <div className={styles.promoMiniFooter}>
+          <Button
+            size="sm"
+            block
+            variant={promotion.claimed ? 'secondary' : 'primary'}
+            disabled={promotion.claimed || !promotion.claimable}
+            loading={claim.isPending && claim.variables === promotion.id}
+            leftIcon={promotion.claimed ? <Check size={14} /> : <Gift size={14} />}
+            onClick={() => {
+              claim.mutate(promotion.id, {
+                onSuccess: () => pushToast({ tone: 'success', title: t('claimSuccess') }),
+                onError: (error) =>
+                  pushToast({
+                    tone: 'danger',
+                    title: error instanceof ApiError ? error.message : t('claim'),
+                  }),
+              });
+            }}
+          >
+            {promotion.claimed ? t('claimed') : t('claim')}
+          </Button>
+        </div>
+      )}
+    </div>
   );
 }
 

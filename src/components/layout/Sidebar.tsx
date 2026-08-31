@@ -1,22 +1,21 @@
 'use client';
 
-import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect } from 'react';
 
 import { visibleNavSections } from '@/config/navigation';
 import { Link, usePathname } from '@/i18n/navigation';
-import { useSiteMeta } from '@/lib/site-meta-client';
 import { cn } from '@/lib/utils/cn';
 import { useUiStore } from '@/store/ui-store';
 
 import styles from './AppShell.module.scss';
 
-export function Sidebar() {
+export function Sidebar({ siteMeta }: { siteMeta: { name: string; logo: string } }) {
   const t = useTranslations('nav');
   const pathname = usePathname();
   const { sidebarCollapsed, drawerOpen, closeDrawer, toggleSidebar } = useUiStore();
-  const { name: siteName, logo } = useSiteMeta();
+  const { name: siteName, logo } = siteMeta;
 
   // Any navigation closes the mobile drawer — otherwise it covers the new page.
   useEffect(() => {
@@ -53,14 +52,15 @@ export function Sidebar() {
         )}
       >
         <div className={styles.brand}>
-          {logo ? (
-            <img src={logo} alt={siteName || 'Brand'} className={styles.brandLogo} />
-          ) : (
-            <span className={styles.brandMark} aria-hidden>
-              LL
-            </span>
-          )}
-          <span className={styles.brandName}>{siteName}</span>
+          {logo && <img src={logo} alt={siteName || 'Brand'} className={styles.brandLogo} />}
+          <button
+            type="button"
+            className={styles.brandToggle}
+            onClick={toggleSidebar}
+            aria-label={t('menu')}
+          >
+            <Menu size={20} />
+          </button>
         </div>
 
         <nav className={styles.nav}>
@@ -72,6 +72,25 @@ export function Sidebar() {
               {section.items.map((item) => {
                 const Icon = item.icon;
                 const active = isActive(item.href);
+
+                if (item.external) {
+                  return (
+                    <a
+                      key={item.href}
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.navLink}
+                      title={t(item.labelKey)}
+                    >
+                      <span className={styles.navIcon} aria-hidden>
+                        <Icon size={19} />
+                      </span>
+                      <span className={styles.navLabel}>{t(item.labelKey)}</span>
+                    </a>
+                  );
+                }
+
                 return (
                   <Link
                     key={item.href}

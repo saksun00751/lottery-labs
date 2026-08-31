@@ -3,26 +3,8 @@
 import { create } from 'zustand';
 
 import { publicEnv } from '@/config/env.public';
-import {
-  MODE_COOKIE,
-  MODE_STORAGE_KEY,
-  THEME_COOKIE,
-  THEME_COOKIE_MAX_AGE,
-  THEME_STORAGE_KEY,
-} from '@/config/theme';
 
 export type ColorMode = 'dark' | 'light' | 'system';
-
-export { MODE_STORAGE_KEY, THEME_STORAGE_KEY } from '@/config/theme';
-
-/**
- * The choice is mirrored into cookies so the server can render `data-theme` /
- * `data-mode` on <html> straight away: that is what keeps the first paint
- * flash-free without shipping a blocking inline script.
- */
-function writeCookie(name: string, value: string) {
-  document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${THEME_COOKIE_MAX_AGE}; samesite=lax`;
-}
 
 /**
  * The list of selectable themes is NOT hard-coded here.
@@ -57,8 +39,6 @@ function apply(theme: string, mode: ColorMode) {
   const root = document.documentElement;
   root.dataset.theme = theme;
   root.dataset.mode = mode;
-  writeCookie(THEME_COOKIE, theme);
-  writeCookie(MODE_COOKIE, mode);
 }
 
 export const useThemeStore = create<ThemeState>((set, get) => ({
@@ -67,18 +47,16 @@ export const useThemeStore = create<ThemeState>((set, get) => ({
   availableThemes: [publicEnv.defaultTheme],
   hydrated: false,
 
+  /**
+   * Always resets to the .env default on load/refresh — any switch made via
+   * setTheme/setMode only lasts for the current session, not across reloads.
+   */
   hydrate: () => {
     const available = readEnabledThemes();
-    const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
-    const storedMode = localStorage.getItem(MODE_STORAGE_KEY) as ColorMode | null;
-
-    const theme =
-      storedTheme && available.includes(storedTheme)
-        ? storedTheme
-        : available.includes(publicEnv.defaultTheme)
-          ? publicEnv.defaultTheme
-          : available[0];
-    const mode = storedMode ?? publicEnv.defaultColorMode;
+    const theme = available.includes(publicEnv.defaultTheme)
+      ? publicEnv.defaultTheme
+      : available[0];
+    const mode = publicEnv.defaultColorMode;
 
     apply(theme, mode);
     set({ theme, mode, availableThemes: available, hydrated: true });
@@ -86,13 +64,11 @@ export const useThemeStore = create<ThemeState>((set, get) => ({
 
   setTheme: (theme) => {
     if (!get().availableThemes.includes(theme)) return;
-    localStorage.setItem(THEME_STORAGE_KEY, theme);
     apply(theme, get().mode);
     set({ theme });
   },
 
   setMode: (mode) => {
-    localStorage.setItem(MODE_STORAGE_KEY, mode);
     apply(get().theme, mode);
     set({ mode });
   },

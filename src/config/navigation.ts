@@ -1,4 +1,5 @@
 import {
+  Archive,
   ArrowDownToLine,
   ArrowUpFromLine,
   Award,
@@ -27,6 +28,8 @@ export interface NavItem {
   labelKey: string;
   icon: LucideIcon;
   enabled?: boolean;
+  /** Opens `href` as an external link in a new tab instead of routing internally. */
+  external?: boolean;
 }
 
 export interface NavSection {
@@ -52,6 +55,13 @@ export const navSections: NavSection[] = [
       },
       { href: '/slip', labelKey: 'slip', icon: ScrollText, enabled: lotteryEnabled },
       { href: '/results', labelKey: 'results', icon: Trophy, enabled: lotteryEnabled },
+      {
+        href: 'https://huayupdate.live/th',
+        labelKey: 'resultsHistory',
+        icon: Archive,
+        enabled: lotteryEnabled,
+        external: true,
+      },
     ],
   },
   {

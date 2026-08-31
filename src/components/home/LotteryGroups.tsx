@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronRight, Ticket } from 'lucide-react';
+import { Ticket } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { Badge } from '@/components/ui/Badge';
@@ -11,7 +11,6 @@ import { useLotteryGroups } from '@/lib/api/queries';
 import styles from './LotteryGroups.module.scss';
 
 export function LotteryGroups() {
-  const t = useTranslations('lottery');
   const tCommon = useTranslations('common');
   const { data, isLoading } = useLotteryGroups();
   const groups = data ?? [];
@@ -36,6 +35,12 @@ export function LotteryGroups() {
           href={{ pathname: '/lottery', query: { group: group.id } }}
           className={styles.card}
         >
+          {group.openCount > 0 && (
+            <Badge className={styles.count} tone="success" dot pulse>
+              {group.openCount} {tCommon('live')}
+            </Badge>
+          )}
+
           <span className={styles.emblem} aria-hidden>
             {group.logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -46,18 +51,6 @@ export function LotteryGroups() {
           </span>
 
           <span className={styles.name}>{group.name}</span>
-
-          <span className={styles.foot}>
-            <span className={styles.playNow}>
-              {t('playNow')}
-              <ChevronRight size={14} aria-hidden />
-            </span>
-            {group.openCount > 0 && (
-              <Badge tone="success" dot pulse>
-                {group.openCount} {tCommon('live')}
-              </Badge>
-            )}
-          </span>
         </Link>
       ))}
     </div>

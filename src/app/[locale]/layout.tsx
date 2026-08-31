@@ -1,12 +1,10 @@
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
 import { publicEnv } from '@/config/env.public';
-import { MODE_COOKIE, THEME_COOKIE } from '@/config/theme';
 import { routing } from '@/i18n/routing';
 import { getSiteMeta } from '@/lib/site-meta';
 
@@ -77,13 +75,11 @@ export default async function LocaleLayout({
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
 
-  // The appearance the member last picked, mirrored into cookies by the theme
-  // store. Rendering it here means the very first paint is already correct —
-  // no flash, and no inline bootstrap script (which React re-renders, and
-  // warns about, on every locale switch).
-  const store = await cookies();
-  const theme = safeToken(store.get(THEME_COOKIE)?.value, publicEnv.defaultTheme);
-  const mode = safeToken(store.get(MODE_COOKIE)?.value, publicEnv.defaultColorMode);
+  // Always the .env default on the server — this is what makes every
+  // refresh reset to the configured appearance instead of a member's
+  // previous in-session pick.
+  const theme = publicEnv.defaultTheme;
+  const mode = publicEnv.defaultColorMode;
 
   return (
     // The font variables must sit on <html>: globals.scss resolves
@@ -108,9 +104,4 @@ export default async function LocaleLayout({
       </body>
     </html>
   );
-}
-
-/** Cookies are member-writable, so only a plain id is ever put in the DOM. */
-function safeToken(value: string | undefined, fallback: string) {
-  return value && /^[a-z][a-z0-9-]{0,31}$/.test(value) ? value : fallback;
 }
