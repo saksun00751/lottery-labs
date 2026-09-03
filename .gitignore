@@ -30,6 +30,8 @@ yarn-error.log*
 
 # docs
 *.md
+/docs/
+
 
 # typescript
 *.tsbuildinfo
