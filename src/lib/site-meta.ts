@@ -17,30 +17,35 @@ export type SiteMeta = {
 
 export async function getSiteMeta(): Promise<SiteMeta> {
   if (!serverEnv.apiBaseUrl) {
-    throw new Error('API_BASE_URL is not set');
+    return {};
   }
 
-  const response = await fetch(`${serverEnv.apiBaseUrl}/meta/site`, {
-    method: 'GET',
-    headers: {
-      Accept: 'application/json',
-    },
-    next: {
-      revalidate: 3600,
-      tags: ['site-meta'],
-    },
-  });
+  try {
+    const response = await fetch(`${serverEnv.apiBaseUrl}/meta/site`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+      next: {
+        revalidate: 3600,
+        tags: ['site-meta'],
+      },
+    });
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch site meta: ${response.status}`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch site meta: ${response.status}`);
+    }
+
+    const data = (await response.json()) as SiteMeta;
+    const siteName = data.name ?? data.site_name;
+
+    if (!siteName) {
+      throw new Error('meta/site response is missing site name');
+    }
+
+    return data;
+  } catch (error) {
+    console.warn('[site-meta] falling back to defaults:', error);
+    return {};
   }
-
-  const data = (await response.json()) as SiteMeta;
-  const siteName = data.name ?? data.site_name;
-
-  if (!siteName) {
-    throw new Error('meta/site response is missing site name');
-  }
-
-  return data;
 }
