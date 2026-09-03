@@ -3,7 +3,6 @@ import type { ReactNode } from 'react';
 
 import { ContactFAB } from '@/components/layout/ContactFAB';
 import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher';
-import { ThemeSwitcher } from '@/components/layout/ThemeSwitcher';
 
 import styles from './auth.module.scss';
 
@@ -21,7 +20,6 @@ export default async function AuthLayout({
     <div className={styles.wrap}>
       <div className={styles.topBar}>
         <div className={styles.topSpacer} />
-        <ThemeSwitcher />
         <LanguageSwitcher />
       </div>
       <div className={styles.center}>{children}</div>
