@@ -98,19 +98,22 @@ export function YeekeeShootPanel({ roundId, disabled }: { roundId: string; disab
 
       <div className={styles.body}>
         <div className={styles.digitWrap}>
-          <div className={styles.digitRow}>
-            {Array.from({ length: MAX_DIGITS }).map((_, i) => (
-              <div
-                key={i}
-                className={cn(
-                  styles.digitSlot,
-                  digits[i] && styles.filled,
-                  !digits[i] && i === digits.length && !locked && styles.next,
-                )}
-              >
-                {digits[i] ?? '·'}
-              </div>
-            ))}
+          <div className={styles.ticket}>
+            <div className={styles.digitRow}>
+              {Array.from({ length: MAX_DIGITS }).map((_, i) => (
+                <span
+                  key={i}
+                  className={cn(
+                    styles.digitSlot,
+                    digits[i] && styles.filled,
+                    !digits[i] && i === digits.length && !locked && styles.next,
+                  )}
+                >
+                  {digits[i] ?? '0'}
+                </span>
+              ))}
+            </div>
+            <p className={styles.serial}>YEEKEE · #{roundId.slice(-6).toUpperCase()}</p>
           </div>
           <p className={styles.hint}>{t('shootHint')}</p>
         </div>
