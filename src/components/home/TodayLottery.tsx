@@ -53,6 +53,10 @@ function MarketCard({
   const countdown = useCountdown(statusBettable ? round.closesAt : null);
   const expired = statusBettable && (countdown?.expired ?? false);
   const bettable = statusBettable && !expired;
+  // Same reasoning as RoundCard: a yeekee market's own status reflects its
+  // single latest daily draw, not whether any of its many intraday rounds
+  // are currently open — so its card stays clickable regardless of `bettable`.
+  const clickable = round.category === 'yeekee' || bettable;
 
   const content = (
     <>
@@ -101,7 +105,7 @@ function MarketCard({
 
   const toneKey: RoundStatus = expired ? 'closed' : round.status;
 
-  if (bettable) {
+  if (clickable) {
     return (
       <button
         type="button"

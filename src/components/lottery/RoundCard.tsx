@@ -38,6 +38,12 @@ export function RoundCard({
 }) {
   const t = useTranslations('lottery');
   const bettable = isBettable(round.status);
+  // A yeekee market's own `status` reflects its single latest daily draw,
+  // which says nothing about whether any of its many intraday rounds are
+  // currently open — that's only known once inside the rounds board. So a
+  // yeekee card stays clickable regardless of `bettable`, unlike every
+  // other category where a closed market really has nothing to enter.
+  const clickable = round.category === 'yeekee' || bettable;
 
   const body = (
     <>
@@ -78,12 +84,12 @@ export function RoundCard({
               </span>
             ))}
         </div>
-        {bettable && <ChevronRight size={18} aria-hidden />}
+        {clickable && <ChevronRight size={18} aria-hidden />}
       </div>
     </>
   );
 
-  if (!bettable) {
+  if (!clickable) {
     return (
       <div className={cn(styles.card, styles.disabled)} aria-disabled>
         {body}
