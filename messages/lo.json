@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Lottery Labs",
+    "appName": "",
     "save": "ບັນທຶກ",
     "cancel": "ຍົກເລີກ",
     "confirm": "ຢືນຢັນ",
@@ -85,7 +85,6 @@
     "stepAccount": "ຂໍ້ມູນບັນຊີ",
     "stepBank": "ຂໍ້ມູນທະນາຄານ",
     "ageNotice": "ການສະໝັກຖືວ່າທ່ານມີອາຍຸ 18 ປີຂຶ້ນໄປ ແລະ ຍອມຮັບເງື່ອນໄຂການໃຫ້ບໍລິການ",
-    "demoHint": "ໂໝດທົດລອງ: ໃຊ້ {identifier} / {password}",
     "loginFailed": "ຊື່ຜູ້ໃຊ້ ຫຼື ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ",
     "logoutConfirm": "ຕ້ອງການອອກຈາກລະບົບບໍ?",
     "accountNameChecking": "ກຳລັງກວດສອບຊື່ບັນຊີ…",

@@ -4,15 +4,11 @@ import { serverEnv } from '@/config/env.server';
 
 export type SiteMeta = {
   name?: string;
-  site_name?: string;
+  title?: string;
+  description?: string;
   logo?: string;
-  logo_url?: string;
-  logoUrl?: string;
-  favicon?: string;
-  favicon_url?: string;
-  faviconUrl?: string;
   header_code?: string;
-  headerCode?: string;
+  deposit_min?: string;
 };
 
 export async function getSiteMeta(): Promise<SiteMeta> {
@@ -37,9 +33,8 @@ export async function getSiteMeta(): Promise<SiteMeta> {
     }
 
     const data = (await response.json()) as SiteMeta;
-    const siteName = data.name ?? data.site_name;
 
-    if (!siteName) {
+    if (!data.name) {
       throw new Error('meta/site response is missing site name');
     }
 

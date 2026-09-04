@@ -4,12 +4,12 @@ import { getSiteMeta } from '@/lib/site-meta';
 
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
   const siteMeta = await getSiteMeta();
-  const siteName = siteMeta.name ?? siteMeta.site_name ?? 'Lottery Labs';
+  const siteName = siteMeta.name ?? '';
 
   return {
     name: siteName,
     short_name: 'LL',
-    description: 'แทงหวยออนไลน์ — ปลอดภัย รวดเร็ว ทุกที่ทุกเวลา',
+    description: siteMeta.description || 'แทงหวยออนไลน์ — ปลอดภัย รวดเร็ว ทุกที่ทุกเวลา',
     start_url: '/',
     display: 'standalone',
     orientation: 'portrait',

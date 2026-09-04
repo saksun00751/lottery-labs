@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Lottery Labs",
+    "appName": "",
     "save": "Save",
     "cancel": "Cancel",
     "confirm": "Confirm",
@@ -85,7 +85,6 @@
     "stepAccount": "Account details",
     "stepBank": "Bank details",
     "ageNotice": "By signing up you confirm you are 18 or older and accept the terms of service.",
-    "demoHint": "Demo mode: use {identifier} / {password}",
     "loginFailed": "Incorrect username or password",
     "logoutConfirm": "Do you want to log out?",
     "accountNameChecking": "Checking account holder…",

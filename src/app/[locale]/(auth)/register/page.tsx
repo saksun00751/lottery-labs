@@ -25,8 +25,8 @@ export default async function RegisterPage({
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'auth' });
   const siteMeta = await getSiteMeta();
-  const siteName = siteMeta.name ?? siteMeta.site_name ?? '';
-  const logo = siteMeta.logo ?? siteMeta.logo_url ?? siteMeta.logoUrl ?? '';
+  const siteName = siteMeta.name ?? '';
+  const logo = siteMeta.logo ?? '';
 
   return (
     <div className={`${styles.panel} ${styles.wide}`}>

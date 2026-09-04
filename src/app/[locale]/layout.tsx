@@ -25,15 +25,15 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'common' });
   const siteMeta = await getSiteMeta();
-  const siteName = siteMeta.name ?? siteMeta.site_name ?? publicEnv.siteName;
-  const favicon = siteMeta.favicon ?? siteMeta.favicon_url ?? siteMeta.faviconUrl ?? '/icon.svg';
+  const siteName = siteMeta.name ?? '';
+  const favicon = siteMeta.logo || '/icon.svg';
 
   return {
     title: {
-      default: siteName,
+      default: siteMeta.title ?? siteName,
       template: `%s · ${siteName}`,
     },
-    description: t('appName'),
+    description: siteMeta.description || t('appName'),
     applicationName: siteName,
     formatDetection: { telephone: false },
     appleWebApp: {
@@ -45,9 +45,7 @@ export async function generateMetadata({
       icon: favicon,
       apple: favicon,
     },
-    other: siteMeta.header_code || siteMeta.headerCode ? {
-      'x-header-code': siteMeta.header_code ?? siteMeta.headerCode ?? '',
-    } : undefined,
+    other: siteMeta.header_code ? { 'x-header-code': siteMeta.header_code } : undefined,
   };
 }
 
@@ -94,6 +92,7 @@ export default async function LocaleLayout({
       className={fontVariables}
       data-theme={theme}
       data-mode={mode}
+      data-logo-chip={publicEnv.logoWhiteBg ? 'on' : 'off'}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >

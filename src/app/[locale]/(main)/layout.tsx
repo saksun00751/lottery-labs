@@ -15,8 +15,8 @@ export default async function MainLayout({
   setRequestLocale(locale);
 
   const siteMeta = await getSiteMeta();
-  const siteName = siteMeta.name ?? siteMeta.site_name ?? '';
-  const logo = siteMeta.logo ?? siteMeta.logo_url ?? siteMeta.logoUrl ?? '';
+  const siteName = siteMeta.name ?? '';
+  const logo = siteMeta.logo ?? '';
 
   return <AppShell siteMeta={{ name: siteName, logo }}>{children}</AppShell>;
 }
