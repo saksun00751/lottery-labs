@@ -13,7 +13,7 @@ const REFERRAL_CODE = /^[A-Z0-9]*$/;
 /** Backend limits, mirrored here so the form fails fast instead of round-tripping. */
 export const PASSWORD_MIN = 6;
 export const PASSWORD_MAX = 16;
-export const ACCOUNT_NUMBER_MIN = 10;
+export const ACCOUNT_NUMBER_MIN = 8;
 export const ACCOUNT_NUMBER_MAX = 12;
 export const REFERRAL_CODE_MAX = 10;
 
