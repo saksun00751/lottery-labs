@@ -1,0 +1,108 @@
+@use 'styles/abstracts' as *;
+
+.panel {
+  @include card;
+}
+
+.header {
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: 1px solid var(--border);
+
+  h3 {
+    margin: 0;
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-bold);
+  }
+
+  p {
+    margin: 2px 0 0;
+    font-size: var(--fs-2xs);
+    color: var(--text-3);
+  }
+}
+
+.headerWinners h3 {
+  color: var(--warning);
+}
+
+.headerPolicy h3 {
+  color: var(--info);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-4);
+  border-top: 1px solid var(--border);
+
+  &:first-child {
+    border-top: none;
+  }
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-width: 0;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--numeric);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-bold);
+  flex-shrink: 0;
+}
+
+.avatarWarning {
+  background: var(--warning-tint);
+  border: 1px solid var(--warning);
+  color: var(--warning);
+}
+
+.avatarInfo {
+  background: var(--info-tint);
+  border: 1px solid var(--info);
+  color: var(--info);
+}
+
+.number {
+  @include numeric;
+
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
+  color: var(--success);
+}
+
+.label {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--text);
+}
+
+.name {
+  font-size: var(--fs-2xs);
+  color: var(--text-3);
+  margin-top: 1px;
+}
+
+.credit {
+  font-family: var(--numeric);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-sm);
+  color: var(--success);
+}
