@@ -22,6 +22,9 @@ export const routing = defineRouting({
   locales: activeLocales,
   defaultLocale,
   localePrefix: 'always',
+  // A visitor who hasn't picked a language yet (no `ll_locale` cookie) gets
+  // `defaultLocale` as-is — browser Accept-Language is never consulted.
+  localeDetection: false,
   localeCookie: {
     name: 'll_locale',
     maxAge: 60 * 60 * 24 * 365,
