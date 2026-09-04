@@ -1,0 +1,3 @@
+// Barrel export for abstracts directory
+// This allows `@use 'styles/abstracts' as *;` to work correctly
+@forward './abstracts/index';
