@@ -7,6 +7,7 @@
 }
 
 .roundBtn {
+  @include numeric;
   aspect-ratio: 1;
   border-radius: var(--radius-sm);
   display: flex;
