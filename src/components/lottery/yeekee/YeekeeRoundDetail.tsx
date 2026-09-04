@@ -102,6 +102,10 @@ export function YeekeeRoundDetail({
       <PackagePickerModal
         round={showPicker ? marketRound : null}
         onClose={() => setShowPicker(false)}
+        onPicked={() => {
+          setShowPicker(false);
+          router.push(`/lottery/yeekee/${round.marketId}/${round.id}`);
+        }}
       />
     </div>
   );
