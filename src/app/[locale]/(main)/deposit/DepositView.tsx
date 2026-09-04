@@ -126,7 +126,7 @@ export function DepositView() {
             {walletLoading ? (
               <Skeleton width={180} height={38} />
             ) : (
-              <Money value={wallet?.balance ?? 0} size="xl" tone="accent" suffix="THB" />
+              <Money value={wallet?.balance ?? 0} size="xl" tone="accent" suffix="Credit" />
             )}
           </div>
 

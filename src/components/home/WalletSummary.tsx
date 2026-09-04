@@ -117,7 +117,7 @@ export function WalletSummary({ showActions = true }: { showActions?: boolean })
           {isLoading ? (
             <Skeleton width={100} height={22} />
           ) : (
-            <Money value={wallet?.balance ?? 0} size="lg" tone="accent" compact suffix="THB" />
+            <Money value={wallet?.balance ?? 0} size="lg" tone="accent" compact suffix="Credit" />
           )}
         </Stat>
 

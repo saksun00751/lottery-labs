@@ -155,7 +155,7 @@ export function WithdrawView() {
                 value={result.amount}
                 size="sm"
                 tone="accent"
-                suffix="THB"
+                suffix="Credit"
                 className={styles.detailHighlight}
               />
             </div>
@@ -201,7 +201,7 @@ export function WithdrawView() {
             {walletLoading ? (
               <Skeleton width={180} height={38} />
             ) : (
-              <Money value={balance} size="xl" tone="accent" suffix="THB" />
+              <Money value={balance} size="xl" tone="accent" suffix="Credit" />
             )}
           </div>
 
@@ -326,7 +326,7 @@ export function WithdrawView() {
               {promoActive ? (
                 <div className={styles.summaryRow}>
                   <span className={styles.summaryLabel}>{t('promoForceInput')}</span>
-                  <Money value={forcedAmount} size="sm" tone="accent" suffix="THB" />
+                  <Money value={forcedAmount} size="sm" tone="accent" suffix="Credit" />
                 </div>
               ) : (
                 <>
@@ -440,7 +440,7 @@ export function WithdrawView() {
                 value={amount}
                 size="sm"
                 tone="danger"
-                suffix="THB"
+                suffix="Credit"
                 className={styles.detailHighlight}
               />
             </div>
