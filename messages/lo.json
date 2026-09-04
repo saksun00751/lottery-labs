@@ -229,6 +229,45 @@
       "discount": "ສ່ວນຫຼຸດ ({percent}%)",
       "netStake": "ຍອດຫຼັງຫັກສ່ວນຫຼຸດ"
     },
+    "yeekee": {
+      "roundNumber": "ງວດທີ {no}",
+      "phase": {
+        "bet": "ເປີດຮັບແທງ",
+        "shoot": "ເປີດຮັບຍິງເລກ",
+        "done": "ອອກຜົນແລ້ວ"
+      },
+      "state": {
+        "live": "ກຳລັງຫຼິ້ນ",
+        "upcoming": "ລໍຖ້າເປີດ",
+        "done": "ອອກຜົນ"
+      },
+      "betClosesIn": "ປິດຮັບແທງໃນ",
+      "shootClosesIn": "ປິດຮັບຍິງເລກໃນ",
+      "playThisRound": "ເຂົ້າຫຼິ້ນງວດນີ້",
+      "viewResult": "ເບິ່ງຜົນລາງວັນ",
+      "noRounds": "ຍັງບໍ່ມີງວດເປີດມື້ນີ້",
+      "shootTab": "ຍິງເລກ",
+      "shootTitle": "ສົ່ງເລກຍິງ",
+      "shootHint": "ໃສ່ເລກຍິງ 5 ຫຼັກ",
+      "randomFill": "ສຸ່ມເລກ",
+      "shootSubmitting": "ກຳລັງຍິງເລກ...",
+      "shootCooldown": "ຍິງຄັ້ງຕໍ່ໄປໃນ {seconds} ວິນາທີ",
+      "shootFailed": "ສົ່ງເລກຍິງບໍ່ສຳເລັດ ກະລຸນາລອງໃໝ່",
+      "shootClosed": "ປິດຮັບຍິງເລກແລ້ວ",
+      "shootsListTitle": "ລາຍການຜູ້ທາຍເລກ",
+      "shootsListCount": "ທັງໝົດ {count} ລາຍການ",
+      "noShoots": "ຍັງບໍ່ມີລາຍການຍິງເລກ",
+      "unnamed": "ບໍ່ລະບຸຊື່",
+      "resultTitle": "ຜົນງວດທີ {no}",
+      "provablyFair": "ຢືນຢັນໄດ້ (provably fair)",
+      "top3": "3 ໂຕເທິງ",
+      "bottom2": "2 ໂຕລຸ່ມ",
+      "rewardListTitle": "ລາຍການຜູ້ໄດ້ຮັບລາງວັນທາຍເລກ",
+      "rewardListCount": "{count} ລາຍການ",
+      "noWinners": "ງວດນີ້ບໍ່ມີຜູ້ໄດ້ຮັບລາງວັນ",
+      "rewardPolicyTitle": "ລາຍລະອຽດລາງວັນທີ່ຈະໄດ້ຮັບ",
+      "rewardPolicySubtitle": "ຕາຕະລາງອັດຕາຈ່າຍ"
+    },
     "results": {
       "title": "ກວດຜົນຫວຍ",
       "subtitle": "ຜົນລາງວັນຍ້ອນຫຼັງທຸກປະເພດ",

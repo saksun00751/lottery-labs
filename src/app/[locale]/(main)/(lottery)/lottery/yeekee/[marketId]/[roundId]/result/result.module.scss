@@ -1,0 +1,77 @@
+@use 'styles/abstracts' as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.hero {
+  @include card;
+  padding: var(--sp-5);
+  text-align: center;
+}
+
+.heroLabel {
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+  font-weight: var(--fw-semibold);
+  margin-bottom: var(--sp-3);
+}
+
+.digitsRow {
+  display: flex;
+  justify-content: center;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-3);
+}
+
+.digitGroup {
+  display: flex;
+  gap: 3px;
+}
+
+.digit {
+  @include numeric;
+  width: 26px;
+  height: 38px;
+  border-radius: var(--radius-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+}
+
+.top {
+  background: var(--success-tint);
+  color: var(--success);
+  border: 1.5px solid var(--success);
+}
+
+.bottom {
+  background: var(--info-tint);
+  color: var(--info);
+  border: 1.5px solid var(--info);
+}
+
+.digitCaption {
+  font-size: var(--fs-2xs);
+  color: var(--text-3);
+  font-weight: var(--fw-semibold);
+  margin-top: var(--sp-1);
+}
+
+.proofBox {
+  @include numeric;
+  margin-top: var(--sp-3);
+  text-align: left;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-3);
+  font-size: var(--fs-2xs);
+  color: var(--text-2);
+  line-height: 1.7;
+  word-break: break-all;
+}

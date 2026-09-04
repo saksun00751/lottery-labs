@@ -42,6 +42,13 @@ import type {
   WheelSegment,
   WheelSpinResult,
   WithdrawInfo,
+  YeekeeResultProof,
+  YeekeeRewardTier,
+  YeekeeRewardWinner,
+  YeekeeRound,
+  YeekeeRoundStatus,
+  YeekeeShoot,
+  YeekeeShootsPage,
 } from '@/types';
 import { bangkokToIso, formatDrawDate } from '@/lib/utils/bangkok-time';
 import { toMajor, toMinor } from '@/lib/utils/money';
@@ -933,6 +940,197 @@ function normalizeSelectedPackage(payload: SelectedPackageResponse): LotteryPack
   };
 }
 
+/* -------------------------------- yeekee --------------------------------- */
+
+interface YeekeeRoundsResponse {
+  data?: {
+    market_id?: number;
+    draw_date?: string;
+    count?: number;
+    items?: Array<{
+      market_id: number;
+      draw_id: number;
+      round_id: number;
+      round_no: number;
+      bet_open_at?: string;
+      bet_close_at?: string;
+      shoot_open_at?: string;
+      shoot_close_at?: string;
+      result_compute_at?: string;
+      status?: string;
+      is_open_for_play?: boolean;
+      is_final?: boolean;
+    }>;
+  };
+}
+
+const YEEKEE_STATUS: Record<string, YeekeeRoundStatus> = {
+  open: 'open',
+  closed: 'closed',
+  resulted: 'resulted',
+  voided: 'voided',
+};
+
+function normalizeYeekeeRounds(marketId: string, payload: YeekeeRoundsResponse): YeekeeRound[] {
+  const items = payload.data?.items ?? [];
+  return items.map((item): YeekeeRound => ({
+    id: String(item.round_id),
+    marketId,
+    roundNo: item.round_no,
+    betOpensAt: bangkokToIso(item.bet_open_at) ?? '',
+    betClosesAt: bangkokToIso(item.bet_close_at) ?? '',
+    shootOpensAt: bangkokToIso(item.shoot_open_at) ?? '',
+    shootClosesAt: bangkokToIso(item.shoot_close_at) ?? '',
+    resultComputeAt: bangkokToIso(item.result_compute_at) ?? '',
+    status: YEEKEE_STATUS[item.status ?? ''] ?? 'closed',
+    isOpenForPlay: item.is_open_for_play ?? false,
+    isFinal: item.is_final ?? false,
+  }));
+}
+
+interface YeekeeShootsResponse {
+  data?: {
+    round_id?: number;
+    display_mode?: string;
+    is_number_revealed?: boolean;
+    shoot_sum?: string;
+    shoot_count?: number;
+    items?: Array<{
+      position: number;
+      number_text?: string;
+      number_masked?: string;
+      number_revealed?: string;
+      is_number_revealed?: boolean;
+      member_name_prefix_masked?: string;
+      submitted_at?: string;
+    }>;
+    pagination?: {
+      page?: number;
+      limit?: number;
+      count?: number;
+      total?: number;
+      has_more?: boolean;
+    };
+  };
+}
+
+function normalizeYeekeeShoots(roundId: string, payload: YeekeeShootsResponse): YeekeeShootsPage {
+  const data = payload.data ?? {};
+  const items = data.items ?? [];
+  return {
+    roundId,
+    displayMode: data.display_mode ?? '',
+    isNumberRevealed: data.is_number_revealed ?? false,
+    shootSum: data.shoot_sum,
+    shootCount: data.shoot_count ?? 0,
+    items: items.map((it): YeekeeShoot => ({
+      position: it.position,
+      numberText: it.number_text ?? it.number_revealed,
+      isRevealed: it.is_number_revealed ?? false,
+      memberNamePrefixMasked: it.member_name_prefix_masked ?? '',
+      submittedAt: bangkokToIso(it.submitted_at) ?? '',
+    })),
+    pagination: {
+      page: data.pagination?.page ?? 1,
+      limit: data.pagination?.limit ?? items.length,
+      count: data.pagination?.count ?? items.length,
+      total: data.pagination?.total ?? items.length,
+      hasMore: data.pagination?.has_more ?? false,
+    },
+  };
+}
+
+interface YeekeeRewardTierApi {
+  position: number;
+  label: string;
+  credit_amount: number;
+}
+
+interface YeekeeResultProofResponse {
+  data?: {
+    round_id?: number;
+    round_no?: number;
+    draw_id?: number;
+    draw_date?: string;
+    status?: string;
+    is_revealed?: boolean;
+    shoot_summary?: {
+      shoot_sum?: string;
+      shoot_count?: number;
+      shoot_source?: string;
+    };
+    shoot_rewards?: {
+      policy?: YeekeeRewardTierApi[];
+      policy_meta?: { reward_enabled?: boolean; currency?: string };
+      winners?: Array<
+        YeekeeRewardTierApi & {
+          member_name_prefix_masked?: string;
+          member_name_masked?: string;
+          winner_credit_status?: string;
+          shoot?: { number_text?: string; is_number_revealed?: boolean; submitted_at?: string };
+        }
+      >;
+    };
+    proof?: {
+      formula_label?: string;
+      precommit_signature?: string;
+      proof_signature?: string;
+      external_seed_reference?: string;
+      result_payload?: { raw_result?: string; top_3?: string; bottom_2?: string };
+    };
+    server_time?: string;
+  };
+}
+
+function normalizeYeekeeTier(tier: YeekeeRewardTierApi): YeekeeRewardTier {
+  return { position: tier.position, label: tier.label, creditAmount: toMinor(tier.credit_amount) };
+}
+
+function normalizeYeekeeResultProof(payload: YeekeeResultProofResponse): YeekeeResultProof {
+  const data = payload.data ?? {};
+  const rewards = data.shoot_rewards ?? {};
+  const proof = data.proof ?? {};
+  return {
+    roundId: String(data.round_id ?? ''),
+    roundNo: data.round_no ?? 0,
+    drawId: String(data.draw_id ?? ''),
+    drawDate: data.draw_date ?? '',
+    status: data.status ?? '',
+    isRevealed: data.is_revealed ?? false,
+    shootSummary: {
+      shootSum: data.shoot_summary?.shoot_sum,
+      shootCount: data.shoot_summary?.shoot_count ?? 0,
+      shootSource: data.shoot_summary?.shoot_source ?? '',
+    },
+    rewardPolicy: (rewards.policy ?? []).map(normalizeYeekeeTier),
+    rewardPolicyMeta: {
+      rewardEnabled: rewards.policy_meta?.reward_enabled ?? false,
+      currency: rewards.policy_meta?.currency ?? 'THB',
+    },
+    winners: (rewards.winners ?? []).map((w): YeekeeRewardWinner => ({
+      ...normalizeYeekeeTier(w),
+      memberNamePrefixMasked: w.member_name_prefix_masked ?? '',
+      memberNameMasked: w.member_name_masked ?? '',
+      winnerCreditStatus: w.winner_credit_status ?? '',
+      shoot: {
+        numberText: w.shoot?.number_text,
+        isRevealed: w.shoot?.is_number_revealed ?? false,
+        submittedAt: bangkokToIso(w.shoot?.submitted_at) ?? '',
+      },
+    })),
+    proof: {
+      formulaLabel: proof.formula_label ?? '',
+      precommitSignature: proof.precommit_signature ?? '',
+      proofSignature: proof.proof_signature ?? '',
+      externalSeedReference: proof.external_seed_reference ?? '',
+      resultTop3: proof.result_payload?.top_3,
+      resultBottom2: proof.result_payload?.bottom_2,
+      rawResult: proof.result_payload?.raw_result,
+    },
+    serverTime: bangkokToIso(data.server_time) ?? '',
+  };
+}
+
 export const lotteryApi = {
   rounds: (_category?: string) =>
     apiFetch<MarketsLatestResponse>('lotto/markets/latest').then(normalizeRounds),
@@ -1025,6 +1223,28 @@ export const lotteryApi = {
       }),
     );
   },
+
+  yeekeeRounds: (marketId: string) =>
+    apiFetch<YeekeeRoundsResponse>(`lotto/yeekee/markets/${marketId}/rounds`).then((payload) =>
+      normalizeYeekeeRounds(marketId, payload),
+    ),
+
+  submitYeekeeShoot: (roundId: string, number: string) =>
+    apiFetch<{ success?: boolean; message?: string }>(`lotto/yeekee/rounds/${roundId}/shoot`, {
+      method: 'POST',
+      body: { number },
+      idempotencyKey: newIdempotencyKey(),
+    }).then(assertSuccess),
+
+  yeekeeShoots: (roundId: string, page: number, limit: number) =>
+    apiFetch<YeekeeShootsResponse>(`lotto/yeekee/rounds/${roundId}/shoots`, {
+      query: { page, limit },
+    }).then((payload) => normalizeYeekeeShoots(roundId, payload)),
+
+  yeekeeResultProof: (roundId: string) =>
+    apiFetch<YeekeeResultProofResponse>(`lotto/yeekee/rounds/${roundId}/result-proof`).then(
+      normalizeYeekeeResultProof,
+    ),
 };
 
 /* ---------------------------------- wallet ------------------------------- */

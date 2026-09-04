@@ -21,9 +21,12 @@ import styles from './PackagePickerModal.module.scss';
 export function PackagePickerModal({
   round,
   onClose,
+  onPicked,
 }: {
   round: LotteryRound | null;
   onClose: () => void;
+  /** Overrides the default `/lottery/{round.id}` navigation on a successful pick — used by the yeekee rounds board, which needs to land on `/lottery/yeekee/{marketId}/{roundId}` instead. */
+  onPicked?: () => void;
 }) {
   const t = useTranslations('lottery.package');
   const tCommon = useTranslations('common');
@@ -41,7 +44,11 @@ export function PackagePickerModal({
       {
         onSuccess: () => {
           onClose();
-          router.push(`/lottery/${round.id}`);
+          if (onPicked) {
+            onPicked();
+          } else {
+            router.push(`/lottery/${round.id}`);
+          }
         },
         onError: () => {
           pushToast({ tone: 'danger', title: tCommon('error'), description: tCommon('errorHint') });

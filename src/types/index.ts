@@ -248,6 +248,95 @@ export interface ResultGroup {
   markets: ResultMarket[];
 }
 
+/* ------------------------------- Yeekee ---------------------------------- */
+
+export type YeekeeRoundStatus = 'open' | 'closed' | 'resulted' | 'voided';
+
+export interface YeekeeRound {
+  id: string;
+  marketId: string;
+  roundNo: number;
+  betOpensAt: string;
+  betClosesAt: string;
+  shootOpensAt: string;
+  shootClosesAt: string;
+  resultComputeAt: string;
+  status: YeekeeRoundStatus;
+  isOpenForPlay: boolean;
+  isFinal: boolean;
+}
+
+export interface YeekeeShoot {
+  position: number;
+  numberText?: string;
+  isRevealed: boolean;
+  memberNamePrefixMasked: string;
+  submittedAt: string;
+}
+
+export interface YeekeeShootsPage {
+  roundId: string;
+  displayMode: string;
+  isNumberRevealed: boolean;
+  shootSum?: string;
+  shootCount: number;
+  items: YeekeeShoot[];
+  pagination: {
+    page: number;
+    limit: number;
+    count: number;
+    total: number;
+    hasMore: boolean;
+  };
+}
+
+export interface YeekeeRewardTier {
+  position: number;
+  label: string;
+  creditAmount: Minor;
+}
+
+export interface YeekeeRewardWinner extends YeekeeRewardTier {
+  memberNamePrefixMasked: string;
+  memberNameMasked: string;
+  winnerCreditStatus: string;
+  shoot: {
+    numberText?: string;
+    isRevealed: boolean;
+    submittedAt: string;
+  };
+}
+
+export interface YeekeeResultProof {
+  roundId: string;
+  roundNo: number;
+  drawId: string;
+  drawDate: string;
+  status: string;
+  isRevealed: boolean;
+  shootSummary: {
+    shootSum?: string;
+    shootCount: number;
+    shootSource: string;
+  };
+  rewardPolicy: YeekeeRewardTier[];
+  rewardPolicyMeta: {
+    rewardEnabled: boolean;
+    currency: string;
+  };
+  winners: YeekeeRewardWinner[];
+  proof: {
+    formulaLabel: string;
+    precommitSignature: string;
+    proofSignature: string;
+    externalSeedReference: string;
+    resultTop3?: string;
+    resultBottom2?: string;
+    rawResult?: string;
+  };
+  serverTime: string;
+}
+
 /* --------------------------------- Money -------------------------------- */
 
 // Mirrors lotto-seed-app's `wallet/transactions` tab set (`TAB_IDS` in
