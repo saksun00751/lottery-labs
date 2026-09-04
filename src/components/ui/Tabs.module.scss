@@ -19,25 +19,42 @@
 }
 
 .pillList {
-  background: var(--surface-2);
+  /* A track visibly darker/lighter than the page background (not just one
+     step off it) so the tab bar reads as its own control at a glance —
+     the previous `--surface-2` track was too close to `--bg` in several
+     themes, and combined with the muted inactive-tab text, the whole bar
+     was hard to make out. */
+  background: var(--surface-3);
   border: 1px solid var(--border);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-md);
   padding: 4px;
-  gap: 2px;
-  width: fit-content;
-  max-width: 100%;
+  gap: 4px;
+  /* Segments fill the row edge-to-edge instead of hugging their own text
+     width — each tab reads as an equal, deliberate slot in the track
+     rather than a loose label floating on a barely-visible background.
+     Capped so a 2-3 item switcher doesn't stretch into one huge segment
+     on a wide desktop content column — it still fills its own row on
+     narrow mobile widths, where the cap never binds. */
+  width: 100%;
+  max-width: 420px;
 }
 
 .tab {
   @include tappable;
   @include transition(background, color, border-color);
-  flex-shrink: 0;
+  /* Grow to fill the track evenly when there's room (2-4 item lists), but
+     never shrink below its own label — a track with more items than fit
+     still falls back to the container's horizontal scroll instead of
+     squeezing labels unreadably thin. */
+  flex: 1 0 auto;
+  min-width: max-content;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--sp-2);
   padding: var(--sp-2) var(--sp-4);
   min-height: 40px;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
   font-size: var(--fs-sm);
   font-weight: var(--fw-medium);
   color: var(--text-2);
@@ -45,7 +62,7 @@
 
   &:hover:not(.active) {
     color: var(--text);
-    background: var(--surface-3);
+    background: var(--surface-1);
   }
 }
 
@@ -75,7 +92,9 @@
   font-size: var(--fs-2xs);
   padding: 1px 7px;
   border-radius: var(--radius-pill);
-  background: var(--surface-3);
+  /* One step lighter than `.pillList`'s own `--surface-3` track, or the
+     count badge on an inactive tab disappears into the track behind it. */
+  background: var(--surface-1);
   color: var(--text-2);
 }
 
