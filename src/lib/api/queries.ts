@@ -41,6 +41,9 @@ export const qk = {
   results: ['lottery', 'results'] as const,
   tickets: () => ['lottery', 'tickets'] as const,
   ticketDetail: (id: string) => ['lottery', 'ticket', id] as const,
+  yeekeeRounds: (marketId: string) => ['lottery', 'yeekee', 'rounds', marketId] as const,
+  yeekeeShoots: (roundId: string) => ['lottery', 'yeekee', 'shoots', roundId] as const,
+  yeekeeResultProof: (roundId: string) => ['lottery', 'yeekee', 'result-proof', roundId] as const,
   transactions: (
     type: TransactionType | 'all',
     dateStart: string,
@@ -152,6 +155,47 @@ export function useSelectPackage() {
       lotteryApi.selectPackage(groupId, packageId),
     onSuccess: (_data, vars) => {
       queryClient.invalidateQueries({ queryKey: qk.selectedPackage(vars.groupId) });
+    },
+  });
+}
+
+/** Matches the reference app's own polling cadence exactly — countdowns are
+ * computed client-side via `useCountdown`, this just keeps round status honest. */
+export const useYeekeeRounds = (marketId: string) =>
+  useQuery({
+    queryKey: qk.yeekeeRounds(marketId),
+    queryFn: () => lotteryApi.yeekeeRounds(marketId),
+    enabled: !!marketId,
+    refetchInterval: 60_000,
+  });
+
+export const useYeekeeShoots = (
+  roundId: string,
+  { page = 1, limit = 20, autoRefresh = true }: { page?: number; limit?: number; autoRefresh?: boolean } = {},
+) =>
+  useQuery({
+    queryKey: [...qk.yeekeeShoots(roundId), page, limit],
+    queryFn: () => lotteryApi.yeekeeShoots(roundId, page, limit),
+    enabled: !!roundId,
+    refetchInterval: autoRefresh ? 8_000 : false,
+  });
+
+export const useYeekeeResultProof = (roundId: string) =>
+  useQuery({
+    queryKey: qk.yeekeeResultProof(roundId),
+    queryFn: () => lotteryApi.yeekeeResultProof(roundId),
+    enabled: !!roundId,
+  });
+
+/** On success, invalidates this round's shoots feed so it refreshes
+ * immediately — the react-query equivalent of the reference app's
+ * `window.dispatchEvent(new CustomEvent('yeekee-shoot-submitted'))`. */
+export function useSubmitYeekeeShoot(roundId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (number: string) => lotteryApi.submitYeekeeShoot(roundId, number),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: qk.yeekeeShoots(roundId) });
     },
   });
 }
