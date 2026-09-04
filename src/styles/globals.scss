@@ -36,6 +36,17 @@ html {
   --font-lao: var(--f-lao), 'Noto Sans Lao', var(--font-latin);
   --font-khmer: var(--f-khmer), 'Noto Sans Khmer', var(--font-latin);
   --font-ui: var(--font-latin);
+
+  /* Brand-logo backdrop — logos are admin-supplied and may use dark colors
+     that vanish against a dark theme, so a light chip sits behind them by
+     default. Toggle with NEXT_PUBLIC_LOGO_WHITE_BG. */
+  --logo-chip-bg: #fff;
+  --logo-chip-pad: var(--sp-2);
+}
+
+html[data-logo-chip='off'] {
+  --logo-chip-bg: transparent;
+  --logo-chip-pad: 0px;
 }
 
 /* Burmese / Lao / Khmer need their own face or the glyph stacking breaks.

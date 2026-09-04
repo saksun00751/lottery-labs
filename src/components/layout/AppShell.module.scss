@@ -56,10 +56,13 @@
   height: 100px;
   max-width: 200px;
   max-height: 100px;
+  padding: var(--logo-chip-pad);
+  box-sizing: border-box;
   object-fit: contain;
   border-radius: 8px;
   flex-shrink: 0;
   display: block;
+  background: var(--logo-chip-bg);
 }
 
 .brandName {

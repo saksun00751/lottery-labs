@@ -53,9 +53,12 @@
 .brandLogo {
   width: 96px;
   height: 96px;
+  padding: var(--logo-chip-pad);
+  box-sizing: border-box;
   object-fit: contain;
   border-radius: var(--radius-lg);
   display: block;
+  background: var(--logo-chip-bg);
   box-shadow: var(--shadow-accent);
 }
 
@@ -160,15 +163,4 @@
   &:hover {
     text-decoration: underline;
   }
-}
-
-.demoHint {
-  margin-top: var(--sp-4);
-  padding: var(--sp-3) var(--sp-4);
-  border-radius: var(--radius-sm);
-  background: var(--info-tint);
-  color: var(--info);
-  font-size: var(--fs-xs);
-  text-align: center;
-  line-height: var(--lh-snug);
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, Languages } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRef, useState, useTransition } from 'react';
 
@@ -41,7 +41,9 @@ export function LanguageSwitcher() {
         disabled={pending}
         onClick={() => setOpen((v) => !v)}
       >
-        <Languages size={20} />
+        <span className={styles.flag} aria-hidden>
+          {localeMeta[locale].flag}
+        </span>
       </button>
 
       {open && (
