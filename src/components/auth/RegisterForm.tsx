@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertCircle, Landmark, Loader2, UserPlus } from 'lucide-react';
+import { AlertCircle, Landmark, UserPlus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -25,9 +25,6 @@ import {
 import type { Bank } from '@/types';
 
 import styles from '../../app/[locale]/(auth)/auth.module.scss';
-
-/** Wallet accounts have no name lookup upstream — the member types their own. */
-const NO_NAME_LOOKUP_BANK = '18';
 
 /** Where the campaign code from `?market=` survives a page reload. */
 const MARKETING_STORAGE_KEY = 'marketing_code';
@@ -57,8 +54,6 @@ export function RegisterForm() {
   const { data: banks, isLoading: banksLoading } = useBanks();
   const [formError, setFormError] = useState<string | null>(null);
   const [marketingCode, setMarketingCode] = useState('');
-  const [lookupPending, setLookupPending] = useState(false);
-  const [lookupError, setLookupError] = useState<string | null>(null);
 
   const schema = useMemo(() => registerSchema(mode), [mode]);
   const {
@@ -101,51 +96,6 @@ export function RegisterForm() {
   }, [setValue]);
 
   const bankCode = watch('bankCode');
-  const accountNumber = watch('bankAccountNumber');
-
-  // Once the account number looks complete, ask the backend who owns it and
-  // fill the name in. The member can still overwrite what comes back.
-  useEffect(() => {
-    setLookupError(null);
-
-    const digits = (accountNumber ?? '').replace(/\D/g, '');
-    if (
-      !bankCode ||
-      bankCode === NO_NAME_LOOKUP_BANK ||
-      digits.length < ACCOUNT_NUMBER_MIN
-    ) {
-      setLookupPending(false);
-      return;
-    }
-
-    let cancelled = false;
-    setLookupPending(true);
-
-    const timer = setTimeout(async () => {
-      try {
-        const result = await authApi.lookupBankAccountName(bankCode, digits);
-        if (cancelled) return;
-        if (result.firstName || result.lastName) {
-          setValue('firstName', result.firstName, { shouldValidate: true });
-          setValue('lastName', result.lastName, { shouldValidate: true });
-        } else {
-          setLookupError(result.message || t('accountNameNotFound'));
-        }
-      } catch (error) {
-        if (cancelled) return;
-        setLookupError(
-          error instanceof ApiError ? error.message : t('accountNameNotFound'),
-        );
-      } finally {
-        if (!cancelled) setLookupPending(false);
-      }
-    }, 400);
-
-    return () => {
-      cancelled = true;
-      clearTimeout(timer);
-    };
-  }, [bankCode, accountNumber, setValue, t]);
 
   const identifierLabel = mode === 'phone' ? t('phone') : t('username');
 
@@ -212,11 +162,6 @@ export function RegisterForm() {
 
   const bankList = (banks as Bank[] | undefined) ?? [];
 
-  const accountNumberError =
-    message(errors.bankAccountNumber?.message, t('bankAccountNumber')) ??
-    lookupError ??
-    undefined;
-
   return (
     <form className={styles.form} onSubmit={onSubmit} noValidate>
       {formError && (
@@ -252,14 +197,7 @@ export function RegisterForm() {
         placeholder={t('bankAccountNumberPlaceholder')}
         inputMode="numeric"
         autoComplete="off"
-        error={accountNumberError}
-        hint={
-          lookupPending ? (
-            <>
-              <Loader2 size={13} aria-hidden /> {t('accountNameChecking')}
-            </>
-          ) : undefined
-        }
+        error={message(errors.bankAccountNumber?.message, t('bankAccountNumber'))}
       />
 
       <div className={styles.row}>
