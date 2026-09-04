@@ -1,0 +1,94 @@
+@use 'styles/abstracts' as *;
+
+.panel {
+  @include card;
+}
+
+.header {
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--accent-gradient);
+
+  h3 {
+    margin: 0;
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-bold);
+    color: var(--text-on-accent);
+  }
+
+  p {
+    margin: 2px 0 0;
+    font-size: var(--fs-2xs);
+    color: var(--text-on-accent);
+    opacity: 0.85;
+  }
+}
+
+.body {
+  padding: var(--sp-4);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-4);
+  border-top: 1px solid var(--border);
+  transition: background 0.3s var(--ease-out);
+
+  &:first-child {
+    border-top: none;
+  }
+}
+
+.new {
+  background: var(--surface-3);
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-width: 0;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--numeric);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-bold);
+  flex-shrink: 0;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  color: var(--accent);
+}
+
+.number {
+  @include numeric;
+
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.08em;
+  color: var(--text);
+}
+
+.revealed {
+  color: var(--success);
+}
+
+.name {
+  font-size: var(--fs-2xs);
+  color: var(--text-3);
+  margin-top: 1px;
+}
