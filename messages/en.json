@@ -30,7 +30,7 @@
   },
   "nav": {
     "home": "Home",
-    "lottery": "Play",
+    "lottery": "Lottery",
     "lotteryGroups": "Lottery Groups",
     "todayLottery": "Today's Lottery",
     "slip": "My slips",
@@ -43,7 +43,7 @@
     "history": "Transactions",
     "referral": "Refer a friend",
     "profile": "Profile",
-    "contact": "Contact us",
+    "contact": "Contact",
     "changePassword": "Change password",
     "logout": "Log out",
     "login": "Log in",
@@ -117,7 +117,7 @@
     "itemsCount": "items"
   },
   "lottery": {
-    "title": "Play lottery",
+    "title": "Lottery",
     "chooseRound": "Choose a round to play",
     "closesIn": "Closes in",
     "closed": "Closed",
