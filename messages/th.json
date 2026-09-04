@@ -229,6 +229,45 @@
       "discount": "ส่วนลด ({percent}%)",
       "netStake": "ยอดหลังหักส่วนลด"
     },
+    "yeekee": {
+      "roundNumber": "รอบที่ {no}",
+      "phase": {
+        "bet": "เปิดรับแทง",
+        "shoot": "เปิดรับยิงเลข",
+        "done": "ออกผลแล้ว"
+      },
+      "state": {
+        "live": "เล่นอยู่",
+        "upcoming": "รอเปิด",
+        "done": "ออกผล"
+      },
+      "betClosesIn": "ปิดรับแทงใน",
+      "shootClosesIn": "ปิดรับยิงเลขใน",
+      "playThisRound": "เข้าเล่นรอบนี้",
+      "viewResult": "ดูผลรางวัล",
+      "noRounds": "ยังไม่มีรอบเปิดวันนี้",
+      "shootTab": "ยิงเลข",
+      "shootTitle": "ส่งเลขยิง",
+      "shootHint": "ใส่เลขยิง 5 หลัก",
+      "randomFill": "สุ่มเลข",
+      "shootSubmitting": "กำลังยิงเลข...",
+      "shootCooldown": "ยิงครั้งถัดไปใน {seconds} วินาที",
+      "shootFailed": "ส่งเลขยิงไม่สำเร็จ กรุณาลองใหม่",
+      "shootClosed": "ปิดรับยิงเลขแล้ว",
+      "shootsListTitle": "รายการผู้ทายเลข",
+      "shootsListCount": "ทั้งหมด {count} รายการ",
+      "noShoots": "ยังไม่มีรายการยิงเลข",
+      "unnamed": "ไม่ระบุชื่อ",
+      "resultTitle": "ผลรอบที่ {no}",
+      "provablyFair": "ยืนยันได้ (provably fair)",
+      "top3": "3 ตัวบน",
+      "bottom2": "2 ตัวล่าง",
+      "rewardListTitle": "รายการผู้ได้รับรางวัลทายเลข",
+      "rewardListCount": "{count} รายการ",
+      "noWinners": "รอบนี้ไม่มีผู้ได้รับรางวัล",
+      "rewardPolicyTitle": "รายละเอียดรางวัลที่จะได้รับ",
+      "rewardPolicySubtitle": "ตารางอัตราจ่าย"
+    },
     "results": {
       "title": "ตรวจผลหวย",
       "subtitle": "ผลรางวัลย้อนหลังทุกประเภท",

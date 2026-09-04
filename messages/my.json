@@ -229,6 +229,45 @@
       "discount": "လျှော့ဈေး ({percent}%)",
       "netStake": "လျှော့ဈေးပြီးနောက် ကျန်ငွေ"
     },
+    "yeekee": {
+      "roundNumber": "အသုတ် {no}",
+      "phase": {
+        "bet": "လောင်းငွေလက်ခံနေသည်",
+        "shoot": "ဂဏန်းပစ်ခွင့်ပြုနေသည်",
+        "done": "ရလဒ်ထွက်ပြီး"
+      },
+      "state": {
+        "live": "ကစားနေသည်",
+        "upcoming": "မစတင်သေး",
+        "done": "ပြီးဆုံး"
+      },
+      "betClosesIn": "လောင်းငွေပိတ်ချိန်",
+      "shootClosesIn": "ဂဏန်းပစ်ချိန်ပိတ်",
+      "playThisRound": "ဒီအသုတ်ကစားမည်",
+      "viewResult": "ရလဒ်ကြည့်ရန်",
+      "noRounds": "ယနေ့ဖွင့်ထားသောအသုတ်မရှိပါ",
+      "shootTab": "ဂဏန်းပစ်ရန်",
+      "shootTitle": "ဂဏန်းပစ်ပို့ရန်",
+      "shootHint": "ဂဏန်း ၅ လုံးထည့်ပါ",
+      "randomFill": "ကျပန်း",
+      "shootSubmitting": "ပို့နေသည်...",
+      "shootCooldown": "နောက်တစ်ကြိမ် {seconds} စက္ကန့်",
+      "shootFailed": "မအောင်မြင်ပါ ထပ်စမ်းကြည့်ပါ",
+      "shootClosed": "ဂဏန်းပစ်ချိန်ပိတ်ပါပြီ",
+      "shootsListTitle": "ဂဏန်းပစ်စာရင်း",
+      "shootsListCount": "စုစုပေါင်း {count} ခု",
+      "noShoots": "ဂဏန်းပစ်မှုမရှိသေးပါ",
+      "unnamed": "အမည်မဖော်ပြပါ",
+      "resultTitle": "အသုတ် {no} ရလဒ်",
+      "provablyFair": "စစ်ဆေးနိုင်သည် (provably fair)",
+      "top3": "ထိပ် ၃ လုံး",
+      "bottom2": "အောက် ၂ လုံး",
+      "rewardListTitle": "ဂဏန်းပစ်အနိုင်ရသူများ",
+      "rewardListCount": "{count} ဦး",
+      "noWinners": "ဒီအသုတ်တွင်အနိုင်ရသူမရှိပါ",
+      "rewardPolicyTitle": "ဆုလက်မှတ်အသေးစိတ်",
+      "rewardPolicySubtitle": "ငွေပေးချေမှုဇယား"
+    },
     "results": {
       "title": "ထီပေါက်စဉ်",
       "subtitle": "ထီအမျိုးအစားအားလုံး၏ ရလဒ်များ",

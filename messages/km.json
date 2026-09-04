@@ -229,6 +229,45 @@
       "discount": "បញ្ចុះតម្លៃ ({percent}%)",
       "netStake": "សរុបក្រោយបញ្ចុះតម្លៃ"
     },
+    "yeekee": {
+      "roundNumber": "ជុំទី {no}",
+      "phase": {
+        "bet": "កំពុងទទួលការភ្នាល់",
+        "shoot": "កំពុងទទួលការទាយលេខ",
+        "done": "ចេញលទ្ធផលហើយ"
+      },
+      "state": {
+        "live": "កំពុងលេង",
+        "upcoming": "រង់ចាំបើក",
+        "done": "ចេញលទ្ធផល"
+      },
+      "betClosesIn": "បិទការភ្នាល់ក្នុងរយៈពេល",
+      "shootClosesIn": "បិទការទាយលេខក្នុងរយៈពេល",
+      "playThisRound": "លេងជុំនេះ",
+      "viewResult": "មើលលទ្ធផល",
+      "noRounds": "មិនទាន់មានជុំបើកថ្ងៃនេះទេ",
+      "shootTab": "ទាយលេខ",
+      "shootTitle": "ផ្ញើលេខទាយ",
+      "shootHint": "បញ្ចូលលេខ 5 ខ្ទង់",
+      "randomFill": "ចៃដន្យ",
+      "shootSubmitting": "កំពុងផ្ញើ...",
+      "shootCooldown": "ទាយបន្ទាប់ក្នុងរយៈពេល {seconds} វិនាទី",
+      "shootFailed": "ផ្ញើមិនបានសម្រេច សូមព្យាយាមម្ដងទៀត",
+      "shootClosed": "បិទការទាយលេខហើយ",
+      "shootsListTitle": "បញ្ជីអ្នកទាយលេខ",
+      "shootsListCount": "សរុប {count} កំណត់ត្រា",
+      "noShoots": "មិនទាន់មានការទាយលេខទេ",
+      "unnamed": "មិនបញ្ជាក់ឈ្មោះ",
+      "resultTitle": "លទ្ធផលជុំទី {no}",
+      "provablyFair": "អាចផ្ទៀងផ្ទាត់បាន (provably fair)",
+      "top3": "3 ខ្ទង់លើ",
+      "bottom2": "2 ខ្ទង់ក្រោម",
+      "rewardListTitle": "អ្នកឈ្នះរង្វាន់ទាយលេខ",
+      "rewardListCount": "{count} នាក់",
+      "noWinners": "ជុំនេះមិនមានអ្នកឈ្នះទេ",
+      "rewardPolicyTitle": "ព័ត៌មានលម្អិតរង្វាន់",
+      "rewardPolicySubtitle": "តារាងអត្រាបង់ប្រាក់"
+    },
     "results": {
       "title": "លទ្ធផលឆ្នោត",
       "subtitle": "លទ្ធផលចាស់ៗគ្រប់ប្រភេទ",

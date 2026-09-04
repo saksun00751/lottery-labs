@@ -229,6 +229,45 @@
       "discount": "Discount ({percent}%)",
       "netStake": "Net after discount"
     },
+    "yeekee": {
+      "roundNumber": "Round {no}",
+      "phase": {
+        "bet": "Betting open",
+        "shoot": "Shooting open",
+        "done": "Result out"
+      },
+      "state": {
+        "live": "Live",
+        "upcoming": "Upcoming",
+        "done": "Done"
+      },
+      "betClosesIn": "Betting closes in",
+      "shootClosesIn": "Shooting closes in",
+      "playThisRound": "Play this round",
+      "viewResult": "View result",
+      "noRounds": "No rounds open today",
+      "shootTab": "Shoot",
+      "shootTitle": "Submit your shoot",
+      "shootHint": "Enter a 5-digit number",
+      "randomFill": "Random",
+      "shootSubmitting": "Submitting...",
+      "shootCooldown": "Next shoot in {seconds}s",
+      "shootFailed": "Couldn't submit — try again",
+      "shootClosed": "Shooting is closed",
+      "shootsListTitle": "Shoots",
+      "shootsListCount": "{count} total",
+      "noShoots": "No shoots yet",
+      "unnamed": "Unnamed",
+      "resultTitle": "Round {no} result",
+      "provablyFair": "Verifiable (provably fair)",
+      "top3": "3-digit top",
+      "bottom2": "2-digit bottom",
+      "rewardListTitle": "Shoot winners",
+      "rewardListCount": "{count} winners",
+      "noWinners": "No winners this round",
+      "rewardPolicyTitle": "Reward details",
+      "rewardPolicySubtitle": "Payout table"
+    },
     "results": {
       "title": "Results",
       "subtitle": "Past results for every lottery",
