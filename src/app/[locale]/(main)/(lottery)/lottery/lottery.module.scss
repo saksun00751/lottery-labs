@@ -12,6 +12,14 @@
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
 }
 
+/* The bet/shoot switcher is the page's primary content switcher (not a
+   filter bar like Tabs' other usages), and reads better centered under
+   the round header than flush left against the page's full-width column —
+   scoped here so it doesn't affect Tabs elsewhere. */
+.centerTabs {
+  margin: 0 auto;
+}
+
 /* ------------------------------ betting page ----------------------------- */
 
 .roundHeader {

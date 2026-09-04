@@ -127,6 +127,7 @@ export function YeekeeBetView({ marketId, roundId }: { marketId: string; roundId
         value={tab}
         onChange={setTab}
         ariaLabel={tYeekee('shootTab')}
+        className={styles.centerTabs}
       />
 
       {tab === 'bet' ? (
