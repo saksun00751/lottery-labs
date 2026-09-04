@@ -30,6 +30,7 @@
   border: 1px dashed var(--border);
   border-radius: var(--radius-lg);
   padding: var(--sp-4) var(--sp-3) var(--sp-3);
+  margin-bottom: var(--sp-2);
 
   &::before,
   &::after {
