@@ -2,6 +2,14 @@
 
 .panel {
   @include card;
+
+  /* Sized to sit as one centered flex item alongside YeekeeShootPanel in
+     `.shootLayout` (lottery.module.scss) once viewports are wide enough
+     for a 2-up row. */
+  @include desktop {
+    flex: 1 1 420px;
+    max-width: 480px;
+  }
 }
 
 .header {

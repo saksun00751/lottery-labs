@@ -158,7 +158,7 @@ export function YeekeeBetView({ marketId, roundId }: { marketId: string; roundId
           {tYeekee('shootClosed')}
         </div>
       ) : (
-        <div className={styles.betLayout}>
+        <div className={styles.shootLayout}>
           <YeekeeShootPanel roundId={yeekeeRound.id} />
           <YeekeeShootsList roundId={yeekeeRound.id} />
         </div>

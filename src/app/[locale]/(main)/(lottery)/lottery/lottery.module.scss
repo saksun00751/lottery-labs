@@ -105,6 +105,26 @@
   }
 }
 
+/* The "ยิงเลข" tab only ever renders 2 cards (shoot panel + live shoots
+   feed), not the 3-column bet/slip layout `.betLayout` is built for —
+   reusing that grid put the shoot panel into its narrow 220px left-rail
+   track on desktop instead of the wide content column, so it rendered
+   small and pinned to the left edge instead of centered. This is a
+   dedicated centered layout instead: both cards sit in one row, centered
+   as a unit, each capped to a comfortable reading width, wrapping to a
+   stacked column below `lg`. */
+.shootLayout {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: start;
+  gap: var(--sp-4);
+
+  @include mobile {
+    padding-bottom: 84px;
+  }
+}
+
 .leftColumn {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
