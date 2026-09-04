@@ -1,10 +1,9 @@
 import { cookies } from 'next/headers';
 import { NextResponse, type NextRequest } from 'next/server';
 
-import { publicEnv } from '@/config/env.public';
 import { serverEnv } from '@/config/env.server';
-import { USER } from '@/lib/api/mock/data';
 import { callUpstream } from '@/lib/api/upstream';
+import { AUTH_FLAG_COOKIE } from '@/lib/auth-cookie';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,18 +44,6 @@ const FIELD_MAP: Record<string, string> = {
 
 export async function POST(request: NextRequest) {
   const payload = (await request.json().catch(() => ({}))) as RegisterBody;
-
-  if (publicEnv.useMock) {
-    await setSession('mock.registered');
-    return NextResponse.json({
-      user: {
-        ...USER,
-        username: payload.identifier ?? USER.username,
-        firstName: payload.firstName ?? USER.firstName,
-        lastName: payload.lastName ?? USER.lastName,
-      },
-    });
-  }
 
   const userName = (payload.identifier ?? '').trim();
   const password = payload.password ?? '';
@@ -113,6 +100,13 @@ async function setSession(token: string) {
   const store = await cookies();
   store.set(serverEnv.sessionCookieName, token, {
     httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/',
+    maxAge: serverEnv.sessionMaxAge,
+  });
+  store.set(AUTH_FLAG_COOKIE, '1', {
+    httpOnly: false,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
     path: '/',

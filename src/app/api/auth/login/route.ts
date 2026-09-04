@@ -1,10 +1,9 @@
 import { cookies } from 'next/headers';
 import { NextResponse, type NextRequest } from 'next/server';
 
-import { publicEnv } from '@/config/env.public';
 import { serverEnv } from '@/config/env.server';
-import { mockLogin } from '@/lib/api/mock/router';
 import { callUpstream } from '@/lib/api/upstream';
+import { AUTH_FLAG_COOKIE } from '@/lib/auth-cookie';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,40 +34,26 @@ export async function POST(request: NextRequest) {
   let status = 200;
   let errorBody: unknown = null;
 
-  if (publicEnv.useMock) {
-    const result = mockLogin(identifier, password);
-    if (result) {
-      token = result.accessToken;
-      user = result.user;
-    } else {
-      status = 401;
-      errorBody = {
-        code: 'invalid_credentials',
-        message: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง',
-      };
-    }
+  const upstream = await callUpstream('auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ user_name: identifier, password }),
+    contentType: 'application/json',
+  });
+  status = upstream.status;
+  const payload = upstream.body as {
+    access_token?: string;
+    member?: unknown;
+    message?: string;
+    success?: boolean;
+  };
+  if (upstream.status < 400 && payload?.access_token) {
+    token = payload.access_token;
+    user = payload.member ?? null;
   } else {
-    const upstream = await callUpstream('auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ user_name: identifier, password }),
-      contentType: 'application/json',
-    });
-    status = upstream.status;
-    const payload = upstream.body as {
-      access_token?: string;
-      member?: unknown;
-      message?: string;
-      success?: boolean;
+    errorBody = {
+      code: 'invalid_credentials',
+      message: safeMessage(payload?.message),
     };
-    if (upstream.status < 400 && payload?.access_token) {
-      token = payload.access_token;
-      user = payload.member ?? null;
-    } else {
-      errorBody = {
-        code: 'invalid_credentials',
-        message: safeMessage(payload?.message),
-      };
-    }
   }
 
   if (!token) {
@@ -78,6 +63,15 @@ export async function POST(request: NextRequest) {
   const store = await cookies();
   store.set(serverEnv.sessionCookieName, token, {
     httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/',
+    maxAge: serverEnv.sessionMaxAge,
+  });
+  // Readable by client JS so it can tell a session exists without holding
+  // the token itself — lets RealtimeProvider skip its auth check for guests.
+  store.set(AUTH_FLAG_COOKIE, '1', {
+    httpOnly: false,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
     path: '/',

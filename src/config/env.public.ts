@@ -1,70 +1,81 @@
-import { z } from 'zod';
-
 /**
  * Client-safe configuration.
  *
  * Every `process.env.NEXT_PUBLIC_*` lookup below is written out in full so the
  * Next.js compiler can inline it into the browser bundle — dynamic lookups
  * (`process.env[key]`) are NOT replaced and would be `undefined` at runtime.
+ *
+ * Validated by hand instead of with Zod: this module is imported from
+ * client components used on nearly every page (e.g. the theme store), and a
+ * schema library big enough for the whole app pulls its entire bundle along
+ * with it just to check a handful of enums and booleans.
  */
 
-const booleanish = z
-  .enum(['true', 'false'])
-  .default('false')
-  .transform((v) => v === 'true');
+const errors: string[] = [];
 
-const schema = z.object({
-  useMock: booleanish,
-  loginMode: z.enum(['username', 'phone']).default('username'),
-  siteMode: z.enum(['lottery', 'games', 'both']).default('both'),
-  locales: z
-    .string()
-    .default('th,en,my,lo,km')
-    .transform((v) => v.split(',').map((s) => s.trim()).filter(Boolean)),
-  defaultLocale: z.string().default('th'),
-  defaultTheme: z.string().default('black-gold'),
-  defaultColorMode: z.enum(['dark', 'light', 'system']).default('dark'),
-  siteName: z.string().default('Lottery Labs'),
-  contact: z.object({
-    line: z.string().default(''),
-    telegram: z.string().default(''),
-    phone: z.string().default(''),
-    email: z.string().default(''),
-  }),
-  features: z.object({
-    referral: booleanish,
-    promotion: booleanish,
-    diamond: booleanish,
-  }),
-});
-
-const parsed = schema.safeParse({
-  useMock: process.env.NEXT_PUBLIC_USE_MOCK,
-  loginMode: process.env.NEXT_PUBLIC_LOGIN_MODE,
-  siteMode: process.env.NEXT_PUBLIC_SITE_MODE,
-  locales: process.env.NEXT_PUBLIC_LOCALES,
-  defaultLocale: process.env.NEXT_PUBLIC_DEFAULT_LOCALE,
-  defaultTheme: process.env.NEXT_PUBLIC_DEFAULT_THEME,
-  defaultColorMode: process.env.NEXT_PUBLIC_DEFAULT_COLOR_MODE,
-  siteName: process.env.NEXT_PUBLIC_SITE_NAME,
-  contact: {
-    line: process.env.NEXT_PUBLIC_CONTACT_LINE,
-    telegram: process.env.NEXT_PUBLIC_CONTACT_TELEGRAM,
-    phone: process.env.NEXT_PUBLIC_CONTACT_PHONE,
-    email: process.env.NEXT_PUBLIC_CONTACT_EMAIL,
-  },
-  features: {
-    referral: process.env.NEXT_PUBLIC_ENABLE_REFERRAL,
-    promotion: process.env.NEXT_PUBLIC_ENABLE_PROMOTION,
-    diamond: process.env.NEXT_PUBLIC_ENABLE_DIAMOND,
-  },
-});
-
-if (!parsed.success) {
-  throw new Error(
-    `Invalid public environment configuration:\n${z.prettifyError(parsed.error)}`,
-  );
+function pickEnum<T extends string>(
+  name: string,
+  value: string | undefined,
+  allowed: readonly T[],
+  fallback: T,
+): T {
+  if (value === undefined) return fallback;
+  if ((allowed as readonly string[]).includes(value)) return value as T;
+  errors.push(`${name}: expected one of ${allowed.join(' | ')}, got "${value}"`);
+  return fallback;
 }
 
-export const publicEnv = parsed.data;
+function pickBool(name: string, value: string | undefined, fallback: boolean): boolean {
+  if (value === undefined) return fallback;
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+  errors.push(`${name}: expected "true" or "false", got "${value}"`);
+  return fallback;
+}
+
+function pickLocales(value: string | undefined, fallback: string): string[] {
+  return (value ?? fallback)
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+export const publicEnv = {
+  loginMode: pickEnum(
+    'NEXT_PUBLIC_LOGIN_MODE',
+    process.env.NEXT_PUBLIC_LOGIN_MODE,
+    ['username', 'phone'] as const,
+    'username',
+  ),
+  siteMode: pickEnum(
+    'NEXT_PUBLIC_SITE_MODE',
+    process.env.NEXT_PUBLIC_SITE_MODE,
+    ['lottery', 'games', 'both'] as const,
+    'both',
+  ),
+  locales: pickLocales(process.env.NEXT_PUBLIC_LOCALES, 'th,en,my,lo,km'),
+  defaultLocale: process.env.NEXT_PUBLIC_DEFAULT_LOCALE ?? 'th',
+  defaultTheme: process.env.NEXT_PUBLIC_DEFAULT_THEME ?? 'black-gold',
+  defaultColorMode: pickEnum(
+    'NEXT_PUBLIC_DEFAULT_COLOR_MODE',
+    process.env.NEXT_PUBLIC_DEFAULT_COLOR_MODE,
+    ['dark', 'light', 'system'] as const,
+    'dark',
+  ),
+  logoWhiteBg: pickBool('NEXT_PUBLIC_LOGO_WHITE_BG', process.env.NEXT_PUBLIC_LOGO_WHITE_BG, true),
+  features: {
+    referral: pickBool('NEXT_PUBLIC_ENABLE_REFERRAL', process.env.NEXT_PUBLIC_ENABLE_REFERRAL, false),
+    promotion: pickBool(
+      'NEXT_PUBLIC_ENABLE_PROMOTION',
+      process.env.NEXT_PUBLIC_ENABLE_PROMOTION,
+      false,
+    ),
+    diamond: pickBool('NEXT_PUBLIC_ENABLE_DIAMOND', process.env.NEXT_PUBLIC_ENABLE_DIAMOND, false),
+  },
+};
+
+if (errors.length) {
+  throw new Error(`Invalid public environment configuration:\n${errors.join('\n')}`);
+}
+
 export type PublicEnv = typeof publicEnv;

@@ -6,6 +6,7 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { qk } from '@/lib/api/queries';
+import { hasAuthFlagCookie } from '@/lib/auth-cookie';
 import { pushToast } from '@/lib/toast';
 
 type RealtimeConfig = {
@@ -75,6 +76,10 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
   const echoRef = useRef<Echo<'pusher'> | null>(null);
 
   useEffect(() => {
+    // No session cookie at all — skip the auth check outright instead of
+    // firing it and letting it 401, which is all a signed-out visitor is.
+    if (!hasAuthFlagCookie()) return;
+
     let active = true;
     let heartbeat: ReturnType<typeof setInterval> | undefined;
     let reconciliation: ReturnType<typeof setTimeout> | undefined;
@@ -184,14 +189,25 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
 
     async function connect() {
       try {
-        const [configResponse, contextResponse] = await Promise.all([
-          fetch('/api/realtime/config', { cache: 'no-store', credentials: 'same-origin' }),
-          fetch('/api/realtime/context', { cache: 'no-store', credentials: 'same-origin' }),
-        ]);
-        if (!active || !configResponse.ok || !contextResponse.ok) return;
+        // `context` reads the httpOnly session cookie server-side and 401s
+        // instantly for a signed-out visitor — check it first so a guest
+        // never triggers the `config` call (a real upstream request) at all.
+        const contextResponse = await fetch('/api/realtime/context', {
+          cache: 'no-store',
+          credentials: 'same-origin',
+        });
+        if (!active || !contextResponse.ok) return;
+
+        const context = unwrap(await contextResponse.json()) as RealtimeContext | null;
+        if (!active || !text(context?.private_channel)) return;
+
+        const configResponse = await fetch('/api/realtime/config', {
+          cache: 'no-store',
+          credentials: 'same-origin',
+        });
+        if (!active || !configResponse.ok) return;
 
         const config = unwrap(await configResponse.json()) as RealtimeConfig | null;
-        const context = unwrap(await contextResponse.json()) as RealtimeContext | null;
         const key = text(config?.key);
         const privateChannel = text(context?.private_channel);
         if (!key || !privateChannel) return;

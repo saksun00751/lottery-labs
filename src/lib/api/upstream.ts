@@ -53,8 +53,7 @@ export async function callUpstream(
       status: 503,
       body: {
         code: 'api_not_configured',
-        message:
-          'API_BASE_URL is not set. Set it in .env.local, or run with NEXT_PUBLIC_USE_MOCK=true.',
+        message: 'API_BASE_URL is not set. Set it in .env.local.',
       },
     };
   }

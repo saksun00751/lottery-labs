@@ -103,12 +103,6 @@ export function LoginForm() {
         {t('loginButton')}
       </Button>
 
-      {publicEnv.useMock && (
-        <p className={styles.demoHint}>
-          {t('demoHint', { identifier: 'demo_player', password: 'password123' })}
-        </p>
-      )}
-
       <p className={styles.switch}>
         {t('noAccount')}
         <Link href="/register" className={styles.switchLink}>
