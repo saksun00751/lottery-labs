@@ -1,0 +1,46 @@
+@use 'styles/abstracts' as *;
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  gap: var(--sp-2);
+}
+
+.roundBtn {
+  aspect-ratio: 1;
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-xs);
+  border: 2px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-3);
+
+  small {
+    font-size: 9px;
+    font-weight: var(--fw-medium);
+    opacity: 0.75;
+  }
+
+  &[data-state='live'] {
+    background: var(--success-tint);
+    border-color: var(--success);
+    color: var(--success);
+  }
+
+  &[data-state='done'] {
+    background: var(--info-tint);
+    border-color: var(--info);
+    color: var(--info);
+  }
+
+  &[data-selected] {
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: inset 0 0 0 2px var(--accent);
+  }
+}
