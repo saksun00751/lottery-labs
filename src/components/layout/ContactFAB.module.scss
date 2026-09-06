@@ -13,6 +13,12 @@
   @include mobile {
     display: none;
   }
+
+  &.alwaysVisible {
+    @include mobile {
+      display: flex;
+    }
+  }
 }
 
 .fab {
