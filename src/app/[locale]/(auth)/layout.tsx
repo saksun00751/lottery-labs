@@ -1,7 +1,6 @@
 import { setRequestLocale } from 'next-intl/server';
 import type { ReactNode } from 'react';
 
-import { ContactFAB } from '@/components/layout/ContactFAB';
 import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher';
 
 import styles from './auth.module.scss';
@@ -23,7 +22,6 @@ export default async function AuthLayout({
         <LanguageSwitcher />
       </div>
       <div className={styles.center}>{children}</div>
-      <ContactFAB />
     </div>
   );
 }
