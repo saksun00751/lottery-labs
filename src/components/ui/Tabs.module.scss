@@ -37,6 +37,33 @@
      narrow mobile widths, where the cap never binds. */
   width: 100%;
   max-width: 420px;
+
+  /* A 5th tab means this list scrolls rather than acting as a small fixed
+     switcher (results/history/lottery category rows). The 420px cap then
+     only shrinks the visible scroll viewport — drop it so a wide desktop
+     column shows as many tabs as it has room for before scrolling kicks
+     in, instead of clipping to a narrow strip regardless of screen size. */
+  &:has(.tab:nth-child(5)) {
+    max-width: none;
+  }
+
+  /* Same 5+ heuristic: fade both edges of the track so "there's more
+     offscreen" reads as a scroll affordance instead of the list looking
+     abruptly cut off. A light edge overlay rather than a dark one — this
+     track is already near-black, so a black-fade-to-transparent barely
+     shows against it, while a soft white overlay reads clearly. Static
+     (not scroll-position-aware) by design: a scroll-linked cover/shadow
+     pair to hide each fade exactly at its end proved unreliable across
+     scroll offsets, and an always-on hint is a fine trade for one that's
+     simple and actually visible. */
+  &:has(.tab:nth-child(5)):not(.wrap) {
+    background:
+      linear-gradient(to right, rgb(255 255 255 / 0.22), rgb(255 255 255 / 0) 28px) 0 0 / 28px
+        100% no-repeat,
+      linear-gradient(to left, rgb(255 255 255 / 0.22), rgb(255 255 255 / 0) 28px) 100% 0 / 28px
+        100% no-repeat,
+      var(--surface-3);
+  }
 }
 
 .tab {
