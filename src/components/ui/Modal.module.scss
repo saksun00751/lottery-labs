@@ -23,6 +23,10 @@
   width: 100%;
   max-height: 88dvh;
   overflow-y: auto;
+  /* Body sets touch-action: none while the modal is open to lock background
+     scroll; without this override that inherits into the panel and blocks
+     iOS Safari from focusing nested text inputs on tap. */
+  touch-action: pan-y;
   background: var(--surface-1);
   border: 1px solid var(--border);
   border-bottom: none;
