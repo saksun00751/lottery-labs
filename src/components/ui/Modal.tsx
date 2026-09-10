@@ -31,11 +31,22 @@ export function Modal({
 }: ModalProps) {
   const panelRef = useRef<HTMLDivElement>(null);
 
+  // Track the latest onClose without making it an effect dependency: callers
+  // typically pass an inline arrow, which gets a new identity on every
+  // parent re-render (e.g. each keystroke in a form inside the modal). If
+  // the effect below depended on it, it would re-run on every keystroke and
+  // re-focus the panel, stealing focus from whatever input the user is
+  // typing into and dismissing the on-screen keyboard.
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
   useEffect(() => {
     if (!open) return;
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
+      if (event.key === 'Escape') onCloseRef.current();
     };
 
     document.addEventListener('keydown', onKeyDown);
@@ -46,7 +57,7 @@ export function Modal({
       document.removeEventListener('keydown', onKeyDown);
       delete document.body.dataset.scrollLocked;
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open || typeof document === 'undefined') return null;
 
