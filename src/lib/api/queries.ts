@@ -1,19 +1,21 @@
 'use client';
 
 import {
+  keepPreviousData,
   useMutation,
   useQuery,
   useQueryClient,
   type UseQueryOptions,
 } from '@tanstack/react-query';
 
-import type { BonusSource, DepositMethod, TransactionType } from '@/types';
+import type { BonusSource, DepositMethod, HanoiSelection, TransactionType } from '@/types';
 
 import {
   accountApi,
   contactApi,
   depositApi,
   gamesApi,
+  hanoiApi,
   isExpiredStatus,
   isPaidLikeStatus,
   lotteryApi,
@@ -369,6 +371,32 @@ export function useClaimBonus() {
       queryClient.invalidateQueries({ queryKey: ['wallet', 'transactions'] });
       queryClient.invalidateQueries({ queryKey: qk.withdrawInfo });
       queryClient.invalidateQueries({ queryKey: qk.bonusSummary });
+    },
+  });
+}
+
+/** Server price for the current Hanoi slip. Re-runs whenever a line changes. */
+export const useHanoiQuote = (
+  drawId: number | undefined,
+  packageId: number | undefined,
+  items: HanoiSelection[],
+) =>
+  useQuery({
+    queryKey: ['lottery', 'hanoi-quote', drawId, packageId, items],
+    queryFn: () => hanoiApi.quote({ drawId: drawId as number, packageId: packageId as number, items }),
+    enabled: !!drawId && !!packageId && items.length > 0,
+    placeholderData: keepPreviousData,
+    staleTime: 15_000,
+    retry: false,
+  });
+
+export function useSubmitHanoiBet() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: hanoiApi.bet,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: qk.wallet });
+      queryClient.invalidateQueries({ queryKey: ['lottery', 'tickets'] });
     },
   });
 }

@@ -20,7 +20,7 @@ export class ApiError extends Error {
     super(body.message || `Request failed with status ${status}`);
     this.name = 'ApiError';
     this.status = status;
-    this.code = body.code || 'unknown_error';
+    this.code = body.code || body.error_code || 'unknown_error';
     this.fields = body.fields;
   }
 

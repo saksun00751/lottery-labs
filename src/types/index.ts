@@ -166,6 +166,55 @@ export interface RoundRates {
   roundId: string;
   betTypes: BetType[];
   restricted: RestrictedNumber[];
+  /** `bet_profile.code` from betting-context — `hanoi_abcd_v1` switches the page to the Hanoi board. */
+  betProfile?: string;
+  /** Present only when `betProfile` is the Hanoi A/B/C/D profile. */
+  hanoi?: HanoiCapability;
+}
+
+/* --------------------------- Hanoi A/B/C/D profile ------------------------- */
+
+export type HanoiChannel = 'A' | 'B' | 'C' | 'D' | 'ABCD';
+export type HanoiDigits = 2 | 3;
+export type HanoiMethod = 'straight' | 'mix' | 'cross' | 'range';
+
+export interface HanoiCapability {
+  /** Which channels the draw accepts, per digit count — drives every disabled chip. */
+  channelsByDigits: Record<HanoiDigits, Record<HanoiChannel, boolean>>;
+  methods: Record<HanoiDigits, HanoiMethod[]>;
+  /** Per-bet-type (`hanoi_a2`…`hanoi_d3`) stake limits and payout, from `limits.bet_types`. */
+  limits: Record<string, { minStake: Minor; maxStake: Minor; payout: number }>;
+}
+
+/** One line the member builds. Numbers stay strings so leading zeros survive. */
+export interface HanoiSelection {
+  channel: HanoiChannel;
+  digits: HanoiDigits;
+  method: HanoiMethod;
+  number?: string;
+  left?: string;
+  right?: string;
+  rangeStart?: string;
+  rangeEnd?: string;
+  /** Baht per unit, before multiplying by numbers and positions. */
+  amount: number;
+}
+
+export interface HanoiQuote {
+  totalBet: Minor;
+  totalDiscount: Minor;
+  totalNet: Minor;
+  totalUnits: number;
+  expandedNumberCount: number;
+  /** Sum of `potential_win_amount` across every bet type, when the server sends it. */
+  potentialWin: Minor;
+  /** Net per selection, in request order. */
+  selectionNet: Minor[];
+}
+
+export interface HanoiBetResult {
+  ticketId: string;
+  totalNet: Minor;
 }
 
 /** A payout-rate tier a member picks per lottery group before betting. */
@@ -190,13 +239,29 @@ export interface BetEntry {
 
 export type TicketStatus = 'pending' | 'won' | 'lost' | 'void' | 'refunded';
 
+/** Hanoi A/B/C/D bet type codes as stored on a ticket, e.g. `hanoi_a2`. */
+export type HanoiBetTypeId = `hanoi_${'a' | 'b' | 'c' | 'd'}${2 | 3}`;
+
+/** What a Hanoi ticket line records beyond the number: how it was picked and how many units it covers. */
+export interface HanoiTicketItem {
+  method: HanoiMethod;
+  /** What the member entered (e.g. `123` for a mix, `12×34` for a cross). */
+  source: string;
+  unitAmount: number;
+  unitCount: number;
+  /** Positions that hit once the draw is settled. */
+  matchedUnits?: number;
+}
+
 export interface TicketItem {
-  betType: BetTypeId;
+  betType: BetTypeId | HanoiBetTypeId;
   number: string;
   stake: Minor;
   payout: number;
   status: TicketStatus;
   winAmount: Minor;
+  /** Set only on Hanoi A/B/C/D lines. */
+  hanoi?: HanoiTicketItem;
 }
 
 /**
@@ -551,6 +616,8 @@ export interface Paginated<T> {
 
 export interface ApiErrorShape {
   code: string;
+  /** Hanoi endpoints name their domain error `error_code` instead of `code`. */
+  error_code?: string;
   message: string;
   fields?: Record<string, string>;
 }

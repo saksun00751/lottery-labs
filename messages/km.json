@@ -143,7 +143,15 @@
       "2top": "២ តួលើ",
       "2bottom": "២ តួក្រោម",
       "run_top": "លេខរត់លើ",
-      "run_bottom": "លេខរត់ក្រោម"
+      "run_bottom": "លេខរត់ក្រោម",
+      "hanoi_a2": "Hanoi A 2-digit",
+      "hanoi_a3": "Hanoi A 3-digit",
+      "hanoi_b2": "Hanoi B 2-digit",
+      "hanoi_b3": "Hanoi B 3-digit",
+      "hanoi_c2": "Hanoi C 2-digit",
+      "hanoi_c3": "Hanoi C 3-digit",
+      "hanoi_d2": "Hanoi D 2-digit",
+      "hanoi_d3": "Hanoi D 3-digit"
     },
     "board": {
       "pickNumbers": "ជ្រើសរើសលេខ",
@@ -286,6 +294,92 @@
       "selected": "Package ដែលបានជ្រើសរើស",
       "change": "ប្តូរ",
       "required": "សូមជ្រើសរើស Package មុននឹងភ្នាល់"
+    },
+    "hanoi": {
+      "builderTitle": "Pick Hanoi numbers",
+      "channel": "Channel",
+      "positions": "{count} positions",
+      "digits": "Digits",
+      "digitsValue": "{count} digits",
+      "method": "Method",
+      "abcdClosed": "Some {digits}-digit channels are closed this draw, so ABCD is unavailable",
+      "methods": {
+        "straight": "Straight",
+        "mix": "Mix",
+        "cross": "Cross",
+        "range": "Range"
+      },
+      "methodHints": {
+        "straight": "Bet the exact number you enter",
+        "mix": "Enter 3 digits and every arrangement is added",
+        "cross": "Enter 2 digits on the left and 2 on the right to pair them",
+        "range": "Enter a start and end number to bet every number in between"
+      },
+      "fields": {
+        "number": "Number",
+        "mixNumber": "3-digit number",
+        "left": "Left digits",
+        "right": "Right digits",
+        "rangeStart": "From",
+        "rangeEnd": "To"
+      },
+      "perUnit": "Per unit",
+      "limits": "Per unit, min–max",
+      "preview": "{numbers} numbers × {positions} positions = {units} units",
+      "previewEmpty": "Press digits to preview the price",
+      "keepTyping": "Finish entering the number",
+      "problems": {
+        "mixLength": "Mix needs exactly 3 digits",
+        "rangeOrder": "The end number can't be lower than the start",
+        "rangeTooLarge": "A range can cover at most 1,000 numbers",
+        "tooMany": "This expands to more numbers than one line allows"
+      },
+      "add": "Add to slip",
+      "keyboardHint": "Type digits on your keyboard. Tab switches boxes, Backspace deletes, Enter adds",
+      "keypad": "Number pad",
+      "clear": "Clear",
+      "backspace": "Delete last digit",
+      "slip": {
+        "title": "Hanoi slip",
+        "count": "{count} items",
+        "empty": "Nothing on the slip yet",
+        "emptyHint": "Enter numbers on the left, then add them",
+        "remove": "Remove line",
+        "clear": "Clear slip",
+        "confirm": "Review and confirm",
+        "units": "{count} units"
+      },
+      "totals": {
+        "bet": "Stake",
+        "discount": "Discount",
+        "net": "Net total",
+        "potentialWin": "Max win if every position hits",
+        "calculating": "Calculating price…",
+        "insufficient": "Your balance is too low",
+        "balance": "Balance"
+      },
+      "confirmTitle": "Confirm your bet",
+      "confirmHint": "Check every line. The amount charged is calculated again by the system when you confirm",
+      "confirmButton": "Place bet",
+      "confirmRetryNote": "If your connection drops, check your slip history first. Confirming again reuses the same request ID, so you are never charged twice",
+      "submitted": "Bet placed",
+      "unknownOutcome": "We couldn't confirm the bet",
+      "unknownOutcomeHint": "Check your slip history before betting again. If it isn't there, you can confirm again",
+      "errors": {
+        "HANOI_PROFILE_MISMATCH": "This draw is not Hanoi. Please reload the page",
+        "HANOI_DRAW_NOT_OPEN": "Betting for this draw is closed",
+        "HANOI_CHANNEL_DISABLED": "That channel is closed for this draw",
+        "HANOI_METHOD_NOT_ALLOWED": "That method isn't available for the digits you chose",
+        "HANOI_INVALID_NUMBER": "A number or line is invalid. Please check and try again",
+        "HANOI_EXPANSION_LIMIT": "The slip expands past the allowed size. Try fewer numbers",
+        "HANOI_BET_TYPE_NOT_CONFIGURED": "Your package doesn't offer that bet type yet",
+        "HANOI_EXPOSURE_LIMIT": "That number is restricted or over its maximum",
+        "HANOI_INSUFFICIENT_BALANCE": "Your balance is too low",
+        "HANOI_IDEMPOTENCY_CONFLICT": "This request was already sent with different items. Please confirm again"
+      },
+      "ticket": {
+        "matched": "{count} positions hit"
+      }
     }
   },
   "deposit": {

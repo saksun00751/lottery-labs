@@ -12,6 +12,14 @@ import type {
   GameCategory,
   GameItem,
   GameProvider,
+  HanoiBetResult,
+  HanoiBetTypeId,
+  HanoiCapability,
+  HanoiChannel,
+  HanoiDigits,
+  HanoiMethod,
+  HanoiQuote,
+  HanoiSelection,
   LotteryCategory,
   LotteryGroupSummary,
   LotteryPackage,
@@ -641,8 +649,16 @@ const BET_TYPE_ID_TO_API: Partial<Record<BetTypeId, string>> = {
   run_bottom: 'run_bottom',
 };
 
+interface HanoiProfileResponse {
+  code?: string;
+  channels_by_digits?: Partial<Record<'2' | '3', Partial<Record<HanoiChannel, boolean>>>>;
+  methods?: Partial<Record<'2' | '3', string[]>>;
+  enabled_bet_types?: string[];
+}
+
 interface BettingContextResponse {
   data?: {
+    bet_profile?: HanoiProfileResponse | null;
     limits?: {
       bet_types?: Array<{
         bet_type: string;
@@ -695,8 +711,164 @@ function normalizeRates(roundId: string, payload: BettingContextResponse): Round
     },
   );
 
-  return { roundId, betTypes, restricted };
+  const profile = payload.data?.bet_profile;
+  const betProfile = profile?.code;
+  return {
+    roundId,
+    betTypes,
+    restricted,
+    betProfile,
+    hanoi: betProfile === HANOI_PROFILE ? normalizeHanoiCapability(profile, rows) : undefined,
+  };
 }
+
+/* --------------------------- Hanoi A/B/C/D profile ------------------------- */
+
+export const HANOI_PROFILE = 'hanoi_abcd_v1';
+
+const HANOI_CHANNELS: HanoiChannel[] = ['A', 'B', 'C', 'D', 'ABCD'];
+const HANOI_DEFAULT_METHODS: Record<HanoiDigits, HanoiMethod[]> = {
+  2: ['straight', 'mix', 'cross', 'range'],
+  3: ['straight', 'mix', 'range'],
+};
+const HANOI_METHOD_SET = new Set<string>(['straight', 'mix', 'cross', 'range']);
+
+/**
+ * `channels_by_digits` is authoritative. When it's missing, fall back to
+ * `enabled_bet_types` — ABCD is only open when A, B, C and D all are, which
+ * is the same rule the server applies.
+ */
+function normalizeHanoiCapability(
+  profile: HanoiProfileResponse | null | undefined,
+  limitRows: Array<{ bet_type: string; min_bet?: number; max_bet?: number; payout?: number }>,
+): HanoiCapability {
+  const enabled = new Set(profile?.enabled_bet_types ?? []);
+  const channelsFor = (digits: HanoiDigits): Record<HanoiChannel, boolean> => {
+    const given = profile?.channels_by_digits?.[String(digits) as '2' | '3'];
+    const single = (c: 'A' | 'B' | 'C' | 'D') => enabled.has(`hanoi_${c.toLowerCase()}${digits}`);
+    const result = {
+      A: given?.A ?? single('A'),
+      B: given?.B ?? single('B'),
+      C: given?.C ?? single('C'),
+      D: given?.D ?? single('D'),
+    } as Record<HanoiChannel, boolean>;
+    result.ABCD = given?.ABCD ?? (result.A && result.B && result.C && result.D);
+    return result;
+  };
+
+  const methodsFor = (digits: HanoiDigits): HanoiMethod[] => {
+    const given = profile?.methods?.[String(digits) as '2' | '3']?.filter((m): m is HanoiMethod =>
+      HANOI_METHOD_SET.has(m),
+    );
+    const list = given && given.length > 0 ? given : HANOI_DEFAULT_METHODS[digits];
+    // Cross only exists for 2 digits, whatever the server lists.
+    return digits === 3 ? list.filter((m) => m !== 'cross') : list;
+  };
+
+  const limits: HanoiCapability['limits'] = {};
+  for (const row of limitRows) {
+    if (!row.bet_type.startsWith('hanoi_')) continue;
+    limits[row.bet_type] = {
+      minStake: toMinor(row.min_bet ?? 0),
+      maxStake: toMinor(row.max_bet ?? 0),
+      payout: row.payout ?? 0,
+    };
+  }
+
+  return {
+    channelsByDigits: { 2: channelsFor(2), 3: channelsFor(3) },
+    methods: { 2: methodsFor(2), 3: methodsFor(3) },
+    limits,
+  };
+}
+
+interface HanoiQuoteResponse {
+  data?: {
+    total_units?: number;
+    expanded_number_count?: number;
+    total_bet_amount?: number;
+    total_discount_amount?: number;
+    total_net_amount?: number;
+    selections?: Array<{
+      net_amount?: number;
+      bet_types?: Array<{ potential_win_amount?: number }>;
+    }>;
+  };
+}
+
+function hanoiItemsBody(items: HanoiSelection[]) {
+  return items.map((i) => ({
+    channel: i.channel,
+    digits: i.digits,
+    method: i.method,
+    amount: i.amount,
+    ...(i.method === 'cross'
+      ? { left: i.left, right: i.right }
+      : i.method === 'range'
+        ? { range_start: i.rangeStart, range_end: i.rangeEnd }
+        : { number: i.number }),
+  }));
+}
+
+function normalizeHanoiQuote(payload: HanoiQuoteResponse): HanoiQuote {
+  const d = payload.data ?? {};
+  const selections = d.selections ?? [];
+  const win = selections.reduce(
+    (sum, sel) =>
+      sum + (sel.bet_types ?? []).reduce((s, bt) => s + Number(bt.potential_win_amount ?? 0), 0),
+    0,
+  );
+  return {
+    totalBet: toMinor(Number(d.total_bet_amount ?? 0)),
+    totalDiscount: toMinor(Number(d.total_discount_amount ?? 0)),
+    totalNet: toMinor(Number(d.total_net_amount ?? d.total_bet_amount ?? 0)),
+    totalUnits: Number(d.total_units ?? 0),
+    expandedNumberCount: Number(d.expanded_number_count ?? 0),
+    potentialWin: toMinor(win),
+    selectionNet: selections.map((sel) => toMinor(Number(sel.net_amount ?? 0))),
+  };
+}
+
+export const hanoiApi = {
+  /** Dry run — the server expands the numbers and prices them; nothing is charged. */
+  quote: (payload: { drawId: number; packageId: number; items: HanoiSelection[] }) =>
+    apiFetch<HanoiQuoteResponse>('lotto/hanoi-abcd/quote', {
+      method: 'POST',
+      body: {
+        draw_id: payload.drawId,
+        package_id: payload.packageId,
+        items: hanoiItemsBody(payload.items),
+      },
+    }).then(normalizeHanoiQuote),
+
+  /**
+   * `clientRequestId` is the idempotency key: a retry after a timeout must send
+   * the same id with the same items, or the server answers 409.
+   */
+  bet: (payload: {
+    drawId: number;
+    packageId: number;
+    clientRequestId: string;
+    items: HanoiSelection[];
+  }) =>
+    apiFetch<{ data?: { ticket_id?: number | string; total_net_amount?: number } }>(
+      'lotto/hanoi-abcd/bet',
+      {
+        method: 'POST',
+        body: {
+          draw_id: payload.drawId,
+          package_id: payload.packageId,
+          client_request_id: payload.clientRequestId,
+          items: hanoiItemsBody(payload.items),
+        },
+      },
+    ).then(
+      (res): HanoiBetResult => ({
+        ticketId: String(res.data?.ticket_id ?? ''),
+        totalNet: toMinor(Number(res.data?.total_net_amount ?? 0)),
+      }),
+    ),
+};
 
 /**
  * The real `POST /lotto/bet` response shape isn't documented — read
@@ -828,13 +1000,53 @@ interface TicketDetailResponse {
       payout_at_time?: number;
       result_status?: string | null;
       win_amount?: number;
+      // Hanoi A/B/C/D audit fields.
+      unit_amount_at_time?: number | string;
+      unit_count_at_time?: number | string;
+      selection_method_at_time?: string;
+      source_number_at_time?: string;
+      matched_units?: number | string | null;
     }>;
   } | null;
 }
 
+const HANOI_BET_TYPE = /^hanoi_[abcd][23]$/;
+
 function normalizeTicketDetail(payload: TicketDetailResponse): TicketDetail {
   const f = payload.data ?? {};
-  const items: TicketItem[] = (f.items ?? []).flatMap((row) => {
+  const items: TicketItem[] = (f.items ?? []).flatMap<TicketItem>((row) => {
+    const status: TicketStatus =
+      row.result_status === 'win' ? 'won' : row.result_status === 'lose' ? 'lost' : 'pending';
+    const payout = Number(row.payout_at_time ?? 0);
+    const winAmount = toMinor(Number(row.win_amount ?? 0));
+
+    // Hanoi lines carry unit × count instead of a single flat amount.
+    if (row.bet_type && HANOI_BET_TYPE.test(row.bet_type)) {
+      const unitAmount = Number(row.unit_amount_at_time ?? 0);
+      const unitCount = Number(row.unit_count_at_time ?? 1);
+      const method = row.selection_method_at_time;
+      return [
+        {
+          betType: row.bet_type as HanoiBetTypeId,
+          number: row.number ?? '',
+          stake: toMinor(unitAmount > 0 ? unitAmount * unitCount : Number(row.amount ?? 0)),
+          payout,
+          status,
+          winAmount,
+          hanoi: {
+            method: method === 'mix' || method === 'cross' || method === 'range' ? method : 'straight',
+            source: row.source_number_at_time || row.number || '',
+            unitAmount,
+            unitCount,
+            matchedUnits:
+              row.matched_units === null || row.matched_units === undefined
+                ? undefined
+                : Number(row.matched_units),
+          },
+        },
+      ];
+    }
+
     const betType = row.bet_type ? API_BET_TYPE_TO_ID[row.bet_type] : undefined;
     if (!betType) return [];
     return [
@@ -842,14 +1054,9 @@ function normalizeTicketDetail(payload: TicketDetailResponse): TicketDetail {
         betType,
         number: row.number ?? '',
         stake: toMinor(Number(row.amount ?? 0)),
-        payout: Number(row.payout_at_time ?? 0),
-        status:
-          row.result_status === 'win'
-            ? 'won'
-            : row.result_status === 'lose'
-              ? 'lost'
-              : 'pending',
-        winAmount: toMinor(Number(row.win_amount ?? 0)),
+        payout,
+        status,
+        winAmount,
       },
     ];
   });

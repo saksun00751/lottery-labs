@@ -23,6 +23,7 @@ export function TicketDetailModal({
 }) {
   const t = useTranslations('lottery.slip');
   const tTypes = useTranslations('lottery.betTypes');
+  const tHanoi = useTranslations('lottery.hanoi');
   const tCommon = useTranslations('common');
 
   const { data: ticket, isLoading } = useTicketDetail(ticketId ?? undefined);
@@ -81,8 +82,24 @@ export function TicketDetailModal({
                     {item.number}
                   </span>
                   <div className={styles.itemInfo}>
-                    <div className={styles.itemType}>{tTypes(item.betType)}</div>
-                    <div className={styles.itemRate}>× {item.payout}</div>
+                    {item.hanoi ? (
+                      <>
+                        <div className={styles.itemType}>
+                          {item.betType.slice(6).toUpperCase()} · {tHanoi(`methods.${item.hanoi.method}`)}
+                          {item.hanoi.method !== 'straight' && ` ${item.hanoi.source}`}
+                        </div>
+                        <div className={styles.itemRate}>
+                          {tHanoi('slip.units', { count: item.hanoi.unitCount })} × {item.hanoi.unitAmount} · × {item.payout}
+                          {item.hanoi.matchedUnits !== undefined &&
+                            ` · ${tHanoi('ticket.matched', { count: item.hanoi.matchedUnits })}`}
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className={styles.itemType}>{tTypes(item.betType)}</div>
+                        <div className={styles.itemRate}>× {item.payout}</div>
+                      </>
+                    )}
                   </div>
                   <div className={styles.itemAmounts}>
                     <Money value={item.stake} size="sm" tone="muted" />

@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { BetSlipPanel } from '@/components/lottery/BetSlipPanel';
 import { BetTypeGrid } from '@/components/lottery/BetTypeGrid';
+import { HanoiBetBoard } from '@/components/lottery/hanoi/HanoiBetBoard';
 import { NumberBoard } from '@/components/lottery/NumberBoard';
 import { RestrictedNumbersPanel } from '@/components/lottery/RestrictedNumbersPanel';
 import { SelectedPackageCard } from '@/components/lottery/SelectedPackageCard';
@@ -132,6 +133,10 @@ export function BetView({ roundId }: { roundId: string }) {
           <AlertTriangle size={18} aria-hidden />
           {t('slip.roundClosed')}
         </div>
+      ) : rates.hanoi && round.drawId && selectedPackage ? (
+        // Hanoi A/B/C/D has its own bet engine (quote + bet endpoints), so it
+        // swaps the whole board rather than reusing the number grid and slip.
+        <HanoiBetBoard round={round} capability={rates.hanoi} packageId={selectedPackage.id} />
       ) : (
         <div className={styles.betLayout}>
           <div className={styles.leftColumn}>
