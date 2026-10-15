@@ -234,6 +234,36 @@
   text-align: center;
 }
 
+.closeInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-1);
+}
+
+.closeText {
+  align-self: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--sp-2);
+  min-width: 0;
+  font-size: var(--fs-xs);
+  color: var(--text);
+}
+
+.closeLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+}
+
+.closeDate {
+  font-weight: var(--fw-semibold);
+  color: var(--text);
+  white-space: nowrap;
+}
+
 .playRow {
   display: flex;
   align-items: center;
@@ -242,18 +272,6 @@
   background: var(--accent);
   border-radius: var(--radius-sm);
   padding: var(--sp-2) var(--sp-2) var(--sp-2) var(--sp-3);
-
-  /* Countdown reads these as plain (unscoped) custom properties, so
-     redefining them here re-colors its segments for the accent background.
-     `--danger` (the <10min "urgent" state) is remapped too — the theme's red
-     is too close in tone to the purple accent to stay legible on it, so the
-     urgent segments fall back to the same on-accent text colour and lean on
-     the blink animation + brighter chip background to read as "urgent". */
-  --text: var(--text-on-accent);
-  --text-3: rgb(255 255 255 / 75%);
-  --surface-3: rgb(255 255 255 / 22%);
-  --danger: var(--text-on-accent);
-  --danger-tint: rgb(255 255 255 / 30%);
 }
 
 .playLabel {
@@ -264,4 +282,16 @@
   font-weight: var(--fw-bold);
   color: var(--text-on-accent);
   white-space: nowrap;
+}
+
+/* Solid accent chips so the digits stay readable on the card surface. The
+   Countdown reads these as plain custom properties; --danger is remapped so
+   the <10min urgent state still contrasts on the accent chip. */
+.countdownWrap {
+  --text: var(--text-on-accent);
+  --text-3: var(--text-on-accent);
+  --surface-3: var(--accent);
+  --danger: var(--text-on-accent);
+  --danger-tint: rgb(255 255 255 / 30%);
+  display: inline-flex;
 }

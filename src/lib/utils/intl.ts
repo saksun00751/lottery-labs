@@ -47,3 +47,27 @@ export function formatNumber(
 ) {
   return new Intl.NumberFormat(intlLocale(locale), options).format(value);
 }
+
+/**
+ * Round close time in Bangkok time as `dd/mm/yyyy hh:mm` (Latin digits, Buddhist
+ * year for Thai), e.g. "15/10/2569 18:30". Order is fixed rather than locale
+ * driven so every language reads the same.
+ */
+export function formatCloseTime(value: string | number | Date, locale: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '—';
+
+  const parts = new Intl.DateTimeFormat(calendarLocale(locale), {
+    timeZone: 'Asia/Bangkok',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(date);
+  const get = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((part) => part.type === type)?.value ?? '';
+
+  return `${get('day')}/${get('month')}/${get('year')} ${get('hour')}:${get('minute')}`;
+}

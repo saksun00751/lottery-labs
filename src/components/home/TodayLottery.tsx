@@ -1,7 +1,7 @@
 'use client';
 
-import { ChevronRight } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { ChevronRight, Clock } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 
 import { PackagePickerModal } from '@/components/lottery/PackagePickerModal';
@@ -11,6 +11,7 @@ import { useRounds } from '@/lib/api/queries';
 import { useCountdown } from '@/lib/hooks/use-countdown';
 import { useRoundPicker } from '@/lib/hooks/use-round-picker';
 import { cn } from '@/lib/utils/cn';
+import { formatCloseTime } from '@/lib/utils/intl';
 import { isBettable } from '@/lib/utils/lottery';
 import type { LotteryRound, RoundStatus } from '@/types';
 
@@ -44,6 +45,7 @@ function MarketCard({
   loading?: boolean;
 }) {
   const t = useTranslations('lottery');
+  const locale = useLocale();
   const settled = round.status === 'settled' && !!round.result;
 
   // The server-known status only refreshes every 60s (see useRounds), so once
@@ -90,13 +92,26 @@ function MarketCard({
           </div>
         </div>
       ) : bettable ? (
-        <div className={styles.playRow}>
-          <span className={styles.playLabel}>
-            {t('playNow')}
-            <ChevronRight size={13} aria-hidden />
-          </span>
-          <Countdown target={round.closesAt} />
-        </div>
+        <>
+          <div className={styles.closeInfo}>
+            <span className={styles.closeText}>
+              <span className={styles.closeLabel}>
+                <Clock size={12} aria-hidden />
+                {t('closesIn')}
+              </span>
+              <span className={styles.closeDate}>{formatCloseTime(round.closesAt, locale)}</span>
+            </span>
+            <span className={styles.countdownWrap}>
+              <Countdown target={round.closesAt} />
+            </span>
+          </div>
+          <div className={styles.playRow}>
+            <span className={styles.playLabel}>
+              {t('playNow')}
+              <ChevronRight size={13} aria-hidden />
+            </span>
+          </div>
+        </>
       ) : (
         <div className={styles.status}>{expired ? t('closed') : t(STATUS_KEY[round.status])}</div>
       )}
@@ -142,7 +157,10 @@ export function TodayLottery() {
       if (existing) {
         existing.rounds.push(round);
       } else {
-        map.set(key, { name: round.groupName || t(`categories.${round.category}`), rounds: [round] });
+        map.set(key, {
+          name: round.groupName || t(`categories.${round.category}`),
+          rounds: [round],
+        });
       }
     }
     return Array.from(map, ([key, value]) => ({ key, ...value }));

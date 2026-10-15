@@ -8,6 +8,12 @@
   font-weight: var(--fw-semibold);
   font-size: var(--fs-sm);
   color: var(--text);
+  /* Digits only: the Burmese/Lao/Khmer line-height and break rules set on
+     <html lang> would otherwise stretch the chips and let them wrap. 1.6 = the default --lh-base. */
+  line-height: 1.6;
+  white-space: nowrap;
+  word-break: normal;
+  line-break: auto;
 }
 
 .lg {

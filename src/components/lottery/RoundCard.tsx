@@ -1,12 +1,13 @@
 'use client';
 
 import { ChevronRight, Clock, Ticket } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 import { Badge, type BadgeTone } from '@/components/ui/Badge';
 import { Countdown } from '@/components/ui/Countdown';
 import { useRoundPicker } from '@/lib/hooks/use-round-picker';
 import { cn } from '@/lib/utils/cn';
+import { formatCloseTime } from '@/lib/utils/intl';
 import { isBettable, sortBetTypes } from '@/lib/utils/lottery';
 import type { LotteryRound, RoundStatus } from '@/types';
 
@@ -37,6 +38,7 @@ export function RoundCard({
   loading?: boolean;
 }) {
   const t = useTranslations('lottery');
+  const locale = useLocale();
   const bettable = isBettable(round.status);
   // A yeekee market's own `status` reflects its single latest daily draw,
   // which says nothing about whether any of its many intraday rounds are
@@ -57,32 +59,41 @@ export function RoundCard({
             {t('roundLabel')} {round.label}
           </div>
         </div>
-        <Badge
-          tone={STATUS_TONE[round.status]}
-          dot
-          pulse={round.status === 'closing'}
-        >
-          {t(STATUS_KEY[round.status])}
-        </Badge>
       </div>
 
       <div className={styles.timer}>
-        <span className={styles.timerLabel}>
+        <span className={styles.timerTitle}>
           <Clock size={15} aria-hidden />
           {bettable ? t('closesIn') : t('closed')}
+          {bettable && (
+            <span className={styles.timerDate}>{formatCloseTime(round.closesAt, locale)}</span>
+          )}
         </span>
-        {bettable && <Countdown target={round.closesAt} />}
+        {bettable && (
+          <span className={styles.countdownWrap}>
+            <Countdown target={round.closesAt} />
+          </span>
+        )}
       </div>
 
       <div className={styles.foot}>
-        <div className={styles.types}>
-          {sortBetTypes(round.betTypes)
-            .slice(0, 3)
-            .map((id) => (
-              <span key={id} className={styles.type}>
-                {t(`betTypes.${id}`)}
-              </span>
-            ))}
+        <div className={styles.footStart}>
+          <Badge
+            tone={STATUS_TONE[round.status]}
+            dot
+            pulse={round.status === 'closing'}
+          >
+            {t(STATUS_KEY[round.status])}
+          </Badge>
+          <div className={styles.types}>
+            {sortBetTypes(round.betTypes)
+              .slice(0, 3)
+              .map((id) => (
+                <span key={id} className={styles.type}>
+                  {t(`betTypes.${id}`)}
+                </span>
+              ))}
+          </div>
         </div>
         {clickable && <ChevronRight size={18} aria-hidden />}
       </div>

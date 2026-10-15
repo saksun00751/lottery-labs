@@ -80,21 +80,28 @@
 
 .timer {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-3);
+  gap: var(--sp-2);
   padding: var(--sp-3);
   border-radius: var(--radius-sm);
   background: var(--surface-inset);
   border: 1px solid var(--border-subtle);
 }
 
-.timerLabel {
+.timerTitle {
+  align-self: flex-start;
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
+  flex-wrap: wrap;
+  gap: var(--sp-1) var(--sp-2);
   font-size: var(--fs-xs);
   color: var(--text-2);
+}
+
+.timerDate {
+  font-weight: var(--fw-semibold);
+  color: var(--text);
 }
 
 .foot {
@@ -122,4 +129,24 @@
   display: grid;
   gap: var(--sp-4);
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+}
+
+/* Solid accent chips so the digits stay readable on the card surface. The
+   Countdown reads these as plain custom properties; --danger is remapped so
+   the <10min urgent state still contrasts on the accent chip. */
+.countdownWrap {
+  --text: var(--text-on-accent);
+  --text-3: var(--text-on-accent);
+  --surface-3: var(--accent);
+  --danger: var(--text-on-accent);
+  --danger-tint: rgb(255 255 255 / 30%);
+  display: inline-flex;
+}
+
+.footStart {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  min-width: 0;
 }

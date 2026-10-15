@@ -1,7 +1,7 @@
 'use client';
 
 import { AlertTriangle, Ticket } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
 
 import { BetSlipPanel } from '@/components/lottery/BetSlipPanel';
@@ -16,6 +16,7 @@ import { useRouter } from '@/i18n/navigation';
 import { useRates, useRound, useSelectedPackage } from '@/lib/api/queries';
 import { useCountdown } from '@/lib/hooks/use-countdown';
 import { pushToast } from '@/lib/toast';
+import { formatCloseTime } from '@/lib/utils/intl';
 import { BET_TYPE_ORDER, betTypeGroup, isBettable, mergePackageRates } from '@/lib/utils/lottery';
 import { useBetSlipStore } from '@/store/bet-slip-store';
 import type { BetTypeId, LotteryPackage, LotteryRound, RoundRates } from '@/types';
@@ -24,6 +25,7 @@ import styles from '../lottery.module.scss';
 
 export function BetView({ roundId }: { roundId: string }) {
   const t = useTranslations('lottery');
+  const locale = useLocale();
   const tCommon = useTranslations('common');
   const router = useRouter();
 
@@ -122,7 +124,10 @@ export function BetView({ roundId }: { roundId: string }) {
         </div>
         {bettable && (
           <div className={styles.roundTimer}>
-            <span className={styles.roundTimerLabel}>{t('closesIn')}</span>
+            <span className={styles.roundTimerLabel}>
+              {t('closesIn')}{' '}
+              <span className={styles.roundTimerDate}>{formatCloseTime(round.closesAt, locale)}</span>
+            </span>
             <Countdown target={round.closesAt} size="lg" />
           </div>
         )}
