@@ -29,8 +29,8 @@ html {
   @include base-tokens;
 
   /* Script-aware font stacks. `--font-ui` is re-pointed per <html lang>. */
-  --font-latin: var(--f-inter), 'Inter', system-ui, -apple-system, sans-serif;
-  --font-thai: var(--f-thai), 'Noto Sans Thai', var(--font-latin);
+  --font-latin: var(--f-prompt), 'Prompt', system-ui, -apple-system, sans-serif;
+  --font-thai: var(--f-prompt), 'Prompt', var(--font-latin);
   --font-myanmar: var(--f-myanmar), 'Noto Sans Myanmar', 'Padauk',
     var(--font-latin);
   --font-lao: var(--f-lao), 'Noto Sans Lao', var(--font-latin);

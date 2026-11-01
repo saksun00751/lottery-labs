@@ -1,13 +1,12 @@
 import {
-  Inter,
   Noto_Sans_Khmer,
   Noto_Sans_Lao,
   Noto_Sans_Myanmar,
-  Noto_Sans_Thai,
+  Prompt,
 } from 'next/font/google';
 
 /**
- * One face per script. Burmese, Lao and Khmer will not render correctly with a
+ * One face per script (Prompt serves Latin and Thai). Burmese, Lao and Khmer will not render correctly with a
  * Latin fallback — the glyph stacking collapses — so each gets its own family
  * exposed as a CSS variable and wired up per `<html lang>` in globals.scss.
  *
@@ -15,16 +14,10 @@ import {
  * a page actually references its variable.
  */
 
-export const inter = Inter({
-  subsets: ['latin'],
-  variable: '--f-inter',
-  display: 'swap',
-  weight: ['400', '500', '600', '700'],
-});
-
-export const notoThai = Noto_Sans_Thai({
-  subsets: ['thai'],
-  variable: '--f-thai',
+/** Prompt covers both Latin and Thai, so it replaces Inter + Noto Sans Thai. */
+export const prompt = Prompt({
+  subsets: ['latin', 'thai'],
+  variable: '--f-prompt',
   display: 'swap',
   weight: ['400', '500', '600', '700'],
 });
@@ -51,8 +44,7 @@ export const notoKhmer = Noto_Sans_Khmer({
 });
 
 export const fontVariables = [
-  inter.variable,
-  notoThai.variable,
+  prompt.variable,
   notoMyanmar.variable,
   notoLao.variable,
   notoKhmer.variable,
