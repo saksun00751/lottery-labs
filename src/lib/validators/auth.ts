@@ -16,6 +16,8 @@ export const PASSWORD_MAX = 16;
 export const ACCOUNT_NUMBER_MIN = 8;
 export const ACCOUNT_NUMBER_MAX = 12;
 export const REFERRAL_CODE_MAX = 10;
+export const NAME_MAX = 60;
+const PASSWORD_CHARS = /^[a-z0-9]+$/i;
 
 export const identifierSchema = (mode: 'username' | 'phone') =>
   mode === 'phone'
@@ -50,13 +52,14 @@ export const registerSchema = (mode: 'username' | 'phone') =>
           (v) => v.length >= ACCOUNT_NUMBER_MIN && v.length <= ACCOUNT_NUMBER_MAX,
           'accountNumberLength',
         ),
-      firstName: z.string().min(1, 'required').max(60, 'maxLength'),
-      lastName: z.string().min(1, 'required').max(60, 'maxLength'),
+      firstName: z.string().trim().min(1, 'required').max(NAME_MAX, 'maxLength'),
+      lastName: z.string().trim().min(1, 'required').max(NAME_MAX, 'maxLength'),
       identifier: identifierSchema(mode),
       password: z
         .string()
         .min(PASSWORD_MIN, 'passwordLength')
-        .max(PASSWORD_MAX, 'passwordLength'),
+        .max(PASSWORD_MAX, 'passwordLength')
+        .refine((v) => PASSWORD_CHARS.test(v), 'passwordLength'),
       confirmPassword: z.string().min(1, 'required'),
       // In phone mode the identifier IS the phone number: the standalone field
       // is hidden and filled from the identifier on submit.
@@ -78,6 +81,12 @@ export const registerSchema = (mode: 'username' | 'phone') =>
     .refine((data) => data.password === data.confirmPassword, {
       path: ['confirmPassword'],
       message: 'passwordMismatch',
+      // Zod skips object-level checks when any other field has an issue; run
+      // this one as soon as both passwords are filled so the mismatch shows live.
+      when: ({ value }) => {
+        const v = value as { password?: unknown; confirmPassword?: unknown };
+        return Boolean(v.password) && Boolean(v.confirmPassword);
+      },
     });
 
 export interface RegisterValues {

@@ -21,6 +21,7 @@ import {
   ACCOUNT_NUMBER_MIN,
   registerSchema,
   type RegisterValues,
+  NAME_MAX,
 } from '@/lib/validators/auth';
 import type { Bank } from '@/types';
 
@@ -62,9 +63,12 @@ export function RegisterForm() {
     setError,
     setValue,
     watch,
-    formState: { errors, isSubmitting },
+    trigger,
+    formState: { errors, isSubmitting, touchedFields },
   } = useForm<RegisterValues>({
     resolver: zodResolver(schema),
+    // Show errors as soon as a field is left, then keep them live while typing.
+    mode: 'onTouched',
     defaultValues: {
       bankCode: '',
       bankAccountNumber: '',
@@ -94,6 +98,13 @@ export function RegisterForm() {
     }
     setMarketingCode(localStorage.getItem(MARKETING_STORAGE_KEY) ?? '');
   }, [setValue]);
+
+  // Re-check the confirmation whenever the password changes after it was touched.
+  const passwordValue = watch('password');
+  useEffect(() => {
+    if (touchedFields.confirmPassword) void trigger('confirmPassword');
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-run when the password changes
+  }, [passwordValue, trigger]);
 
   const bankCode = watch('bankCode');
 
@@ -140,7 +151,7 @@ export function RegisterForm() {
     return tv(key, {
       field,
       min: ACCOUNT_NUMBER_MIN,
-      max: ACCOUNT_NUMBER_MAX,
+      max: key === 'maxLength' ? NAME_MAX : ACCOUNT_NUMBER_MAX,
       amount: 0,
     });
   };
