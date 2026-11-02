@@ -56,11 +56,10 @@ export const navSections: NavSection[] = [
       { href: '/slip', labelKey: 'slip', icon: ScrollText, enabled: lotteryEnabled },
       { href: '/results', labelKey: 'results', icon: Trophy, enabled: lotteryEnabled },
       {
-        href: 'https://huayupdate.live/th',
+        href: '/results-history',
         labelKey: 'resultsHistory',
         icon: Archive,
         enabled: lotteryEnabled,
-        external: true,
       },
     ],
   },

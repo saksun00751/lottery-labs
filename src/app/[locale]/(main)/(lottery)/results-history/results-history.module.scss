@@ -1,0 +1,538 @@
+@use 'styles/abstracts' as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.dim {
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+
+/* ------------------------------- Day board ------------------------------- */
+
+.dateBar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.navBtn {
+  @include tappable;
+  flex-shrink: 0;
+  width: 36px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+}
+
+.strip {
+  @include scrollbar;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: row-reverse; // newest on the right, scroll starts at "today"
+  justify-content: flex-end;
+  gap: var(--sp-1);
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.chip {
+  @include tappable;
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-2);
+}
+
+.chipActive {
+  background: var(--accent-gradient);
+  border-color: transparent;
+  color: var(--text-on-accent);
+}
+
+.chipDow {
+  font-size: var(--fs-2xs);
+  line-height: 1.2;
+}
+
+.chipDay {
+  @include numeric;
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
+  line-height: 1.2;
+}
+
+.dateInput {
+  max-width: 160px;
+  flex-shrink: 0;
+
+  @media (max-width: 640px) {
+    display: none;
+  }
+}
+
+.filterRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-4);
+}
+
+.dateHeading {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+}
+
+.filterRow .groupTabs {
+  flex: 1;
+  min-width: 240px;
+  max-width: none;
+}
+
+.cardGrid {
+  display: grid;
+  gap: var(--sp-2);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 232px), 1fr));
+}
+
+.mCard {
+  @include card;
+  padding: var(--sp-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  text-align: start;
+  width: 100%;
+}
+
+.mCardLink {
+  @include tappable;
+  cursor: pointer;
+  transition: border-color 0.15s;
+
+  &:hover {
+    border-color: var(--accent);
+  }
+}
+
+.mHead {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.mLogo {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.mName {
+  @include truncate;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+}
+
+.mTime {
+  @include numeric;
+  margin-inline-start: auto;
+  flex-shrink: 0;
+  font-size: var(--fs-2xs);
+  color: var(--text-3);
+}
+
+.mFull {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  padding: 2px var(--sp-2);
+  border-radius: var(--radius-xs);
+  background: var(--accent-tint);
+  font-size: var(--fs-2xs);
+  color: var(--text-2);
+
+  b {
+    @include numeric;
+    font-size: var(--fs-sm);
+    letter-spacing: 0.1em;
+    color: var(--accent);
+  }
+}
+
+.mNums {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: var(--sp-1);
+}
+
+.mNum {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--sp-1) 0;
+  border-radius: var(--radius-xs);
+  background: var(--surface-inset);
+}
+
+.mLabel {
+  font-size: var(--fs-2xs);
+  color: var(--text-2);
+  line-height: 1.3;
+}
+
+.mValue {
+  @include numeric;
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+}
+
+.mNumMain .mValue {
+  @include accent-text;
+  font-size: var(--fs-xl);
+  letter-spacing: 0.08em;
+}
+
+.pending {
+  padding: var(--sp-3);
+  text-align: center;
+  color: var(--text-3);
+  font-size: var(--fs-xs);
+  border-radius: var(--radius-xs);
+  background: var(--surface-inset);
+}
+
+/* ---------------------------- Market history ----------------------------- */
+
+.historyBar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-3);
+}
+
+.tableTitle {
+  flex: 1;
+  min-width: 0;
+  @include truncate;
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
+}
+
+.rangeSwitch {
+  display: inline-flex;
+  padding: 3px;
+  gap: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+}
+
+.rangeBtn {
+  @include tappable;
+  padding: 2px var(--sp-3);
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-xs);
+  color: var(--text-2);
+}
+
+.rangeBtnActive {
+  background: var(--accent-gradient);
+  color: var(--text-on-accent);
+  font-weight: var(--fw-semibold);
+}
+
+.split {
+  display: grid;
+  gap: var(--sp-3);
+  grid-template-columns: 220px minmax(0, 1fr);
+  align-items: start;
+
+  @media (max-width: 860px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.picker {
+  @include surface(1);
+  padding: var(--sp-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.searchWrap {
+  position: relative;
+
+  > svg {
+    position: absolute;
+    inset-inline-start: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-3);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  input {
+    padding-inline-start: 36px;
+  }
+}
+
+.marketList {
+  @include scrollbar;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 420px;
+  overflow-y: auto;
+
+  @media (max-width: 860px) {
+    flex-direction: row;
+    max-height: none;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+}
+
+.marketItem {
+  @include tappable;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  text-align: start;
+  padding: var(--sp-1) var(--sp-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+
+  > span {
+    @include truncate;
+  }
+}
+
+.marketItemActive {
+  background: var(--accent-tint-strong);
+  color: var(--accent);
+  font-weight: var(--fw-semibold);
+}
+
+.marketLogo {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.tablePane {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+.tableWrap {
+  @include surface(1);
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: var(--sp-2) var(--sp-3);
+    text-align: center;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  th {
+    font-size: var(--fs-2xs);
+    font-weight: var(--fw-medium);
+    color: var(--text-2);
+    background: var(--surface-2);
+  }
+
+  th:first-child,
+  td:first-child {
+    text-align: start;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: 0;
+  }
+
+  tbody tr:nth-child(even) {
+    background: var(--surface-2);
+  }
+}
+
+.tdDate {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+}
+
+.tdDow {
+  margin-inline-start: var(--sp-2);
+  font-size: var(--fs-2xs);
+  color: var(--text-3);
+}
+
+.tdTime {
+  @include numeric;
+  font-size: var(--fs-xs);
+  color: var(--text-2);
+}
+
+.tdNum {
+  @include numeric;
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.06em;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+}
+
+.pagerInfo {
+  font-size: var(--fs-xs);
+  color: var(--text-2);
+}
+
+/* --------------------------------- Feed ---------------------------------- */
+
+.feedBar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-3);
+}
+
+.feed {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.feedSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.feedDate {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--radius-sm);
+  background: var(--accent-tint);
+  color: var(--accent);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+}
+
+.feedCount {
+  margin-inline-start: auto;
+  font-size: var(--fs-2xs);
+  color: var(--text-2);
+}
+
+.feedList {
+  @include surface(1);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.feedRow {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+
+  + .feedRow {
+    border-top: 1px solid var(--border-subtle);
+  }
+}
+
+.feedTime {
+  @include numeric;
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+}
+
+.feedName {
+  @include truncate;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+}
+
+.feedNums {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+}
+
+.feedMain {
+  @include numeric;
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.08em;
+}
+
+.feedUnder {
+  @include numeric;
+  min-width: 2.4em;
+  text-align: center;
+  padding: 0 var(--sp-2);
+  border-radius: var(--radius-xs);
+  background: var(--surface-inset);
+  color: var(--text-2);
+  font-weight: var(--fw-semibold);
+}

@@ -380,6 +380,34 @@
       "ticket": {
         "matched": "{count} positions hit"
       }
+    },
+    "resultsHistory": {
+      "title": "Past results",
+      "subtitle": "Browse historical results for every market",
+      "prevDay": "Previous day",
+      "nextDay": "Next day",
+      "pickDate": "Pick a date",
+      "rangeDays": "{days} days",
+      "colDate": "Date",
+      "col3top": "3 top",
+      "col2top": "2 top",
+      "col2bottom": "2 bottom",
+      "prev": "Previous",
+      "next": "Next",
+      "pageOf": "Page {page} / {total}",
+      "pending": "Not drawn yet",
+      "empty": "No results found",
+      "error": "Couldn't load results",
+      "today": "Today",
+      "fullNumber": "Full number",
+      "viewHistory": "View this market's history",
+      "colTime": "Time",
+      "totalDraws": "{count} draws",
+      "viewDay": "Daily",
+      "viewMarket": "By market",
+      "viewFeed": "Feed",
+      "searchName": "Search lottery name",
+      "pageNo": "Page {page}"
     }
   },
   "deposit": {

@@ -380,6 +380,34 @@
       "ticket": {
         "matched": "{count} positions hit"
       }
+    },
+    "resultsHistory": {
+      "title": "ယခင်ရလဒ်များကြည့်ရန်",
+      "subtitle": "ဈေးကွက်အားလုံး၏ ယခင်ရလဒ်များကို ရှာဖွေပါ",
+      "viewDay": "နေ့အလိုက်",
+      "viewMarket": "ဈေးကွက်အလိုက်",
+      "viewFeed": "နေ့စဉ်စာရင်း",
+      "prevDay": "ယခင်နေ့",
+      "nextDay": "နောက်နေ့",
+      "pickDate": "ရက်စွဲရွေးပါ",
+      "searchName": "ထီအမည်ရှာရန်",
+      "rangeDays": "{days} ရက်",
+      "colDate": "ရက်စွဲ",
+      "colTime": "အချိန်",
+      "col3top": "၃ လုံးထိပ်",
+      "col2top": "၂ လုံးထိပ်",
+      "col2bottom": "၂ လုံးအောက်",
+      "fullNumber": "ဂဏန်းအပြည့်အစုံ",
+      "viewHistory": "ဤဈေးကွက်၏ ယခင်ရလဒ်ကြည့်ရန်",
+      "prev": "ရှေ့သို့",
+      "next": "နောက်သို့",
+      "pageOf": "စာမျက်နှာ {page} / {total}",
+      "pageNo": "စာမျက်နှာ {page}",
+      "totalDraws": "စုစုပေါင်း {count} ကြိမ်",
+      "today": "ယနေ့",
+      "pending": "ရလဒ် မထွက်သေးပါ",
+      "empty": "ရလဒ် မတွေ့ပါ",
+      "error": "ရလဒ်များ ဖွင့်မရပါ"
     }
   },
   "deposit": {

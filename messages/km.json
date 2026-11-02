@@ -380,6 +380,34 @@
       "ticket": {
         "matched": "{count} positions hit"
       }
+    },
+    "resultsHistory": {
+      "title": "មើលលទ្ធផលឆ្នោតចាស់",
+      "subtitle": "ស្វែងរកលទ្ធផលចាស់ៗរបស់គ្រប់ទីផ្សារ",
+      "viewDay": "តាមថ្ងៃ",
+      "viewMarket": "តាមទីផ្សារ",
+      "viewFeed": "បញ្ជីតាមថ្ងៃ",
+      "prevDay": "ថ្ងៃមុន",
+      "nextDay": "ថ្ងៃបន្ទាប់",
+      "pickDate": "ជ្រើសរើសកាលបរិច្ឆេទ",
+      "searchName": "ស្វែងរកឈ្មោះឆ្នោត",
+      "rangeDays": "{days} ថ្ងៃ",
+      "colDate": "កាលបរិច្ឆេទ",
+      "colTime": "ម៉ោង",
+      "col3top": "៣ តួលើ",
+      "col2top": "២ តួលើ",
+      "col2bottom": "២ តួក្រោម",
+      "fullNumber": "លេខពេញ",
+      "viewHistory": "មើលប្រវត្តិទីផ្សារនេះ",
+      "prev": "មុន",
+      "next": "បន្ទាប់",
+      "pageOf": "ទំព័រ {page} / {total}",
+      "pageNo": "ទំព័រ {page}",
+      "totalDraws": "សរុប {count} ដង",
+      "today": "ថ្ងៃនេះ",
+      "pending": "មិនទាន់ចេញលទ្ធផល",
+      "empty": "រកមិនឃើញលទ្ធផល",
+      "error": "មិនអាចផ្ទុកលទ្ធផលបានទេ"
     }
   },
   "deposit": {

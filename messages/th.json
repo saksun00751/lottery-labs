@@ -380,6 +380,34 @@
       "ticket": {
         "matched": "ถูก {count} ตำแหน่ง"
       }
+    },
+    "resultsHistory": {
+      "title": "ดูผลหวยย้อนหลัง",
+      "subtitle": "ค้นผลรางวัลย้อนหลังของทุกตลาด",
+      "prevDay": "วันก่อนหน้า",
+      "nextDay": "วันถัดไป",
+      "pickDate": "เลือกวันที่",
+      "rangeDays": "{days} วัน",
+      "colDate": "วันที่",
+      "col3top": "3 ตัวบน",
+      "col2top": "2 ตัวบน",
+      "col2bottom": "2 ตัวล่าง",
+      "prev": "ก่อนหน้า",
+      "next": "ถัดไป",
+      "pageOf": "หน้า {page} / {total}",
+      "pending": "ยังไม่ออกผล",
+      "empty": "ไม่พบผลรางวัล",
+      "error": "โหลดผลรางวัลไม่สำเร็จ",
+      "today": "วันนี้",
+      "fullNumber": "เลขเต็ม",
+      "viewHistory": "ดูย้อนหลังตลาดนี้",
+      "colTime": "เวลา",
+      "totalDraws": "ทั้งหมด {count} งวด",
+      "viewDay": "รายวัน",
+      "viewMarket": "รายตลาด",
+      "viewFeed": "ฟีดตามวัน",
+      "searchName": "ค้นหาชื่อหวย",
+      "pageNo": "หน้า {page}"
     }
   },
   "deposit": {
