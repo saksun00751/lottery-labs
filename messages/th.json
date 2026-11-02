@@ -395,19 +395,20 @@
       "prev": "ก่อนหน้า",
       "next": "ถัดไป",
       "pageOf": "หน้า {page} / {total}",
-      "pending": "ยังไม่ออกผล",
       "empty": "ไม่พบผลรางวัล",
       "error": "โหลดผลรางวัลไม่สำเร็จ",
       "today": "วันนี้",
-      "fullNumber": "เลขเต็ม",
       "viewHistory": "ดูย้อนหลังตลาดนี้",
-      "colTime": "เวลา",
       "totalDraws": "ทั้งหมด {count} งวด",
       "viewDay": "รายวัน",
       "viewMarket": "รายตลาด",
       "viewFeed": "ฟีดตามวัน",
       "searchName": "ค้นหาชื่อหวย",
-      "pageNo": "หน้า {page}"
+      "family": {
+        "hanoi": "ฮานอย",
+        "lao": "ลาว",
+        "stock": "หุ้น/ต่างประเทศ"
+      }
     }
   },
   "deposit": {

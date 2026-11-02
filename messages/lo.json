@@ -393,21 +393,22 @@
       "searchName": "ຄົ້ນຫາຊື່ຫວຍ",
       "rangeDays": "{days} ວັນ",
       "colDate": "ວັນທີ",
-      "colTime": "ເວລາ",
       "col3top": "3 ໂຕເທິງ",
       "col2top": "2 ໂຕເທິງ",
       "col2bottom": "2 ໂຕລຸ່ມ",
-      "fullNumber": "ເລກເຕັມ",
       "viewHistory": "ເບິ່ງຍ້ອນຫຼັງຕະຫຼາດນີ້",
       "prev": "ກ່ອນໜ້າ",
       "next": "ຕໍ່ໄປ",
       "pageOf": "ໜ້າ {page} / {total}",
-      "pageNo": "ໜ້າ {page}",
       "totalDraws": "ທັງໝົດ {count} ງວດ",
       "today": "ມື້ນີ້",
-      "pending": "ຍັງບໍ່ອອກຜົນ",
       "empty": "ບໍ່ພົບຜົນລາງວັນ",
-      "error": "ໂຫຼດຜົນລາງວັນບໍ່ສຳເລັດ"
+      "error": "ໂຫຼດຜົນລາງວັນບໍ່ສຳເລັດ",
+      "family": {
+        "hanoi": "ຮານອຍ",
+        "lao": "ຫວຍລາວ",
+        "stock": "ຫຸ້ນ/ຕ່າງປະເທດ"
+      }
     }
   },
   "deposit": {

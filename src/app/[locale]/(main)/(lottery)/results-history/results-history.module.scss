@@ -132,6 +132,18 @@
   width: 100%;
 }
 
+.mChevron {
+  margin-inline-start: auto;
+  flex-shrink: 0;
+  color: var(--text-3);
+}
+
+.pickerEmpty {
+  padding: var(--sp-2);
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+}
+
 .mCardLink {
   @include tappable;
   cursor: pointer;
@@ -148,14 +160,6 @@
   gap: var(--sp-2);
 }
 
-.mLogo {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 1px solid var(--border-subtle);
-  flex-shrink: 0;
-}
 
 .mName {
   @include truncate;
@@ -163,32 +167,7 @@
   font-weight: var(--fw-semibold);
 }
 
-.mTime {
-  @include numeric;
-  margin-inline-start: auto;
-  flex-shrink: 0;
-  font-size: var(--fs-2xs);
-  color: var(--text-3);
-}
 
-.mFull {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--sp-2);
-  padding: 2px var(--sp-2);
-  border-radius: var(--radius-xs);
-  background: var(--accent-tint);
-  font-size: var(--fs-2xs);
-  color: var(--text-2);
-
-  b {
-    @include numeric;
-    font-size: var(--fs-sm);
-    letter-spacing: 0.1em;
-    color: var(--accent);
-  }
-}
 
 .mNums {
   display: grid;
@@ -225,14 +204,6 @@
   letter-spacing: 0.08em;
 }
 
-.pending {
-  padding: var(--sp-3);
-  text-align: center;
-  color: var(--text-3);
-  font-size: var(--fs-xs);
-  border-radius: var(--radius-xs);
-  background: var(--surface-inset);
-}
 
 /* ---------------------------- Market history ----------------------------- */
 
@@ -350,13 +321,6 @@
   font-weight: var(--fw-semibold);
 }
 
-.marketLogo {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  object-fit: cover;
-  flex-shrink: 0;
-}
 
 .tablePane {
   display: flex;
@@ -413,11 +377,6 @@
   color: var(--text-3);
 }
 
-.tdTime {
-  @include numeric;
-  font-size: var(--fs-xs);
-  color: var(--text-2);
-}
 
 .tdNum {
   @include numeric;
@@ -481,6 +440,10 @@
   color: var(--text-2);
 }
 
+.feedList li + li {
+  border-top: 1px solid var(--border-subtle);
+}
+
 .feedList {
   @include surface(1);
   list-style: none;
@@ -490,22 +453,17 @@
 }
 
 .feedRow {
+  @include tappable;
+  width: 100%;
   display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--sp-2);
   padding: var(--sp-2) var(--sp-3);
+  text-align: start;
 
-  + .feedRow {
-    border-top: 1px solid var(--border-subtle);
-  }
 }
 
-.feedTime {
-  @include numeric;
-  font-size: var(--fs-xs);
-  color: var(--text-3);
-}
 
 .feedName {
   @include truncate;

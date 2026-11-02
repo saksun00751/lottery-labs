@@ -393,21 +393,22 @@
       "searchName": "ស្វែងរកឈ្មោះឆ្នោត",
       "rangeDays": "{days} ថ្ងៃ",
       "colDate": "កាលបរិច្ឆេទ",
-      "colTime": "ម៉ោង",
       "col3top": "៣ តួលើ",
       "col2top": "២ តួលើ",
       "col2bottom": "២ តួក្រោម",
-      "fullNumber": "លេខពេញ",
       "viewHistory": "មើលប្រវត្តិទីផ្សារនេះ",
       "prev": "មុន",
       "next": "បន្ទាប់",
       "pageOf": "ទំព័រ {page} / {total}",
-      "pageNo": "ទំព័រ {page}",
       "totalDraws": "សរុប {count} ដង",
       "today": "ថ្ងៃនេះ",
-      "pending": "មិនទាន់ចេញលទ្ធផល",
       "empty": "រកមិនឃើញលទ្ធផល",
-      "error": "មិនអាចផ្ទុកលទ្ធផលបានទេ"
+      "error": "មិនអាចផ្ទុកលទ្ធផលបានទេ",
+      "family": {
+        "hanoi": "ហាណូយ",
+        "lao": "ឡាវ",
+        "stock": "ភាគហ៊ុន/បរទេស"
+      }
     }
   },
   "deposit": {
