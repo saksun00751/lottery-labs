@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronRight, Clock, Ticket } from 'lucide-react';
+import { CalendarClock, ChevronRight, Clock, Ticket } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 
 import { Badge, type BadgeTone } from '@/components/ui/Badge';
@@ -75,6 +75,13 @@ export function RoundCard({
           </span>
         )}
       </div>
+
+      {bettable && round.drawsAt && (
+        <div className={styles.drawAt}>
+          <CalendarClock size={15} aria-hidden />
+          {t('drawAt', { time: formatCloseTime(round.drawsAt, locale) })}
+        </div>
+      )}
 
       <div className={styles.foot}>
         <div className={styles.footStart}>

@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronRight, Clock } from 'lucide-react';
+import { CalendarClock, ChevronRight, Clock } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 
@@ -114,6 +114,13 @@ function MarketCard({
         </>
       ) : (
         <div className={styles.status}>{expired ? t('closed') : t(STATUS_KEY[round.status])}</div>
+      )}
+
+      {bettable && round.drawsAt && (
+        <div className={styles.drawAt}>
+          <CalendarClock size={15} aria-hidden />
+          {t('drawAt', { time: formatCloseTime(round.drawsAt, locale) })}
+        </div>
       )}
     </>
   );
