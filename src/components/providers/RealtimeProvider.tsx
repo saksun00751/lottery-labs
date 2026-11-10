@@ -1,13 +1,13 @@
 'use client';
 
-import Echo from 'laravel-echo';
-import Pusher from 'pusher-js';
+import type Echo from 'laravel-echo';
 import { useEffect, useRef, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { qk } from '@/lib/api/queries';
 import { hasAuthFlagCookie } from '@/lib/auth-cookie';
 import { pushToast } from '@/lib/toast';
+import { useRealtimeStore } from '@/store/realtime-store';
 
 type RealtimeConfig = {
   key?: unknown;
@@ -97,9 +97,8 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
     };
 
     const invalidateDraws = () => {
-      void queryClient.invalidateQueries({ queryKey: ['lottery', 'rounds'] });
-      void queryClient.invalidateQueries({ queryKey: qk.groups });
-      void queryClient.invalidateQueries({ queryKey: qk.results });
+      void queryClient.invalidateQueries({ queryKey: qk.markets });
+      void queryClient.invalidateQueries({ queryKey: ['lottery', 'results'] });
     };
 
     const reconcileWallet = () => {
@@ -215,9 +214,17 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
         const wsHost = text(config?.ws_host) ?? text(config?.wsHost);
         const sharedChannel = text(config?.shared_member_channel) ?? text(config?.sharedMemberChannel);
 
+        // Loaded only for signed-in members, after the auth checks above, so
+        // guests and the first paint never pay for the websocket libraries.
+        const [{ default: EchoClient }, { default: Pusher }] = await Promise.all([
+          import('laravel-echo'),
+          import('pusher-js'),
+        ]);
+        if (!active) return;
+
         // Laravel Echo expects Pusher to be available globally in browsers.
         (window as typeof window & { Pusher?: typeof Pusher }).Pusher = Pusher;
-        const echo = new Echo<'pusher'>({
+        const echo = new EchoClient<'pusher'>({
           broadcaster: 'pusher',
           key,
           cluster: text(config?.cluster) ?? 'mt1',
@@ -236,6 +243,13 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
         }
 
         echoRef.current = echo;
+
+        // Drive polling cadence from the socket's real state.
+        const connection = echo.connector.pusher.connection;
+        const syncConnected = () =>
+          useRealtimeStore.getState().setConnected(connection.state === 'connected');
+        connection.bind('state_change', syncConnected);
+        syncConnected();
         if (sharedChannel) {
           echo.private(sharedChannel).listen('.public.activity.updated', onPublicActivity);
           joinedChannels.push(sharedChannel);
@@ -256,6 +270,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
     void connect();
     return () => {
       active = false;
+      useRealtimeStore.getState().setConnected(false);
       if (heartbeat) clearInterval(heartbeat);
       if (reconciliation) clearTimeout(reconciliation);
       if (echoRef.current) {

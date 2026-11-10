@@ -438,7 +438,7 @@ function normalizeWithdrawInfo(
 
 /* --------------------------------- lottery ------------------------------- */
 
-interface MarketsLatestResponse {
+export interface MarketsLatestResponse {
   data?: {
     groups?: Array<{
       group_id?: number;
@@ -1339,6 +1339,13 @@ function normalizeYeekeeResultProof(payload: YeekeeResultProofResponse): YeekeeR
 }
 
 export const lotteryApi = {
+  /** Raw listing — the single request every market-derived view shares via `select`. */
+  marketsLatest: () => apiFetch<MarketsLatestResponse>('lotto/markets/latest'),
+
+  selectRounds: normalizeRounds,
+  selectGroups: normalizeGroups,
+  selectResultGroups: normalizeResultGroupsFromMarkets,
+
   rounds: (_category?: string) =>
     apiFetch<MarketsLatestResponse>('lotto/markets/latest').then(normalizeRounds),
 

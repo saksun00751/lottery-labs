@@ -7,6 +7,9 @@ import {
   useQueryClient,
   type UseQueryOptions,
 } from '@tanstack/react-query';
+import { useCallback } from 'react';
+
+import { pollInterval } from '@/store/realtime-store';
 
 import type { BonusSource, DepositMethod, HanoiSelection, TransactionType } from '@/types';
 
@@ -19,12 +22,15 @@ import {
   isExpiredStatus,
   isPaidLikeStatus,
   lotteryApi,
+  type MarketsLatestResponse,
   promotionApi,
   referenceApi,
   referralApi,
   walletApi,
   wheelApi,
 } from './endpoints';
+
+const selectBankAccounts = (user: Awaited<ReturnType<typeof accountApi.me>>) => user.bankAccounts;
 
 /** One namespace for every cache key so invalidation stays predictable. */
 export const qk = {
@@ -34,13 +40,11 @@ export const qk = {
   bankAccounts: ['bank-accounts'] as const,
   withdrawInfo: ['withdraw-info'] as const,
   bonusSummary: ['bonus-summary'] as const,
-  rounds: (category?: string) => ['lottery', 'rounds', category ?? 'all'] as const,
-  groups: ['lottery', 'groups'] as const,
-  round: (id: string) => ['lottery', 'round', id] as const,
+  /** Raw `lotto/markets/latest` — rounds, groups, a single round and today's results all derive from it. */
+  markets: ['lottery', 'markets'] as const,
   rates: (id: string) => ['lottery', 'rates', id] as const,
   packages: (groupId: number) => ['lottery', 'packages', groupId] as const,
   selectedPackage: (groupId: number) => ['lottery', 'selected-package', groupId] as const,
-  results: ['lottery', 'results'] as const,
   tickets: () => ['lottery', 'tickets'] as const,
   ticketDetail: (id: string) => ['lottery', 'ticket', id] as const,
   yeekeeRounds: (marketId: string) => ['lottery', 'yeekee', 'rounds', marketId] as const,
@@ -87,12 +91,13 @@ export const useWallet = (options?: Partial<UseQueryOptions>) =>
     queryFn: accountApi.wallet,
     staleTime: 10_000,
     refetchOnWindowFocus: true,
-    refetchInterval: 60_000,
+    refetchInterval: pollInterval,
     ...(options as object),
   });
 
+/** Derived from the profile query so `member/profile` is fetched once and mutations that invalidate `qk.me` refresh it too. */
 export const useBankAccounts = () =>
-  useQuery({ queryKey: qk.bankAccounts, queryFn: accountApi.bankAccounts });
+  useQuery({ queryKey: qk.me, queryFn: accountApi.me, select: selectBankAccounts });
 
 /** Withdraw limits, the daily running total, system notice, and promo lock state. */
 export const useWithdrawInfo = () =>
@@ -109,23 +114,30 @@ export const useBonusSummary = () =>
     staleTime: 10_000,
   });
 
-export const useRounds = (category?: string) =>
+/**
+ * One shared request for `lotto/markets/latest`. Every view derives its slice
+ * with `select`, so the home page, list, bet pages and results all hit the
+ * network once per interval instead of once per hook. Countdowns are computed
+ * client-side; this just keeps statuses honest.
+ */
+const useMarkets = <T,>(select: (raw: MarketsLatestResponse) => T, enabled = true) =>
   useQuery({
-    queryKey: qk.rounds(category),
-    queryFn: () => lotteryApi.rounds(category),
-    // Countdowns are computed client-side; this just keeps statuses honest.
-    refetchInterval: 60_000,
+    queryKey: qk.markets,
+    queryFn: lotteryApi.marketsLatest,
+    select,
+    enabled,
+    refetchInterval: pollInterval,
   });
 
-export const useLotteryGroups = () =>
-  useQuery({
-    queryKey: qk.groups,
-    queryFn: lotteryApi.groups,
-    refetchInterval: 60_000,
-  });
+export const useRounds = (_category?: string) => useMarkets(lotteryApi.selectRounds);
+
+export const useLotteryGroups = () => useMarkets(lotteryApi.selectGroups);
 
 export const useRound = (id: string) =>
-  useQuery({ queryKey: qk.round(id), queryFn: () => lotteryApi.round(id), enabled: !!id });
+  useMarkets(
+    useCallback((raw: MarketsLatestResponse) => lotteryApi.selectRounds(raw).find((r) => r.id === id), [id]),
+    !!id,
+  );
 
 export const useRates = (id: string) =>
   useQuery({
@@ -168,7 +180,7 @@ export const useYeekeeRounds = (marketId: string) =>
     queryKey: qk.yeekeeRounds(marketId),
     queryFn: () => lotteryApi.yeekeeRounds(marketId),
     enabled: !!marketId,
-    refetchInterval: 60_000,
+    refetchInterval: pollInterval,
   });
 
 export const useYeekeeShoots = (
@@ -203,7 +215,7 @@ export function useSubmitYeekeeShoot(roundId: string) {
 }
 
 export const useResultGroups = (enabled = true) =>
-  useQuery({ queryKey: qk.results, queryFn: lotteryApi.resultGroups, enabled });
+  useMarkets(lotteryApi.selectResultGroups, enabled);
 
 export const useResultsByDate = (drawDate: string | null) =>
   useQuery({
