@@ -14,17 +14,31 @@ export const HANOI_MAX_SELECTIONS = 50;
 export const HANOI_MAX_LINES = 500;
 export const HANOI_MAX_RANGE = 1000;
 
-const POSITIONS: Record<HanoiChannel, Record<HanoiDigits, number>> = {
-  A: { 2: 4, 3: 3 },
-  B: { 2: 1, 3: 1 },
-  C: { 2: 1, 3: 1 },
-  D: { 2: 1, 3: 1 },
-  ABCD: { 2: 7, 3: 6 },
+/**
+ * Channel A reads different prizes per round: the 18:30 Hanoi ABCD round (XSMB)
+ * uses G7 ×4 for 2 digits and G6 ×3 for 3 digits; the 13:30 / 16:30 / 17:30
+ * rounds use a single G8 / G7 value. B, C and D are one value in every round.
+ */
+const A_POSITIONS: Record<'wide' | 'narrow', Record<HanoiDigits, number>> = {
+  wide: { 2: 4, 3: 3 },
+  narrow: { 2: 1, 3: 1 },
 };
 
-/** Draw positions a number is checked against: A2 → 4, A3 → 3, ABCD → all four channels. */
-export const positionCount = (channel: HanoiChannel, digits: HanoiDigits) =>
-  POSITIONS[channel][digits];
+/** Draw positions a number is checked against: A → per round, B/C/D → 1, ABCD → all four channels. */
+export function positionCount(channel: HanoiChannel, digits: HanoiDigits, wideA = true): number {
+  const a = A_POSITIONS[wideA ? 'wide' : 'narrow'][digits];
+  if (channel === 'A') return a;
+  if (channel === 'ABCD') return a + 3;
+  return 1;
+}
+
+/** True for the 18:30 (UTC+7) round, the only one where channel A covers several prizes. */
+export function hasWideA(drawsAt: string): boolean {
+  const t = new Date(drawsAt).getTime();
+  if (Number.isNaN(t)) return true; // unknown → keep the previous behaviour
+  const minutes = Math.floor(((t / 60000 + 7 * 60) % 1440 + 1440) % 1440);
+  return minutes >= 18 * 60;
+}
 
 /** Bet types behind a channel, e.g. (ABCD, 2) → hanoi_a2 … hanoi_d2. */
 export function betTypesFor(channel: HanoiChannel, digits: HanoiDigits): string[] {
@@ -56,7 +70,7 @@ function arrangements(source: string, size: number): string[] {
   return [...seen];
 }
 
-export function expandSelection(sel: Omit<HanoiSelection, 'amount'>): Expansion {
+export function expandSelection(sel: Omit<HanoiSelection, 'amount'>, wideA = true): Expansion {
   const { digits, method } = sel;
   let numbers: string[];
 
@@ -85,7 +99,7 @@ export function expandSelection(sel: Omit<HanoiSelection, 'amount'>): Expansion 
     numbers = Array.from({ length: to - from + 1 }, (_, i) => String(from + i).padStart(digits, '0'));
   }
 
-  const positions = positionCount(sel.channel, digits);
+  const positions = positionCount(sel.channel, digits, wideA);
   if (numbers.length * positions > HANOI_MAX_LINES) return { ok: false, problem: 'tooMany' };
   return { ok: true, numbers, positions, units: numbers.length * positions };
 }

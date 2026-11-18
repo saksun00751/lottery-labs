@@ -19,6 +19,7 @@ import {
   betTypesFor,
   expandSelection,
   onlyDigits,
+  hasWideA,
   positionCount,
   sourceLabel,
 } from '@/lib/utils/hanoi';
@@ -79,6 +80,8 @@ export function HanoiBetBoard({
   const tCommon = useTranslations('common');
   const tSlip = useTranslations('lottery.slip');
   const router = useRouter();
+
+  const wideA = hasWideA(round.drawsAt);
 
   const firstOpen = (digits: HanoiDigits): HanoiChannel =>
     HANOI_CHANNELS.find((c) => capability.channelsByDigits[digits][c]) ?? 'A';
@@ -159,8 +162,8 @@ export function HanoiBetBoard({
         right: fields.right,
         rangeStart: fields.rangeStart,
         rangeEnd: fields.rangeEnd,
-      }),
-    [channel, digits, method, fields],
+      }, wideA),
+    [channel, digits, method, fields, wideA],
   );
 
   const typed = Object.values(fields).some(Boolean);
@@ -288,7 +291,7 @@ export function HanoiBetBoard({
   const lineNet = (index: number, sel: HanoiSelection) => {
     const fromServer = quote.data && !quote.isFetching ? quote.data.selectionNet[index] : undefined;
     if (fromServer !== undefined) return fromServer;
-    const e = expandSelection(sel);
+    const e = expandSelection(sel, wideA);
     return e.ok ? toMinor(e.units * sel.amount) : 0;
   };
 
@@ -303,7 +306,7 @@ export function HanoiBetBoard({
       ) : (
         <ul className={styles.lines}>
           {lines.map((line, index) => {
-            const e = expandSelection(line.sel);
+            const e = expandSelection(line.sel, wideA);
             return (
               <li key={line.id} className={styles.line}>
                 <span className={styles.lineTag}>
@@ -378,7 +381,7 @@ export function HanoiBetBoard({
         <div className={styles.block}>
           <div className={styles.blockHead}>
             <h2 className={styles.blockTitle}>{t('channel')}</h2>
-            <span className={styles.blockHint}>{t('positions', { count: positionCount(channel, digits) })}</span>
+            <span className={styles.blockHint}>{t('positions', { count: positionCount(channel, digits, wideA) })}</span>
           </div>
           <div className={styles.channels} role="group" aria-label={t('channel')}>
             {HANOI_CHANNELS.map((c) => (
@@ -391,7 +394,7 @@ export function HanoiBetBoard({
                 onClick={() => setChannel(c)}
               >
                 <span className={styles.channelName}>{c}</span>
-                <span className={styles.channelSub}>{t('positions', { count: positionCount(c, digits) })}</span>
+                <span className={styles.channelSub}>{t('positions', { count: positionCount(c, digits, wideA) })}</span>
               </button>
             ))}
           </div>
