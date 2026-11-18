@@ -9,7 +9,7 @@
 module.exports = {
   apps: [
     {
-      name: 'lotto',
+      name: 'lotto-168csn-app',
       script: 'scripts/start-standalone.mjs',
       cwd: __dirname,
       instances: 1,
@@ -19,7 +19,7 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         PORT: 4801,
-        HOSTNAME: '0.0.0.0',
+        HOSTNAME: '127.0.0.1',
       },
     },
   ],
