@@ -3,14 +3,12 @@
 //   pm2 start ecosystem.config.cjs   (first time)
 //   pm2 reload ecosystem.config.cjs  (later deploys)
 //   pm2 save
-//
-// `output: 'standalone'` means `next start` is unsupported, so run the wrapper
-// that copies public/ and .next/static next to server.js and then starts it.
 module.exports = {
   apps: [
     {
-      name: 'lotto-168csn-app',
-      script: 'scripts/start-standalone.mjs',
+      name: 'lotto',
+      script: 'node_modules/next/dist/bin/next',
+      args: 'start -p 4801 -H 127.0.0.1',
       cwd: __dirname,
       instances: 1,
       exec_mode: 'fork',
@@ -18,8 +16,6 @@ module.exports = {
       max_memory_restart: '700M',
       env: {
         NODE_ENV: 'production',
-        PORT: 4801,
-        HOSTNAME: '127.0.0.1',
       },
     },
   ],

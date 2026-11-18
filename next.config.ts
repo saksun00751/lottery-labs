@@ -6,7 +6,6 @@ import type { NextConfig } from 'next';
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
   reactStrictMode: true,
   sassOptions: {
     // Lets any stylesheet write `@use 'styles/abstracts' as *;` regardless of
