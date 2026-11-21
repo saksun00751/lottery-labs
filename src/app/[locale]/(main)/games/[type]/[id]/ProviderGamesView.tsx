@@ -14,11 +14,21 @@ import type { GameItem } from '@/types';
 import { TYPE_EMOJI } from '../../gameMeta';
 import styles from '../../games.module.scss';
 
-/** Safari blocks a same-tick `window.open` after an awaited fetch — full navigation dodges that. */
+/**
+ * Safari and in-app browsers (Facebook, Instagram, Line…) block a `window.open`
+ * made after an awaited fetch — full navigation dodges that. Any other browser
+ * that still blocks the popup (`null` back) falls back to navigation too.
+ */
 function openGameUrl(url: string) {
-  const isSafari = /^((?!chrome|android|crios|fxios).)*safari/i.test(navigator.userAgent);
-  if (isSafari) window.location.href = url;
-  else window.open(url, '_blank', 'noopener,noreferrer');
+  const ua = navigator.userAgent;
+  const isSafari = /^((?!chrome|android|crios|fxios).)*safari/i.test(ua);
+  const isInApp = /FBAN|FBAV|FB_IAB|FBIOS|Instagram|Line\/|MicroMessenger/i.test(ua);
+  if (isSafari || isInApp) {
+    window.location.href = url;
+    return;
+  }
+  const opened = window.open(url, '_blank', 'noopener,noreferrer');
+  if (!opened) window.location.href = url;
 }
 
 export function ProviderGamesView({ type, providerId }: { type: string; providerId: string }) {
