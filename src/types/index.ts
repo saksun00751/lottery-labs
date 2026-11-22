@@ -164,6 +164,8 @@ export interface RestrictedNumber {
 
 export interface RoundRates {
   roundId: string;
+  /** `data.draw.id` from betting-context — the draw the quote/bet APIs must be called with. */
+  drawId?: number;
   betTypes: BetType[];
   restricted: RestrictedNumber[];
   /** `bet_profile.code` from betting-context — `hanoi_abcd_v1` switches the page to the Hanoi board. */
@@ -178,7 +180,16 @@ export type HanoiChannel = 'A' | 'B' | 'C' | 'D' | 'ABCD';
 export type HanoiDigits = 2 | 3;
 export type HanoiMethod = 'straight' | 'mix' | 'cross' | 'range';
 
+/** Draw positions per digit count, from `bet_profile.position_counts` / `abcd_unit_counts`. */
+export interface HanoiPositions {
+  /** Positions channel A covers (`hanoi_a2` / `hanoi_a3`). */
+  a: Record<HanoiDigits, number>;
+  /** Units one ABCD number costs. */
+  abcd: Record<HanoiDigits, number>;
+}
+
 export interface HanoiCapability {
+  positions: HanoiPositions;
   /** Which channels the draw accepts, per digit count — drives every disabled chip. */
   channelsByDigits: Record<HanoiDigits, Record<HanoiChannel, boolean>>;
   methods: Record<HanoiDigits, HanoiMethod[]>;

@@ -138,10 +138,10 @@ export function BetView({ roundId }: { roundId: string }) {
           <AlertTriangle size={18} aria-hidden />
           {t('slip.roundClosed')}
         </div>
-      ) : rates.hanoi && round.drawId && selectedPackage ? (
+      ) : rates.hanoi && (rates.drawId ?? round.drawId) && selectedPackage ? (
         // Hanoi A/B/C/D has its own bet engine (quote + bet endpoints), so it
         // swaps the whole board rather than reusing the number grid and slip.
-        <HanoiBetBoard round={round} capability={rates.hanoi} packageId={selectedPackage.id} />
+        <HanoiBetBoard round={{ ...round, drawId: rates.drawId ?? round.drawId }} capability={rates.hanoi} packageId={selectedPackage.id} />
       ) : (
         <div className={styles.betLayout}>
           <div className={styles.leftColumn}>

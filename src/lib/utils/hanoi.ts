@@ -1,4 +1,10 @@
-import type { HanoiChannel, HanoiDigits, HanoiMethod, HanoiSelection } from '@/types';
+import type {
+  HanoiChannel,
+  HanoiDigits,
+  HanoiMethod,
+  HanoiPositions,
+  HanoiSelection,
+} from '@/types';
 
 /**
  * Client-side mirror of the Hanoi A/B/C/D expansion rules. It only drives the
@@ -15,29 +21,24 @@ export const HANOI_MAX_LINES = 500;
 export const HANOI_MAX_RANGE = 1000;
 
 /**
- * Channel A reads different prizes per round: the 18:30 Hanoi ABCD round (XSMB)
- * uses G7 ×4 for 2 digits and G6 ×3 for 3 digits; the 13:30 / 16:30 / 17:30
- * rounds use a single G8 / G7 value. B, C and D are one value in every round.
+ * How many draw positions a number is checked against, per digit count. It comes
+ * from the draw's `bet_profile` (`position_counts` / `abcd_unit_counts`), never
+ * from the draw time — the 18:30 round is just one whose API values are 4 / 3.
  */
-const A_POSITIONS: Record<'wide' | 'narrow', Record<HanoiDigits, number>> = {
-  wide: { 2: 4, 3: 3 },
-  narrow: { 2: 1, 3: 1 },
+export const DEFAULT_HANOI_POSITIONS: HanoiPositions = {
+  a: { 2: 1, 3: 1 },
+  abcd: { 2: 4, 3: 4 },
 };
 
-/** Draw positions a number is checked against: A → per round, B/C/D → 1, ABCD → all four channels. */
-export function positionCount(channel: HanoiChannel, digits: HanoiDigits, wideA = true): number {
-  const a = A_POSITIONS[wideA ? 'wide' : 'narrow'][digits];
-  if (channel === 'A') return a;
-  if (channel === 'ABCD') return a + 3;
+/** Draw positions a number is checked against: A → per draw, B/C/D → 1, ABCD → the API's unit count. */
+export function positionCount(
+  channel: HanoiChannel,
+  digits: HanoiDigits,
+  positions: HanoiPositions = DEFAULT_HANOI_POSITIONS,
+): number {
+  if (channel === 'A') return positions.a[digits];
+  if (channel === 'ABCD') return positions.abcd[digits];
   return 1;
-}
-
-/** True for the 18:30 (UTC+7) round, the only one where channel A covers several prizes. */
-export function hasWideA(drawsAt: string): boolean {
-  const t = new Date(drawsAt).getTime();
-  if (Number.isNaN(t)) return true; // unknown → keep the previous behaviour
-  const minutes = Math.floor(((t / 60000 + 7 * 60) % 1440 + 1440) % 1440);
-  return minutes >= 18 * 60;
 }
 
 /** Bet types behind a channel, e.g. (ABCD, 2) → hanoi_a2 … hanoi_d2. */
@@ -70,7 +71,10 @@ function arrangements(source: string, size: number): string[] {
   return [...seen];
 }
 
-export function expandSelection(sel: Omit<HanoiSelection, 'amount'>, wideA = true): Expansion {
+export function expandSelection(
+  sel: Omit<HanoiSelection, 'amount'>,
+  counts: HanoiPositions = DEFAULT_HANOI_POSITIONS,
+): Expansion {
   const { digits, method } = sel;
   let numbers: string[];
 
@@ -99,7 +103,7 @@ export function expandSelection(sel: Omit<HanoiSelection, 'amount'>, wideA = tru
     numbers = Array.from({ length: to - from + 1 }, (_, i) => String(from + i).padStart(digits, '0'));
   }
 
-  const positions = positionCount(sel.channel, digits, wideA);
+  const positions = positionCount(sel.channel, digits, counts);
   if (numbers.length * positions > HANOI_MAX_LINES) return { ok: false, problem: 'tooMany' };
   return { ok: true, numbers, positions, units: numbers.length * positions };
 }

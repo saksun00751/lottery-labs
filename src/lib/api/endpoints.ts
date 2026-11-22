@@ -18,6 +18,7 @@ import type {
   HanoiChannel,
   HanoiDigits,
   HanoiMethod,
+  HanoiPositions,
   HanoiQuote,
   HanoiSelection,
   LotteryCategory,
@@ -58,6 +59,7 @@ import type {
   YeekeeShoot,
   YeekeeShootsPage,
 } from '@/types';
+import { DEFAULT_HANOI_POSITIONS } from '@/lib/utils/hanoi';
 import { bangkokToIso, formatDrawDate } from '@/lib/utils/bangkok-time';
 import { toMajor, toMinor } from '@/lib/utils/money';
 
@@ -654,10 +656,16 @@ interface HanoiProfileResponse {
   channels_by_digits?: Partial<Record<'2' | '3', Partial<Record<HanoiChannel, boolean>>>>;
   methods?: Partial<Record<'2' | '3', string[]>>;
   enabled_bet_types?: string[];
+  /** Draw positions per bet type, e.g. `{ hanoi_a2: 4, hanoi_a3: 3 }`. */
+  position_counts?: Partial<Record<'hanoi_a2' | 'hanoi_a3', number>>;
+  /** Units one ABCD number costs, e.g. `{ '2': 7, '3': 6 }`. */
+  abcd_unit_counts?: Partial<Record<'2' | '3' | 'digits_2' | 'digits_3', number>>;
 }
 
 interface BettingContextResponse {
   data?: {
+    draw?: { id?: number };
+    market?: { bet_profile?: string | { code?: string } | null };
     bet_profile?: HanoiProfileResponse | null;
     limits?: {
       bet_types?: Array<{
@@ -712,9 +720,14 @@ function normalizeRates(roundId: string, payload: BettingContextResponse): Round
   );
 
   const profile = payload.data?.bet_profile;
-  const betProfile = profile?.code;
+  // The market decides which board to show (`standard` vs `hanoi_abcd_v1`); the
+  // draw-level profile is the fallback and carries the per-draw position counts.
+  const marketProfile = payload.data?.market?.bet_profile;
+  const betProfile =
+    (typeof marketProfile === 'string' ? marketProfile : marketProfile?.code) || profile?.code;
   return {
     roundId,
+    drawId: payload.data?.draw?.id,
     betTypes,
     restricted,
     betProfile,
@@ -775,7 +788,22 @@ function normalizeHanoiCapability(
     };
   }
 
+  const count = (value: number | undefined, fallback: number) =>
+    typeof value === 'number' && Number.isFinite(value) && value > 0 ? Math.floor(value) : fallback;
+  const a2 = count(profile?.position_counts?.hanoi_a2, DEFAULT_HANOI_POSITIONS.a[2]);
+  const a3 = count(profile?.position_counts?.hanoi_a3, DEFAULT_HANOI_POSITIONS.a[3]);
+  const units = profile?.abcd_unit_counts;
+  const positions: HanoiPositions = {
+    a: { 2: a2, 3: a3 },
+    // ABCD = A + B + C + D, so without an explicit count it follows channel A.
+    abcd: {
+      2: count(units?.['2'] ?? units?.digits_2, a2 + 3),
+      3: count(units?.['3'] ?? units?.digits_3, a3 + 3),
+    },
+  };
+
   return {
+    positions,
     channelsByDigits: { 2: channelsFor(2), 3: channelsFor(3) },
     methods: { 2: methodsFor(2), 3: methodsFor(3) },
     limits,
