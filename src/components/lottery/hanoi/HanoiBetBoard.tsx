@@ -1,7 +1,8 @@
 'use client';
 
-import { AlertTriangle, Delete, Keyboard, Plus, ScrollText, Trash2, X } from 'lucide-react';
+import { AlertTriangle, Delete, Keyboard, ScrollText, Trash2, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useRouter as useAppRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { SelectedPackageCard } from '@/components/lottery/SelectedPackageCard';
@@ -20,6 +21,7 @@ import {
   expandSelection,
   onlyDigits,
   positionCount,
+  positionsLabel,
   sourceLabel,
 } from '@/lib/utils/hanoi';
 import { toMinor } from '@/lib/utils/money';
@@ -39,7 +41,7 @@ type FieldKey = 'number' | 'left' | 'right' | 'rangeStart' | 'rangeEnd';
 type Fields = Record<FieldKey, string>;
 
 const EMPTY_FIELDS: Fields = { number: '', left: '', right: '', rangeStart: '', rangeEnd: '' };
-const QUICK_AMOUNTS = [5, 10, 20, 50, 100];
+const QUICK_AMOUNTS = [1, 5, 10, 20, 50, 100];
 
 /** The input boxes a method needs, with how many digits each takes. */
 function fieldSpec(method: HanoiMethod, digits: HanoiDigits): Array<[FieldKey, number]> {
@@ -59,6 +61,35 @@ function fieldSpec(method: HanoiMethod, digits: HanoiDigits): Array<[FieldKey, n
     default:
       return [['number', digits]];
   }
+}
+
+/** Per-unit price of one slip line, editable in place; only a positive number reaches the slip. */
+function SlipAmount({
+  value,
+  label,
+  onCommit,
+}: {
+  value: number;
+  label: string;
+  onCommit: (next: number) => void;
+}) {
+  const [text, setText] = useState(String(value));
+  return (
+    <input
+      className={styles.lineAmount}
+      type="text"
+      inputMode="decimal"
+      aria-label={label}
+      value={text}
+      onChange={(event) => {
+        const next = event.target.value.replace(/[^\d.]/g, '');
+        setText(next);
+        const n = Number(next);
+        if (Number.isFinite(n) && n > 0 && n !== value) onCommit(n);
+      }}
+      onBlur={() => setText(String(value))}
+    />
+  );
 }
 
 interface SlipLine {
@@ -85,15 +116,23 @@ export function HanoiBetBoard({
   const firstOpen = (digits: HanoiDigits): HanoiChannel =>
     HANOI_CHANNELS.find((c) => capability.channelsByDigits[digits][c]) ?? 'A';
 
-  const [digits, setDigits] = useState<HanoiDigits>(capability.channelsByDigits[3].B ? 3 : 2);
+  // Opens on A with 2 digits; falls back to whatever the draw actually accepts.
+  const startDigits: HanoiDigits = HANOI_CHANNELS.some((c) => capability.channelsByDigits[2][c]) ? 2 : 3;
+  const [digits, setDigits] = useState<HanoiDigits>(startDigits);
   const [channel, setChannel] = useState<HanoiChannel>(
-    capability.channelsByDigits[3].B ? 'B' : firstOpen(2),
+    capability.channelsByDigits[startDigits].A ? 'A' : firstOpen(startDigits),
   );
   const [method, setMethod] = useState<HanoiMethod>('straight');
+  // Which A-positions are ticked, per digit count. Starts with just the first (A1).
+  const [pickedA, setPickedA] = useState<Record<HanoiDigits, number[]>>(() => ({
+    2: counts.aLabels[2].slice(0, 1),
+    3: counts.aLabels[3].slice(0, 1),
+  }));
   const [fields, setFields] = useState<Fields>(EMPTY_FIELDS);
   const [active, setActive] = useState<FieldKey>('number');
-  const [amountText, setAmountText] = useState('10');
+  const [amountText, setAmountText] = useState('1');
   const [lines, setLines] = useState<SlipLine[]>([]);
+  const [slipSession, setSlipSession] = useState(0);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const nextId = useRef(1);
   // One id per business request: kept across retries, dropped once the items change.
@@ -104,6 +143,19 @@ export function HanoiBetBoard({
   const methods = capability.methods[digits];
   const amount = Number(amountText);
   const amountOk = Number.isFinite(amount) && amount > 0;
+
+  const aLabels = counts.aLabels[digits];
+  const splitA = channel === 'A' && aLabels.length > 1;
+  const pickedNow = pickedA[digits];
+  // Every ticked A-position becomes its own slip line, so each one is priced and shown separately.
+  const aPositions = splitA ? [...pickedNow].sort((a, b) => a - b) : undefined;
+  const linesToAdd = aPositions ? aPositions.length : 1;
+
+  const toggleA = (n: number) =>
+    setPickedA((prev) => ({
+      ...prev,
+      [digits]: prev[digits].includes(n) ? prev[digits].filter((x) => x !== n) : [...prev[digits], n],
+    }));
 
   const resetFields = useCallback((nextMethod: HanoiMethod, nextDigits: HanoiDigits) => {
     setFields(EMPTY_FIELDS);
@@ -161,16 +213,17 @@ export function HanoiBetBoard({
         right: fields.right,
         rangeStart: fields.rangeStart,
         rangeEnd: fields.rangeEnd,
+        positions: splitA ? pickedNow : undefined,
       }, counts),
-    [channel, digits, method, fields, counts],
+    [channel, digits, method, fields, counts, splitA, pickedNow],
   );
 
   const typed = Object.values(fields).some(Boolean);
   const canAdd =
-    draft.ok && amountOk && open[channel] && lines.length < HANOI_MAX_SELECTIONS && !confirmOpen;
+    draft.ok && amountOk && open[channel] && lines.length + linesToAdd <= HANOI_MAX_SELECTIONS && !confirmOpen;
 
   const add = useCallback(() => {
-    if (!draft.ok || !amountOk || !open[channel] || lines.length >= HANOI_MAX_SELECTIONS) return;
+    if (!draft.ok || !amountOk || !open[channel] || lines.length + linesToAdd > HANOI_MAX_SELECTIONS) return;
     const sel: HanoiSelection = {
       channel,
       digits,
@@ -182,9 +235,82 @@ export function HanoiBetBoard({
           ? { rangeStart: fields.rangeStart, rangeEnd: fields.rangeEnd }
           : { number: fields.number }),
     };
-    setLines((prev) => [...prev, { id: nextId.current++, sel }]);
+    const added = aPositions
+      ? aPositions.map((n) => ({ id: nextId.current++, sel: { ...sel, positions: [n] } }))
+      : [{ id: nextId.current++, sel }];
+    setLines((prev) => [...prev, ...added]);
     resetFields(method, digits);
-  }, [draft, amountOk, open, channel, lines.length, digits, method, amount, fields, resetFields]);
+  }, [draft, amountOk, open, channel, lines.length, linesToAdd, digits, method, amount, fields, resetFields, aPositions]);
+
+  // An unsent slip is lost on leave. Reload/close can only use the browser's own prompt
+  // (beforeunload); in-app links and Back/Forward open our own dialog instead.
+  const hasSlip = lines.length > 0;
+  const [leaveAsk, setLeaveAsk] = useState<{ stay: () => void; leave: () => void } | null>(null);
+  const askingRef = useRef(false);
+  askingRef.current = leaveAsk !== null;
+  const appRouter = useAppRouter();
+  const appRouterRef = useRef(appRouter);
+  appRouterRef.current = appRouter;
+
+  useEffect(() => {
+    if (!hasSlip) return;
+    const onBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+    const onClick = (event: MouseEvent) => {
+      if (event.defaultPrevented || event.button !== 0) return;
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const anchor = (event.target as HTMLElement | null)?.closest('a');
+      if (!anchor || anchor.target === '_blank' || anchor.hasAttribute('download')) return;
+      const url = new URL(anchor.href, window.location.href);
+      if (url.origin !== window.location.origin) return;
+      if (url.pathname === window.location.pathname) return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (askingRef.current) return;
+      setLeaveAsk({
+        stay: () => {},
+        leave: () => appRouterRef.current.push(url.pathname + url.search + url.hash),
+      });
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
+    document.addEventListener('click', onClick, true);
+    return () => {
+      window.removeEventListener('beforeunload', onBeforeUnload);
+      document.removeEventListener('click', onClick, true);
+    };
+  }, [hasSlip]);
+
+  // Back/forward: while the slip has items, park a spare history entry on top of this page.
+  // Back (or swipe-back) then only lands on the same page, which opens the dialog — staying
+  // re-parks the entry, leaving steps back once more. The push also drops any forward
+  // entries, so Forward can't leave either.
+  useEffect(() => {
+    if (!hasSlip) return;
+    let guarding = true;
+    window.history.pushState(null, '', window.location.href);
+    const onPopState = () => {
+      if (!guarding || askingRef.current) return;
+      setLeaveAsk({
+        stay: () => window.history.pushState(null, '', window.location.href),
+        leave: () => {
+          guarding = false;
+          window.history.back();
+        },
+      });
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => {
+      guarding = false;
+      window.removeEventListener('popstate', onPopState);
+    };
+  }, [hasSlip]);
+
+  // Once every box is filled the line is complete — drop it on the slip without another tap.
+  useEffect(() => {
+    if (typed && canAdd) add();
+  }, [typed, canAdd, add]);
 
   // Desktop shortcut: type digits straight from the keyboard, Enter to add.
   useEffect(() => {
@@ -221,7 +347,7 @@ export function HanoiBetBoard({
   /* ----------------------------- server price ----------------------------- */
 
   const selections = useMemo(() => lines.map((l) => l.sel), [lines]);
-  const quote = useHanoiQuote(round.drawId, packageId, selections);
+  const quote = useHanoiQuote(round.drawId, packageId, selections, slipSession);
   const quoteError = quote.error instanceof ApiError ? quote.error : null;
   const quoteReady = !!quote.data && !quote.isFetching && !quote.isError;
 
@@ -237,6 +363,12 @@ export function HanoiBetBoard({
   };
 
   /* -------------------------------- submit -------------------------------- */
+
+  const clearSlip = () => {
+    setLines([]);
+    setSlipSession((n) => n + 1);
+    requestRef.current = null;
+  };
 
   const submit = useSubmitHanoiBet();
 
@@ -256,7 +388,7 @@ export function HanoiBetBoard({
       {
         onSuccess: (result) => {
           requestRef.current = null;
-          setLines([]);
+          clearSlip();
           setConfirmOpen(false);
           pushToast({
             tone: 'success',
@@ -294,6 +426,11 @@ export function HanoiBetBoard({
     return e.ok ? toMinor(e.units * sel.amount) : 0;
   };
 
+  // "A2" would read as position A2, so the tag shows the channel — or the one position picked —
+  // and the digit count lives in the meta line.
+  const tagFor = (sel: HanoiSelection) =>
+    sel.channel === 'A' && sel.positions?.length === 1 ? `A${sel.positions[0]}` : sel.channel;
+
   const slipPanel = (
     <>
       {lines.length === 0 ? (
@@ -307,18 +444,9 @@ export function HanoiBetBoard({
           {lines.map((line, index) => {
             const e = expandSelection(line.sel, counts);
             return (
-              <li key={line.id} className={styles.line}>
-                <span className={styles.lineTag}>
-                  {line.sel.channel}
-                  {line.sel.digits}
-                </span>
-                <div className={styles.lineBody}>
-                  <span className={styles.lineNumber}>{sourceLabel(line.sel)}</span>
-                  <span className={styles.lineMeta}>
-                    {t(`methods.${line.sel.method}`)}
-                    {e.ok && ` · ${t('slip.units', { count: e.units })} × ${line.sel.amount}`}
-                  </span>
-                </div>
+              <li key={line.id} className={cn(styles.line, styles.lineSlip)}>
+                <span className={styles.lineTag}>{tagFor(line.sel)}</span>
+                <span className={styles.lineNumber}>{sourceLabel(line.sel)}</span>
                 <Money value={lineNet(index, line.sel)} size="sm" />
                 <button
                   type="button"
@@ -328,6 +456,22 @@ export function HanoiBetBoard({
                 >
                   <X size={16} />
                 </button>
+                <div className={styles.lineSub}>
+                  <span className={styles.lineMeta}>
+                    {t(`methods.${line.sel.method}`)} · {t('digitsValue', { count: line.sel.digits })}
+                    {positionsLabel(line.sel) && ` · ${positionsLabel(line.sel)}`}
+                    {e.ok && ` · ${t('slip.units', { count: e.units })} ×`}
+                  </span>
+                  <SlipAmount
+                    value={line.sel.amount}
+                    label={t('perUnit')}
+                    onCommit={(next) =>
+                      setLines((prev) =>
+                        prev.map((l) => (l.id === line.id ? { ...l, sel: { ...l.sel, amount: next } } : l)),
+                      )
+                    }
+                  />
+                </div>
               </li>
             );
           })}
@@ -380,7 +524,9 @@ export function HanoiBetBoard({
         <div className={styles.block}>
           <div className={styles.blockHead}>
             <h2 className={styles.blockTitle}>{t('channel')}</h2>
-            <span className={styles.blockHint}>{t('positions', { count: positionCount(channel, digits, counts) })}</span>
+            <span className={styles.blockHint}>
+              {t('positions', { count: positionCount(channel, digits, counts, splitA ? pickedNow : undefined) })}
+            </span>
           </div>
           <div className={styles.channels} role="group" aria-label={t('channel')}>
             {HANOI_CHANNELS.map((c) => (
@@ -397,6 +543,30 @@ export function HanoiBetBoard({
               </button>
             ))}
           </div>
+          {splitA && (
+            <div className={styles.positionPick}>
+              <span className={styles.positionLabel}>{t('pickPositions')}</span>
+              <div
+                className={styles.positionChips}
+                style={{ ['--position-count' as string]: aLabels.length }}
+                role="group"
+                aria-label={t('pickPositions')}
+              >
+                {aLabels.map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    className={cn(styles.positionChip, pickedNow.includes(n) && styles.on)}
+                    aria-pressed={pickedNow.includes(n)}
+                    onClick={() => toggleA(n)}
+                  >
+                    A{n}
+                  </button>
+                ))}
+              </div>
+              {pickedNow.length === 0 && <p className={styles.note}>{t('pickPositionsEmpty')}</p>}
+            </div>
+          )}
           {abcdClosed && <p className={styles.note}>{t('abcdClosed', { digits })}</p>}
         </div>
 
@@ -500,6 +670,7 @@ export function HanoiBetBoard({
               </p>
             )}
 
+            {typed && (
             <div className={styles.preview} aria-live="polite">
               {draft.ok ? (
                 <>
@@ -520,14 +691,11 @@ export function HanoiBetBoard({
                 </>
               ) : (
                 <p className={cn(styles.previewHint, problemText && styles.problem)}>
-                  {problemText ?? (typed ? t('keepTyping') : t('previewEmpty'))}
+                  {problemText ?? t('keepTyping')}
                 </p>
               )}
             </div>
-
-            <Button size="lg" block disabled={!canAdd} onClick={add} leftIcon={<Plus size={18} />}>
-              {t('add')}
-            </Button>
+            )}
             <p className={styles.kbd}>
               <Keyboard size={14} aria-hidden />
               {t('keyboardHint')}
@@ -563,7 +731,9 @@ export function HanoiBetBoard({
       </section>
 
       <aside className={styles.slip}>
-        <SelectedPackageCard groupId={round.groupId} />
+        <div className={styles.packageSlot}>
+          <SelectedPackageCard groupId={round.groupId} />
+        </div>
         <div className={styles.slipCard}>
           <div className={styles.slipHead}>
             <span className={styles.slipTitle}>
@@ -590,13 +760,45 @@ export function HanoiBetBoard({
               {t('slip.confirm')}
             </Button>
             {lines.length > 0 && (
-              <Button variant="ghost" block onClick={() => setLines([])} leftIcon={<Trash2 size={16} />}>
+              <Button variant="ghost" block onClick={clearSlip} leftIcon={<Trash2 size={16} />}>
                 {t('slip.clear')}
               </Button>
             )}
           </div>
         </div>
       </aside>
+
+      <Modal
+        open={leaveAsk !== null}
+        onClose={() => {
+          leaveAsk?.stay();
+          setLeaveAsk(null);
+        }}
+        title={t('leaveTitle')}
+        description={t('leaveWarning')}
+        closeLabel={tCommon('close')}
+        footer={
+          <>
+            <Button
+              variant="danger"
+              onClick={() => {
+                leaveAsk?.leave();
+                setLeaveAsk(null);
+              }}
+            >
+              {t('leaveConfirm')}
+            </Button>
+            <Button
+              onClick={() => {
+                leaveAsk?.stay();
+                setLeaveAsk(null);
+              }}
+            >
+              {t('leaveStay')}
+            </Button>
+          </>
+        }
+      />
 
       <Modal
         open={confirmOpen}
@@ -619,13 +821,13 @@ export function HanoiBetBoard({
         <ul className={styles.lines}>
           {lines.map((line, index) => (
             <li key={line.id} className={styles.line}>
-              <span className={styles.lineTag}>
-                {line.sel.channel}
-                {line.sel.digits}
-              </span>
+              <span className={styles.lineTag}>{tagFor(line.sel)}</span>
               <div className={styles.lineBody}>
                 <span className={styles.lineNumber}>{sourceLabel(line.sel)}</span>
-                <span className={styles.lineMeta}>{t(`methods.${line.sel.method}`)}</span>
+                <span className={styles.lineMeta}>
+                  {t(`methods.${line.sel.method}`)} · {t('digitsValue', { count: line.sel.digits })}
+                  {positionsLabel(line.sel) && ` · ${positionsLabel(line.sel)}`}
+                </span>
               </div>
               <Money value={lineNet(index, line.sel)} size="sm" />
             </li>

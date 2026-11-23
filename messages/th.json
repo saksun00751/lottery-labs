@@ -298,6 +298,12 @@
     "hanoi": {
       "builderTitle": "เลือกเลขหวยฮานอย",
       "channel": "ช่อง",
+      "leaveWarning": "ใน slip ยังมีรายการที่ยังไม่ได้ยืนยัน หากออกจากหน้านี้รายการจะหายไป ต้องการออกหรือไม่?",
+      "leaveTitle": "ออกจากหน้านี้?",
+      "leaveConfirm": "ออกจากหน้านี้",
+      "leaveStay": "อยู่หน้านี้",
+      "pickPositions": "เลือกตำแหน่ง A",
+      "pickPositionsEmpty": "เลือกอย่างน้อย 1 ตำแหน่ง",
       "positions": "{count} ตำแหน่ง",
       "digits": "จำนวนหลัก",
       "digitsValue": "{count} หลัก",

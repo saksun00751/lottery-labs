@@ -28,15 +28,20 @@ export const HANOI_MAX_RANGE = 1000;
 export const DEFAULT_HANOI_POSITIONS: HanoiPositions = {
   a: { 2: 1, 3: 1 },
   abcd: { 2: 4, 3: 4 },
+  aLabels: { 2: [1], 3: [1] },
 };
 
-/** Draw positions a number is checked against: A → per draw, B/C/D → 1, ABCD → the API's unit count. */
+/**
+ * Draw positions a number is checked against: A → the picked A-positions (all of
+ * them when none are given), B/C/D → 1, ABCD → the API's unit count.
+ */
 export function positionCount(
   channel: HanoiChannel,
   digits: HanoiDigits,
   positions: HanoiPositions = DEFAULT_HANOI_POSITIONS,
+  picked?: number[],
 ): number {
-  if (channel === 'A') return positions.a[digits];
+  if (channel === 'A') return picked ? picked.length : positions.a[digits];
   if (channel === 'ABCD') return positions.abcd[digits];
   return 1;
 }
@@ -103,9 +108,15 @@ export function expandSelection(
     numbers = Array.from({ length: to - from + 1 }, (_, i) => String(from + i).padStart(digits, '0'));
   }
 
-  const positions = positionCount(sel.channel, digits, counts);
+  if (sel.channel === 'A' && sel.positions?.length === 0) return { ok: false, problem: 'incomplete' };
+  const positions = positionCount(sel.channel, digits, counts, sel.positions);
   if (numbers.length * positions > HANOI_MAX_LINES) return { ok: false, problem: 'tooMany' };
   return { ok: true, numbers, positions, units: numbers.length * positions };
+}
+
+/** "A1 A3" for an A line split by position; empty when the line covers every position. */
+export function positionsLabel(sel: HanoiSelection): string {
+  return sel.channel === 'A' && sel.positions ? sel.positions.map((n) => `A${n}`).join(' ') : '';
 }
 
 /** What the member typed, as one short label for list rows. */

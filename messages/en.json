@@ -298,6 +298,12 @@
     "hanoi": {
       "builderTitle": "Pick Hanoi numbers",
       "channel": "Channel",
+      "leaveWarning": "You have items in your slip that haven't been confirmed. They will be lost if you leave this page. Leave anyway?",
+      "leaveTitle": "Leave this page?",
+      "leaveConfirm": "Leave",
+      "leaveStay": "Stay",
+      "pickPositions": "Choose A positions",
+      "pickPositionsEmpty": "Pick at least one position",
       "positions": "{count} positions",
       "digits": "Digits",
       "digitsValue": "{count} digits",

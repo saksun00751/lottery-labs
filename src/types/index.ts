@@ -186,6 +186,8 @@ export interface HanoiPositions {
   a: Record<HanoiDigits, number>;
   /** Units one ABCD number costs. */
   abcd: Record<HanoiDigits, number>;
+  /** Position numbers channel A can be split into (A1…An); a single entry means nothing to choose. */
+  aLabels: Record<HanoiDigits, number[]>;
 }
 
 export interface HanoiCapability {
@@ -207,6 +209,8 @@ export interface HanoiSelection {
   right?: string;
   rangeStart?: string;
   rangeEnd?: string;
+  /** Channel A only: the A-positions picked (1-based). Omitted = every position. */
+  positions?: number[];
   /** Baht per unit, before multiplying by numbers and positions. */
   amount: number;
 }

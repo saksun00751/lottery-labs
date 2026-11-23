@@ -658,6 +658,8 @@ interface HanoiProfileResponse {
   enabled_bet_types?: string[];
   /** Draw positions per bet type, e.g. `{ hanoi_a2: 4, hanoi_a3: 3 }`. */
   position_counts?: Partial<Record<'hanoi_a2' | 'hanoi_a3', number>>;
+  /** Position numbers per A bet type, e.g. `{ hanoi_a2: [1,2,3,4], hanoi_a3: [1,2,3] }`. */
+  position_labels?: Partial<Record<'hanoi_a2' | 'hanoi_a3', number[]>>;
   /** Units one ABCD number costs, e.g. `{ '2': 7, '3': 6 }`. */
   abcd_unit_counts?: Partial<Record<'2' | '3' | 'digits_2' | 'digits_3', number>>;
 }
@@ -793,8 +795,14 @@ function normalizeHanoiCapability(
   const a2 = count(profile?.position_counts?.hanoi_a2, DEFAULT_HANOI_POSITIONS.a[2]);
   const a3 = count(profile?.position_counts?.hanoi_a3, DEFAULT_HANOI_POSITIONS.a[3]);
   const units = profile?.abcd_unit_counts;
+  const labels = (given: number[] | undefined, total: number) =>
+    given && given.length > 0 ? given.filter((n) => Number.isInteger(n) && n > 0) : Array.from({ length: total }, (_, i) => i + 1);
   const positions: HanoiPositions = {
     a: { 2: a2, 3: a3 },
+    aLabels: {
+      2: labels(profile?.position_labels?.hanoi_a2, a2),
+      3: labels(profile?.position_labels?.hanoi_a3, a3),
+    },
     // ABCD = A + B + C + D, so without an explicit count it follows channel A.
     abcd: {
       2: count(units?.['2'] ?? units?.digits_2, a2 + 3),
@@ -830,6 +838,7 @@ function hanoiItemsBody(items: HanoiSelection[]) {
     digits: i.digits,
     method: i.method,
     amount: i.amount,
+    ...(i.channel === 'A' && i.positions ? { positions: i.positions } : {}),
     ...(i.method === 'cross'
       ? { left: i.left, right: i.right }
       : i.method === 'range'

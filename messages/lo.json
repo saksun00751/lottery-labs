@@ -298,6 +298,12 @@
     "hanoi": {
       "builderTitle": "Pick Hanoi numbers",
       "channel": "Channel",
+      "leaveWarning": "ໃນໂພຍຍັງມີລາຍການທີ່ຍັງບໍ່ໄດ້ຢືນຢັນ ຖ້າອອກຈາກໜ້ານີ້ລາຍການຈະຫາຍໄປ ຕ້ອງການອອກບໍ?",
+      "leaveTitle": "ອອກຈາກໜ້ານີ້ບໍ?",
+      "leaveConfirm": "ອອກຈາກໜ້ານີ້",
+      "leaveStay": "ຢູ່ໜ້ານີ້",
+      "pickPositions": "ເລືອກຕຳແໜ່ງ A",
+      "pickPositionsEmpty": "ເລືອກຢ່າງໜ້ອຍ 1 ຕຳແໜ່ງ",
       "positions": "{count} positions",
       "digits": "Digits",
       "digitsValue": "{count} digits",

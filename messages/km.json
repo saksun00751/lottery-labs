@@ -298,6 +298,12 @@
     "hanoi": {
       "builderTitle": "Pick Hanoi numbers",
       "channel": "Channel",
+      "leaveWarning": "នៅក្នុងសន្លឹកភ្នាល់នៅមានមុខដែលមិនទាន់បានបញ្ជាក់។ ប្រសិនបើចាកចេញពីទំព័រនេះ វានឹងបាត់បង់។ តើចង់ចាកចេញទេ?",
+      "leaveTitle": "ចាកចេញពីទំព័រនេះ?",
+      "leaveConfirm": "ចាកចេញ",
+      "leaveStay": "នៅទំព័រនេះ",
+      "pickPositions": "ជ្រើសរើសទីតាំង A",
+      "pickPositionsEmpty": "ជ្រើសរើសយ៉ាងហោចណាស់ ១ ទីតាំង",
       "positions": "{count} positions",
       "digits": "Digits",
       "digitsValue": "{count} digits",

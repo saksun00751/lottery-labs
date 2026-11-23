@@ -1,7 +1,6 @@
 'use client';
 
 import {
-  keepPreviousData,
   useMutation,
   useQuery,
   useQueryClient,
@@ -392,12 +391,16 @@ export const useHanoiQuote = (
   drawId: number | undefined,
   packageId: number | undefined,
   items: HanoiSelection[],
+  /** Bumped when the slip is cleared, so the next slip never inherits the old slip's prices. */
+  session = 0,
 ) =>
   useQuery({
-    queryKey: ['lottery', 'hanoi-quote', drawId, packageId, items],
+    queryKey: ['lottery', 'hanoi-quote', drawId, packageId, session, items],
     queryFn: () => hanoiApi.quote({ drawId: drawId as number, packageId: packageId as number, items }),
     enabled: !!drawId && !!packageId && items.length > 0,
-    placeholderData: keepPreviousData,
+    // Keep the last prices on screen while an edit re-quotes, but only within the same slip.
+    placeholderData: (previous, previousQuery) =>
+      previousQuery?.queryKey[4] === session ? previous : undefined,
     staleTime: 15_000,
     retry: false,
   });

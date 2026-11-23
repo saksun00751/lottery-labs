@@ -298,6 +298,12 @@
     "hanoi": {
       "builderTitle": "Pick Hanoi numbers",
       "channel": "Channel",
+      "leaveWarning": "စလစ်ထဲတွင် အတည်မပြုရသေးသော စာရင်းများ ရှိနေပါသည်။ ဤစာမျက်နှာမှ ထွက်လျှင် ပျောက်သွားပါမည်။ ထွက်မလား?",
+      "leaveTitle": "ဤစာမျက်နှာမှ ထွက်မလား?",
+      "leaveConfirm": "ထွက်မည်",
+      "leaveStay": "ဆက်နေမည်",
+      "pickPositions": "A နေရာများ ရွေးပါ",
+      "pickPositionsEmpty": "အနည်းဆုံး ၁ နေရာ ရွေးပါ",
       "positions": "{count} positions",
       "digits": "Digits",
       "digitsValue": "{count} digits",

@@ -150,6 +150,42 @@
 }
 
 .methodHint,
+.positionPick {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+}
+
+.positionLabel {
+  font-size: var(--fs-xs);
+  color: var(--text-2);
+}
+
+.positionChips {
+  display: grid;
+  grid-template-columns: repeat(var(--position-count, 4), minmax(0, 1fr));
+  gap: var(--sp-2);
+}
+
+.positionChip {
+  @include tappable;
+  @include transition(border-color, background, box-shadow);
+  width: 100%;
+  padding: var(--sp-3) var(--sp-2);
+  border-radius: var(--radius-md);
+  border: 2px solid var(--border);
+  background: var(--surface-1);
+  color: var(--text);
+  font-weight: 600;
+
+  &.on {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+    color: var(--accent);
+  }
+}
+
 .note {
   margin: 0;
   font-size: var(--fs-xs);
@@ -197,7 +233,8 @@
   border-radius: var(--radius-md);
   border: 2px solid var(--border);
   background: var(--surface-1);
-  text-align: start;
+  justify-items: center;
+  text-align: center;
 }
 
 .fieldOn {
@@ -212,6 +249,7 @@
 
 .slots {
   display: flex;
+  justify-content: center;
   gap: var(--sp-2);
 }
 
@@ -247,21 +285,26 @@
 }
 
 .amountRow {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'label input'
+    'quick quick';
   align-items: center;
   gap: var(--sp-2) var(--sp-3);
 }
 
 .amountLabel {
+  grid-area: label;
   font-size: var(--fs-xs);
   font-weight: var(--fw-semibold);
   color: var(--text-2);
 }
 
 .quick {
-  display: flex;
-  flex-wrap: wrap;
+  grid-area: quick;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: var(--sp-2);
 }
 
@@ -269,8 +312,8 @@
   @include tappable;
   @include numeric;
   @include transition(border-color, background);
-  min-width: 52px;
-  padding: var(--sp-1) var(--sp-3);
+  min-width: 0;
+  padding: var(--sp-1) var(--sp-2);
   border-radius: var(--radius-pill);
   border: 1.5px solid var(--border);
   background: var(--surface-1);
@@ -284,9 +327,9 @@
 
 .amountInput {
   @include numeric;
-  width: 96px;
+  grid-area: input;
+  width: 120px;
   min-height: var(--tap);
-  margin-inline-start: auto;
   padding: 0 var(--sp-3);
   border-radius: var(--radius-sm);
   border: 1.5px solid var(--border);
@@ -407,13 +450,25 @@
 /* --------------------------------- slip ---------------------------------- */
 
 .slip {
-  display: grid;
-  gap: var(--sp-4);
+  // On phones the aside dissolves into the page grid so the package can sit
+  // right under the round header, ahead of the number builder.
+  display: contents;
+
+  @include up('lg') {
+    display: grid;
+    gap: var(--sp-4);
+    min-width: 0;
+    position: sticky;
+    top: var(--sp-4);
+  }
+}
+
+.packageSlot {
+  order: -1;
   min-width: 0;
 
   @include up('lg') {
-    position: sticky;
-    top: var(--sp-4);
+    order: 0;
   }
 }
 
@@ -513,6 +568,20 @@
   }
 }
 
+.lineSlip {
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  row-gap: 2px;
+}
+
+.lineSub {
+  grid-column: 2 / -1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
 .lineTag {
   min-width: 36px;
   padding: 2px var(--sp-2);
@@ -594,4 +663,21 @@
   background: var(--danger-tint);
   color: var(--danger);
   font-size: var(--fs-xs);
+}
+
+.lineAmount {
+  @include numeric;
+  width: 72px;
+  padding: 2px var(--sp-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-inset);
+  color: var(--text);
+  font-size: var(--fs-xs);
+  text-align: right;
+
+  &:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
 }
