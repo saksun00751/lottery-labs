@@ -285,7 +285,9 @@
       "searchError": "ຄົ້ນຫາຜົນລາງວັນບໍ່ສຳເລັດ",
       "pending": "ຍັງບໍ່ອອກຜົນ",
       "checkTicket": "ກວດໂພຍຂອງຂ້ອຍ",
-      "noTicketsForDraw": "ທ່ານບໍ່ມີໂພຍໃນງວດນີ້"
+      "noTicketsForDraw": "ທ່ານບໍ່ມີໂພຍໃນງວດນີ້",
+      "hanoiSpecial": "ເລກພິເສດ 5 ຫຼັກ",
+      "hanoiTab": "ຫວຍຮານອຍ"
     },
     "package": {
       "title": "ເລືອກ Package",

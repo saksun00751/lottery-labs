@@ -9,6 +9,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Money } from '@/components/ui/Money';
 import type { ResultMarket, Ticket } from '@/types';
 
+import { HanoiResultTable } from './HanoiResultTable';
 import { STATUS_TONE } from './TicketCard';
 import { TicketDetailModal } from './TicketDetailModal';
 import styles from './CheckResultModal.module.scss';
@@ -45,7 +46,11 @@ export function CheckResultModal({
       >
         {market && (
           <>
-            {market.hasResult ? (
+            {market.hanoi ? (
+              <div className={styles.hanoi}>
+                <HanoiResultTable result={market.hanoi} />
+              </div>
+            ) : market.hasResult ? (
               <div className={styles.numbers}>
                 <div className={styles.numberBox}>
                   <span className={styles.numberValue}>{market.numbers['3top'] ?? '—'}</span>

@@ -285,7 +285,9 @@
       "searchError": "ရလဒ်ရှာဖွေမှု မအောင်မြင်ပါ",
       "pending": "ရလဒ် မထွက်သေးပါ",
       "checkTicket": "ကျွန်ုပ်၏လက်မှတ်များ စစ်ဆေးရန်",
-      "noTicketsForDraw": "ဤထွက်ပေါက်အတွက် လက်မှတ်မရှိပါ"
+      "noTicketsForDraw": "ဤထွက်ပေါက်အတွက် လက်မှတ်မရှိပါ",
+      "hanoiSpecial": "အထူးဆု ဂဏန်း ၅ လုံး",
+      "hanoiTab": "ဟနွိုင်းထီ"
     },
     "package": {
       "title": "Package ရွေးပါ",

@@ -2,7 +2,7 @@
 
 import { Archive, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useSyncExternalStore } from 'react';
 
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Badge } from '@/components/ui/Badge';
@@ -34,6 +34,23 @@ function weekday(date: string, locale: string, style: 'short' | 'long' = 'short'
   return new Intl.DateTimeFormat(locale, { weekday: style, timeZone: 'UTC' }).format(
     new Date(`${date}T00:00:00Z`),
   );
+}
+
+const noSubscription = () => () => {};
+
+/**
+ * `weekday` for server-rendered markup. Node and the browser ship different locale data
+ * (Thai short is "ศ." on one and "ศุกร์" on the other), so the name stays blank until
+ * hydration is done and only the browser ever formats it.
+ */
+function useWeekday(locale: string) {
+  const hydrated = useSyncExternalStore(
+    noSubscription,
+    () => true,
+    () => false,
+  );
+  return (date: string, style?: 'short' | 'long') =>
+    hydrated ? weekday(date, locale, style) : '\u00a0';
 }
 
 /** Matches the search box against both the display name and the raw market code. */
@@ -108,7 +125,7 @@ function DailyBoard({
   onOpenHistory: (code: string) => void;
 }) {
   const t = useTranslations('lottery.resultsHistory');
-  const locale = useLocale();
+  const dayName = useWeekday(useLocale());
   const today = bangkokToday();
 
   const [date, setDate] = useState(today);
@@ -155,7 +172,7 @@ function DailyBoard({
               className={cn(styles.chip, d === date && styles.chipActive)}
               onClick={() => setDate(d)}
             >
-              <span className={styles.chipDow}>{weekday(d, locale)}</span>
+              <span className={styles.chipDow}>{dayName(d)}</span>
               <span className={styles.chipDay}>{d.slice(8)}</span>
             </button>
           ))}
@@ -181,7 +198,7 @@ function DailyBoard({
 
       <div className={styles.filterRow}>
         <div className={styles.dateHeading}>
-          {weekday(date, locale, 'long')} {formatDrawDate(date)}
+          {dayName(date, 'long')} {formatDrawDate(date)}
           {date === today && <Badge tone="accent">{t('today')}</Badge>}
         </div>
         {groups.length > 0 && activeFamily && (

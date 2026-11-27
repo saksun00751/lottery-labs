@@ -1,0 +1,70 @@
+@use 'styles/abstracts' as *;
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.special {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  border-radius: var(--radius-sm);
+  background: var(--surface-inset);
+  border: 1px solid var(--border-subtle);
+}
+
+.specialLabel {
+  font-size: var(--fs-xs);
+  color: var(--text-2);
+  font-weight: var(--fw-medium);
+}
+
+.specialValue {
+  @include numeric;
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.08em;
+  @include accent-text;
+}
+
+.table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  text-align: center;
+
+  th,
+  td {
+    padding: var(--sp-2) var(--sp-1);
+    border: 1px solid var(--border-subtle);
+    vertical-align: middle;
+  }
+
+  th {
+    font-size: var(--fs-2xs);
+    font-weight: var(--fw-medium);
+    color: var(--text-2);
+    background: var(--surface-inset);
+  }
+
+  td {
+    @include numeric;
+    font-size: var(--fs-base);
+    font-weight: var(--fw-bold);
+  }
+
+  tr > :first-child {
+    width: 56px;
+  }
+}
+
+.values {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2px var(--sp-2);
+}
