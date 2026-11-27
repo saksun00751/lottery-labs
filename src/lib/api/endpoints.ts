@@ -20,6 +20,7 @@ import type {
   HanoiMethod,
   HanoiPositions,
   HanoiQuote,
+  HanoiResultNumbers,
   HanoiSelection,
   LotteryCategory,
   LotteryGroupSummary,
@@ -577,6 +578,68 @@ function normalizeResultGroups(payload: ResultsByDateResponse): ResultGroup[] {
   }));
 }
 
+interface HanoiResultsResponse {
+  data?: {
+    date?: string;
+    rounds?: Array<{
+      draw_id: number;
+      round_code: string;
+      time?: string;
+      name: string;
+      status?: string;
+      result?: {
+        base_5?: string;
+        a2?: string[];
+        a3?: string[];
+        a4?: string;
+        b2?: string;
+        b3?: string;
+        b4?: string;
+        c2?: string;
+        c3?: string;
+        d2?: string;
+        d3?: string;
+      } | null;
+    }>;
+  };
+}
+
+function hanoiNumbers(
+  r: NonNullable<NonNullable<NonNullable<HanoiResultsResponse['data']>['rounds']>[number]['result']>,
+): HanoiResultNumbers {
+  const cell = (value?: string | string[]) => [value ?? []].flat().filter(Boolean);
+  return {
+    special: r.base_5 ?? '',
+    channels: [
+      { channel: 'A', two: cell(r.a2), three: cell(r.a3), four: cell(r.a4) },
+      { channel: 'B', two: cell(r.b2), three: cell(r.b3), four: cell(r.b4) },
+      { channel: 'C', two: cell(r.c2), three: cell(r.c3), four: [] },
+      { channel: 'D', two: cell(r.d2), three: cell(r.d3), four: [] },
+    ],
+  };
+}
+
+/** The server doesn't order rounds, so sort by `round_code` (`hanoi_abcd_a` … `_d`). */
+function normalizeHanoiResults(payload: HanoiResultsResponse): ResultMarket[] {
+  const dateLabel = formatDrawDate(payload.data?.date);
+  return [...(payload.data?.rounds ?? [])]
+    .sort((a, b) => a.round_code.localeCompare(b.round_code))
+    .map((round): ResultMarket => {
+      const hanoi =
+        round.status === 'published' && round.result ? hanoiNumbers(round.result) : undefined;
+      return {
+        // This endpoint sends no market id; the draw id is the unique key here.
+        marketId: round.draw_id,
+        drawId: round.draw_id,
+        marketName: round.name,
+        drawLabel: [dateLabel, round.time].filter(Boolean).join(' · '),
+        hasResult: !!hanoi,
+        numbers: {},
+        hanoi,
+      };
+    });
+}
+
 /** The default (today) view reuses the same market listing the home page pulls from. */
 function normalizeResultGroupsFromMarkets(payload: MarketsLatestResponse): ResultGroup[] {
   const groups = payload.data?.groups ?? [];
@@ -1013,6 +1076,7 @@ interface TicketDetailResponse {
   data?: {
     id?: number | string;
     draw_id?: number | string;
+    draw_date?: string;
     market_name?: string;
     market_icon?: string;
     market_logo?: string;
@@ -1114,6 +1178,9 @@ function normalizeTicketDetail(payload: TicketDetailResponse): TicketDetail {
     totalDiscount: toMinor(Number(f.total_discount_amount ?? 0)),
     totalNet: toMinor(Number(f.total_net_amount ?? f.total_amount ?? 0)),
     items,
+    // `draw_date` isn't confirmed on this payload; the day the slip was placed is the
+    // fallback. A wrong day is harmless — results are still matched by draw id.
+    drawDate: (f.draw_date || f.created_at)?.match(/^\d{4}-\d{2}-\d{2}/)?.[0],
   };
 }
 
@@ -1419,6 +1486,11 @@ export const lotteryApi = {
     apiFetch<ResultsByDateResponse>('lotto/results/by-date', {
       query: { draw_date: drawDate },
     }).then(normalizeResultGroups),
+
+  hanoiResults: (date: string) =>
+    apiFetch<HanoiResultsResponse>('lotto/hanoi-abcd/results', {
+      query: { date },
+    }).then(normalizeHanoiResults),
 
   tickets: () => apiFetch<TicketListResponse>('lotto/tickets').then(normalizeTicketList),
 

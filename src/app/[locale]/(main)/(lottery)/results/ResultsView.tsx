@@ -11,11 +11,19 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Field';
 import { EmptyState, Skeleton } from '@/components/ui/Feedback';
 import { Tabs } from '@/components/ui/Tabs';
-import { useResultGroups, useResultsByDate, useTickets } from '@/lib/api/queries';
+import {
+  useHanoiResults,
+  useResultGroups,
+  useResultsByDate,
+  useTickets,
+} from '@/lib/api/queries';
 import { bangkokToday } from '@/lib/utils/bangkok-time';
 import type { Paginated, ResultMarket, Ticket } from '@/types';
 
 import styles from './results.module.scss';
+
+/** Its results come from their own endpoint — the shared listings carry no numbers for it. */
+const HANOI_GROUP = 'lotto-hanoi';
 
 export function ResultsView() {
   const t = useTranslations('lottery.results');
@@ -32,15 +40,30 @@ export function ResultsView() {
   const searchQuery = useResultsByDate(searchedDate);
   const { data, isLoading, isError } = isSearching ? searchQuery : todayQuery;
   const groups = data ?? [];
+  const hanoiDate = searchedDate ?? today;
+  const hanoiQuery = useHanoiResults(hanoiDate, hanoiDate === today);
+  const hanoiRounds = hanoiQuery.data ?? [];
 
   const { data: ticketsData } = useTickets();
   const tickets = (ticketsData as Paginated<Ticket> | undefined)?.items ?? [];
 
+  const tabs = groups.map((g) => ({ value: g.groupCode, label: g.groupName }));
+  // The shared listing can omit the Hanoi group for a date that still has rounds.
+  if (hanoiRounds.length > 0 && !tabs.some((tab) => tab.value === HANOI_GROUP)) {
+    tabs.push({ value: HANOI_GROUP, label: t('hanoiTab') });
+  }
+
   const activeGroupCode =
-    groupCode && groups.some((g) => g.groupCode === groupCode)
+    groupCode && tabs.some((tab) => tab.value === groupCode)
       ? groupCode
-      : (groups[0]?.groupCode ?? null);
+      : (tabs[0]?.value ?? null);
+  const isHanoi = activeGroupCode === HANOI_GROUP;
   const activeGroup = groups.find((g) => g.groupCode === activeGroupCode) ?? null;
+  const markets = isHanoi ? hanoiRounds : (activeGroup?.markets ?? []);
+  // Each source fails on its own, so one being down never blanks the other's tabs.
+  const showLoading =
+    isLoading || ((isHanoi || tabs.length === 0) && hanoiQuery.isLoading);
+  const showError = isHanoi ? hanoiQuery.isError && !hanoiQuery.data : isError;
 
   const onSearch = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -74,28 +97,31 @@ export function ResultsView() {
         )}
       </form>
 
-      {groups.length > 0 && activeGroupCode && (
+      {!isLoading && activeGroupCode && (
         <Tabs
-          items={groups.map((g) => ({ value: g.groupCode, label: g.groupName }))}
+          items={tabs}
           value={activeGroupCode}
           onChange={setGroupCode}
           ariaLabel={t('title')}
         />
       )}
 
-      {isLoading ? (
+      {/* Otherwise a failed listing would look like Hanoi is the only lottery. */}
+      {isError && isHanoi && <EmptyState title={t('searchError')} />}
+
+      {showLoading ? (
         <div className={styles.grid}>
           {[0, 1, 2, 3].map((i) => (
             <Skeleton key={i} height={196} radius={20} />
           ))}
         </div>
-      ) : isError ? (
+      ) : showError ? (
         <EmptyState title={t('searchError')} />
-      ) : !activeGroup || activeGroup.markets.length === 0 ? (
+      ) : markets.length === 0 ? (
         <EmptyState title={t('noResults')} />
       ) : (
         <div className={styles.grid}>
-          {activeGroup.markets.map((market) => (
+          {markets.map((market) => (
             <ResultCard
               key={market.marketId}
               market={market}

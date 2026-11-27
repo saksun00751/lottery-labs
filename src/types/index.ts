@@ -301,6 +301,8 @@ export interface Ticket {
 
 /** Full slip detail, including every number bet — fetched per-ticket on demand. */
 export interface TicketDetail extends Ticket {
+  /** `YYYY-MM-DD` in Bangkok — which day's results hold this slip's draw. */
+  drawDate?: string;
   totalDiscount: Minor;
   totalNet: Minor;
   items: TicketItem[];
@@ -318,6 +320,19 @@ export interface ResultMarket {
   hasResult: boolean;
   /** Keyed by bet type — e.g. `{ '3top': '482', '2bottom': '15' }`. */
   numbers: Partial<Record<BetTypeId, string>>;
+  /** Set for Hanoi A/B/C/D rounds, which are shown as a channel table instead of `numbers`. */
+  hanoi?: HanoiResultNumbers;
+}
+
+/** One A/B/C/D draw's numbers. A can hold several winning numbers; a cell with none is empty. */
+export interface HanoiResultNumbers {
+  special: string;
+  channels: Array<{
+    channel: Exclude<HanoiChannel, 'ABCD'>;
+    two: string[];
+    three: string[];
+    four: string[];
+  }>;
 }
 
 /** A lottery group (หวยไทย/หวยต่างประเทศ/...) with its markets' latest results. */

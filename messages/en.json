@@ -285,7 +285,9 @@
       "searchError": "Couldn't load results for that date",
       "pending": "Not drawn yet",
       "checkTicket": "Check my slips",
-      "noTicketsForDraw": "You have no slips for this draw"
+      "noTicketsForDraw": "You have no slips for this draw",
+      "hanoiSpecial": "5-digit special",
+      "hanoiTab": "Hanoi"
     },
     "package": {
       "title": "Choose a package",

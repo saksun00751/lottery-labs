@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { BET_TYPE_ORDER } from '@/lib/utils/lottery';
 import type { BetTypeId, ResultMarket } from '@/types';
 
+import { HanoiResultTable } from './HanoiResultTable';
 import styles from './ResultCard.module.scss';
 
 export function ResultCard({
@@ -35,7 +36,9 @@ export function ResultCard({
         </div>
       </div>
 
-      {market.hasResult ? (
+      {market.hanoi ? (
+        <HanoiResultTable result={market.hanoi} />
+      ) : market.hasResult ? (
         <div className={styles.numbers}>
           {entries.map((id) => (
             <div key={id} className={styles.numberGroup}>

@@ -285,7 +285,9 @@
       "searchError": "ค้นหาผลรางวัลไม่สำเร็จ",
       "pending": "ยังไม่ออกผล",
       "checkTicket": "เช็คโพยของฉัน",
-      "noTicketsForDraw": "คุณไม่มีโพยในงวดนี้"
+      "noTicketsForDraw": "คุณไม่มีโพยในงวดนี้",
+      "hanoiSpecial": "ผลพิเศษ 5 หลัก",
+      "hanoiTab": "หวยฮานอย"
     },
     "package": {
       "title": "เลือก Package",

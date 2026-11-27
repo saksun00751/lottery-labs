@@ -8,10 +8,12 @@ import { Skeleton } from '@/components/ui/Feedback';
 import { Money } from '@/components/ui/Money';
 import { Modal } from '@/components/ui/Modal';
 import { ApiError } from '@/lib/api/client';
-import { useCancelTicket, useTicketDetail } from '@/lib/api/queries';
+import { useCancelTicket, useHanoiResults, useTicketDetail } from '@/lib/api/queries';
 import { pushToast } from '@/lib/toast';
+import { bangkokToday } from '@/lib/utils/bangkok-time';
 import { cn } from '@/lib/utils/cn';
 
+import { HanoiResultTable } from './HanoiResultTable';
 import styles from './TicketDetailModal.module.scss';
 
 export function TicketDetailModal({
@@ -24,11 +26,20 @@ export function TicketDetailModal({
   const t = useTranslations('lottery.slip');
   const tTypes = useTranslations('lottery.betTypes');
   const tHanoi = useTranslations('lottery.hanoi');
+  const tResults = useTranslations('lottery.results');
   const tCommon = useTranslations('common');
 
   const { data: ticket, isLoading } = useTicketDetail(ticketId ?? undefined);
   const cancelTicket = useCancelTicket();
   const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const hanoiDate =
+    ticketId && ticket?.items.some((item) => item.hanoi) ? (ticket.drawDate ?? null) : null;
+  const hanoiQuery = useHanoiResults(hanoiDate, hanoiDate === bangkokToday());
+  // Matched by draw id, so another draw's numbers can never show up against this slip.
+  const draw = hanoiDate
+    ? hanoiQuery.data?.find((round) => String(round.drawId) === ticket?.roundId)
+    : undefined;
 
   const onCancel = () => {
     if (!ticketId) return;
@@ -73,6 +84,16 @@ export function TicketDetailModal({
           </div>
         ) : (
           <>
+            {draw && (
+              <div className={styles.result}>
+                {draw.hanoi ? (
+                  <HanoiResultTable result={draw.hanoi} />
+                ) : (
+                  <p className={styles.pending}>{tResults('pending')}</p>
+                )}
+              </div>
+            )}
+
             <div className={styles.items}>
               {ticket.items.map((item, index) => (
                 <div key={`${item.betType}-${item.number}-${index}`} className={styles.item}>

@@ -223,6 +223,14 @@ export const useResultsByDate = (drawDate: string | null) =>
     enabled: !!drawDate,
   });
 
+export const useHanoiResults = (date: string | null, live: boolean) =>
+  useQuery({
+    queryKey: ['lottery', 'results', 'hanoi', date],
+    queryFn: () => lotteryApi.hanoiResults(date as string),
+    enabled: !!date,
+    refetchInterval: live ? pollInterval : false,
+  });
+
 export const useTickets = () =>
   useQuery({
     queryKey: qk.tickets(),
