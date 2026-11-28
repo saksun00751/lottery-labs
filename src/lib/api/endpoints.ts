@@ -901,7 +901,8 @@ function hanoiItemsBody(items: HanoiSelection[]) {
     digits: i.digits,
     method: i.method,
     amount: i.amount,
-    ...(i.channel === 'A' && i.positions ? { positions: i.positions } : {}),
+    // Leaving `position` out buys every A position; other channels must not send it.
+    ...(i.channel === 'A' && i.positions ? { position: i.positions[0] } : {}),
     ...(i.method === 'cross'
       ? { left: i.left, right: i.right }
       : i.method === 'range'
