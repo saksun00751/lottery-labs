@@ -494,3 +494,34 @@
   color: var(--text-2);
   font-weight: var(--fw-semibold);
 }
+
+.hanoiGrid {
+  display: grid;
+  gap: var(--sp-3);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  align-items: start;
+}
+
+.hanoiCard {
+  @include card;
+  padding: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.hanoiTime {
+  margin-top: 2px;
+  font-size: var(--fs-xs);
+  color: var(--text-2);
+}
+
+.hanoiEmpty {
+  padding: var(--sp-4);
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+  border-radius: var(--radius-sm);
+  background: var(--surface-inset);
+  border: 1px dashed var(--border-subtle);
+}

@@ -287,7 +287,9 @@
       "checkTicket": "ពិនិត្យសំបុត្ររបស់ខ្ញុំ",
       "noTicketsForDraw": "អ្នកមិនមានសំបុត្រសម្រាប់ការចាប់ឆ្នោតនេះទេ",
       "hanoiSpecial": "លេខពិសេស ៥ ខ្ទង់",
-      "hanoiTab": "ឆ្នោតហាណូយ"
+      "hanoiTab": "ឆ្នោតហាណូយ",
+      "noResult": "គ្មានលទ្ធផល",
+      "refunded": "បានសងប្រាក់វិញ"
     },
     "package": {
       "title": "ជ្រើសរើស Package",
@@ -340,7 +342,8 @@
         "mixLength": "Mix needs exactly 3 digits",
         "rangeOrder": "The end number can't be lower than the start",
         "rangeTooLarge": "A range can cover at most 1,000 numbers",
-        "tooMany": "This expands to more numbers than one line allows"
+        "tooMany": "This expands to more numbers than one line allows",
+        "slipFull": "សំបុត្រនេះលើស {max} ជួរ។ សូមកាត់បន្ថយលេខ ឬបំបែកសំបុត្រ"
       },
       "add": "Add to slip",
       "keyboardHint": "Type digits on your keyboard. Tab switches boxes, Backspace deletes, Enter adds",
@@ -386,10 +389,13 @@
         "HANOI_IDEMPOTENCY_CONFLICT": "This request was already sent with different items. Please confirm again"
       },
       "ticket": {
-        "matched": "{count} positions hit"
+        "matched": "{count} positions hit",
+        "allPositions": "គ្រប់ទីតាំង"
       }
     },
     "resultsHistory": {
+      "viewHanoi": "ហាណូយ ABCD",
+      "loadMore": "ផ្ទុកបន្ថែម",
       "title": "មើលលទ្ធផលឆ្នោតចាស់",
       "subtitle": "ស្វែងរកលទ្ធផលចាស់ៗរបស់គ្រប់ទីផ្សារ",
       "viewDay": "តាមថ្ងៃ",

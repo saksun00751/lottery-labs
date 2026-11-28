@@ -66,7 +66,7 @@ export function CheckResultModal({
                 </div>
               </div>
             ) : (
-              <p className={styles.pending}>{t('results.pending')}</p>
+              <p className={styles.pending}>{t(`results.${market.emptyReason ?? 'pending'}`)}</p>
             )}
 
             {matching.length === 0 ? (

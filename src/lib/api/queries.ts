@@ -1,7 +1,9 @@
 'use client';
 
 import {
+  useInfiniteQuery,
   useMutation,
+  useQueries,
   useQuery,
   useQueryClient,
   type UseQueryOptions,
@@ -216,11 +218,22 @@ export function useSubmitYeekeeShoot(roundId: string) {
 export const useResultGroups = (enabled = true) =>
   useMarkets(lotteryApi.selectResultGroups, enabled);
 
-export const useResultsByDate = (drawDate: string | null) =>
+export const useResultsByDate = (drawDate: string | null, live = false) =>
   useQuery({
     queryKey: ['lottery', 'results', 'by-date', drawDate],
     queryFn: () => lotteryApi.resultsByDate(drawDate as string),
     enabled: !!drawDate,
+    refetchInterval: live ? pollInterval : false,
+  });
+
+/** One `by-date` call per day (the endpoint takes a single date), sharing that hook's cache. */
+export const useResultsByDates = (drawDates: string[], today: string) =>
+  useQueries({
+    queries: drawDates.map((drawDate) => ({
+      queryKey: ['lottery', 'results', 'by-date', drawDate],
+      queryFn: () => lotteryApi.resultsByDate(drawDate),
+      refetchInterval: drawDate === today ? pollInterval : (false as const),
+    })),
   });
 
 export const useHanoiResults = (date: string | null, live: boolean) =>
@@ -229,6 +242,14 @@ export const useHanoiResults = (date: string | null, live: boolean) =>
     queryFn: () => lotteryApi.hanoiResults(date as string),
     enabled: !!date,
     refetchInterval: live ? pollInterval : false,
+  });
+
+export const useHanoiHistory = () =>
+  useInfiniteQuery({
+    queryKey: ['lottery', 'results', 'hanoi-history'],
+    queryFn: ({ pageParam }) => lotteryApi.hanoiHistory(pageParam),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (page) => page.nextBefore ?? undefined,
   });
 
 export const useTickets = () =>

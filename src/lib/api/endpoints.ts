@@ -549,11 +549,13 @@ interface ResultsByDateResponse {
 /** `2top` is never sent by the backend — it's always the last two digits of `3top`. */
 function resultNumbers(top3?: string, bottom2?: string): ResultMarket['numbers'] {
   const numbers: ResultMarket['numbers'] = {};
-  if (top3) {
+  // Some markets send "N/A" instead of leaving the field empty — slicing that gives "/A".
+  const isNumber = (value?: string): value is string => /^\d+$/.test(value ?? '');
+  if (isNumber(top3)) {
     numbers['3top'] = top3;
     numbers['2top'] = top3.slice(-2);
   }
-  if (bottom2) numbers['2bottom'] = bottom2;
+  if (isNumber(bottom2)) numbers['2bottom'] = bottom2;
   return numbers;
 }
 
@@ -636,8 +638,32 @@ function normalizeHanoiResults(payload: HanoiResultsResponse): ResultMarket[] {
         hasResult: !!hanoi,
         numbers: {},
         hanoi,
+        emptyReason:
+          round.status === 'no_result'
+            ? 'noResult'
+            : round.status === 'refunded'
+              ? 'refunded'
+              : undefined,
       };
     });
+}
+
+interface HanoiHistoryResponse {
+  data?: {
+    dates?: Array<NonNullable<HanoiResultsResponse['data']>>;
+    next_before?: string | null;
+  };
+}
+
+/** One page of Hanoi A/B/C/D draw days, newest first. */
+function normalizeHanoiHistory(payload: HanoiHistoryResponse) {
+  return {
+    days: (payload.data?.dates ?? []).map((day) => ({
+      date: day.date ?? '',
+      rounds: normalizeHanoiResults({ data: day }),
+    })),
+    nextBefore: payload.data?.next_before ?? null,
+  };
 }
 
 /** The default (today) view reuses the same market listing the home page pulls from. */
@@ -901,7 +927,8 @@ function hanoiItemsBody(items: HanoiSelection[]) {
     digits: i.digits,
     method: i.method,
     amount: i.amount,
-    ...(i.channel === 'A' && i.positions ? { positions: i.positions } : {}),
+    // Leaving `position` out buys every A position; other channels must not send it.
+    ...(i.channel === 'A' && i.positions ? { position: i.positions[0] } : {}),
     ...(i.method === 'cross'
       ? { left: i.left, right: i.right }
       : i.method === 'range'
@@ -1107,6 +1134,7 @@ interface TicketDetailResponse {
       selection_method_at_time?: string;
       source_number_at_time?: string;
       matched_units?: number | string | null;
+      position_at_time?: number | string | null;
     }>;
   } | null;
 }
@@ -1139,6 +1167,10 @@ function normalizeTicketDetail(payload: TicketDetailResponse): TicketDetail {
             source: row.source_number_at_time || row.number || '',
             unitAmount,
             unitCount,
+            position:
+              row.position_at_time === null || row.position_at_time === undefined
+                ? row.position_at_time
+                : Number(row.position_at_time),
             matchedUnits:
               row.matched_units === null || row.matched_units === undefined
                 ? undefined
@@ -1491,6 +1523,12 @@ export const lotteryApi = {
     apiFetch<HanoiResultsResponse>('lotto/hanoi-abcd/results', {
       query: { date },
     }).then(normalizeHanoiResults),
+
+  /** `before` is the previous page's `nextBefore`; `limit` counts draw days, not rounds. */
+  hanoiHistory: (before?: string) =>
+    apiFetch<HanoiHistoryResponse>('lotto/hanoi-abcd/results/history', {
+      query: { limit: 7, before },
+    }).then(normalizeHanoiHistory),
 
   tickets: () => apiFetch<TicketListResponse>('lotto/tickets').then(normalizeTicketList),
 

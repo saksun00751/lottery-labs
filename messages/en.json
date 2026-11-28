@@ -287,7 +287,9 @@
       "checkTicket": "Check my slips",
       "noTicketsForDraw": "You have no slips for this draw",
       "hanoiSpecial": "5-digit special",
-      "hanoiTab": "Hanoi"
+      "hanoiTab": "Hanoi",
+      "noResult": "No result",
+      "refunded": "Refunded"
     },
     "package": {
       "title": "Choose a package",
@@ -340,7 +342,8 @@
         "mixLength": "Mix needs exactly 3 digits",
         "rangeOrder": "The end number can't be lower than the start",
         "rangeTooLarge": "A range can cover at most 1,000 numbers",
-        "tooMany": "This expands to more numbers than one line allows"
+        "tooMany": "This expands to more numbers than one line allows",
+        "slipFull": "This slip would exceed {max} lines. Use fewer numbers or split the slip."
       },
       "add": "Add to slip",
       "keyboardHint": "Type digits on your keyboard. Tab switches boxes, Backspace deletes, Enter adds",
@@ -386,10 +389,13 @@
         "HANOI_IDEMPOTENCY_CONFLICT": "This request was already sent with different items. Please confirm again"
       },
       "ticket": {
-        "matched": "{count} positions hit"
+        "matched": "{count} positions hit",
+        "allPositions": "All positions"
       }
     },
     "resultsHistory": {
+      "viewHanoi": "Hanoi ABCD",
+      "loadMore": "Load more",
       "title": "Past results",
       "subtitle": "Browse historical results for every market",
       "prevDay": "Previous day",

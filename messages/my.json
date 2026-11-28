@@ -287,7 +287,9 @@
       "checkTicket": "ကျွန်ုပ်၏လက်မှတ်များ စစ်ဆေးရန်",
       "noTicketsForDraw": "ဤထွက်ပေါက်အတွက် လက်မှတ်မရှိပါ",
       "hanoiSpecial": "အထူးဆု ဂဏန်း ၅ လုံး",
-      "hanoiTab": "ဟနွိုင်းထီ"
+      "hanoiTab": "ဟနွိုင်းထီ",
+      "noResult": "ရလဒ် မရှိပါ",
+      "refunded": "ငွေပြန်အမ်းပြီး"
     },
     "package": {
       "title": "Package ရွေးပါ",
@@ -340,7 +342,8 @@
         "mixLength": "Mix needs exactly 3 digits",
         "rangeOrder": "The end number can't be lower than the start",
         "rangeTooLarge": "A range can cover at most 1,000 numbers",
-        "tooMany": "This expands to more numbers than one line allows"
+        "tooMany": "This expands to more numbers than one line allows",
+        "slipFull": "ဤလက်မှတ်သည် စာကြောင်း {max} ထက်ကျော်နေပါသည်။ ဂဏန်းလျှော့ပါ သို့မဟုတ် လက်မှတ်ခွဲပါ"
       },
       "add": "Add to slip",
       "keyboardHint": "Type digits on your keyboard. Tab switches boxes, Backspace deletes, Enter adds",
@@ -386,10 +389,13 @@
         "HANOI_IDEMPOTENCY_CONFLICT": "This request was already sent with different items. Please confirm again"
       },
       "ticket": {
-        "matched": "{count} positions hit"
+        "matched": "{count} positions hit",
+        "allPositions": "နေရာအားလုံး"
       }
     },
     "resultsHistory": {
+      "viewHanoi": "ဟနွိုင်း ABCD",
+      "loadMore": "ထပ်ဖွင့်ရန်",
       "title": "ယခင်ရလဒ်များကြည့်ရန်",
       "subtitle": "ဈေးကွက်အားလုံး၏ ယခင်ရလဒ်များကို ရှာဖွေပါ",
       "viewDay": "နေ့အလိုက်",

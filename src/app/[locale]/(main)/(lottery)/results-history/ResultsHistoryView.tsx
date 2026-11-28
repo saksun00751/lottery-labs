@@ -9,26 +9,23 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { EmptyState, Skeleton } from '@/components/ui/Feedback';
 import { Input } from '@/components/ui/Field';
+import { HanoiResultTable } from '@/components/lottery/HanoiResultTable';
 import { Tabs } from '@/components/ui/Tabs';
+import { archiveMarketCode, archiveMarketLabel } from '@/config/archive-markets';
+import { shiftDate, useArchiveMarketCodes, useMarketHistory } from '@/lib/api/results-history';
 import {
-  ARCHIVE_FAMILY_ORDER,
-  archiveMarketFamily,
-  archiveMarketLabel,
-  type ArchiveFamily,
-} from '@/config/archive-markets';
-import {
-  shiftDate,
-  useArchiveMarketCodes,
-  useArchiveRange,
-  useMarketHistory,
-  type ArchiveDraw,
-} from '@/lib/api/results-history';
+  useHanoiHistory,
+  useHanoiResults,
+  useResultsByDate,
+  useResultsByDates,
+} from '@/lib/api/queries';
 import { bangkokToday, formatDrawDate } from '@/lib/utils/bangkok-time';
 import { cn } from '@/lib/utils/cn';
+import type { ResultMarket } from '@/types';
 
 import styles from './results-history.module.scss';
 
-type View = 'day' | 'market' | 'feed';
+type View = 'hanoi' | 'day' | 'market' | 'feed';
 
 function weekday(date: string, locale: string, style: 'short' | 'long' = 'short'): string {
   return new Intl.DateTimeFormat(locale, { weekday: style, timeZone: 'UTC' }).format(
@@ -61,12 +58,9 @@ function matches(code: string, needle: string): boolean {
   );
 }
 
-const byLabel = (a: ArchiveDraw, b: ArchiveDraw) =>
-  archiveMarketLabel(a.marketCode).localeCompare(archiveMarketLabel(b.marketCode), 'th');
-
 export function ResultsHistoryView() {
   const t = useTranslations('lottery.resultsHistory');
-  const [view, setView] = useState<View>('day');
+  const [view, setView] = useState<View>('hanoi');
   const [marketCode, setMarketCode] = useState<string | null>(null);
   // One search box above the tabs; every view filters by it.
   const [query, setQuery] = useState('');
@@ -84,6 +78,7 @@ export function ResultsHistoryView() {
 
       <Tabs
         items={[
+          { value: 'hanoi' as View, label: t('viewHanoi') },
           { value: 'day' as View, label: t('viewDay') },
           { value: 'market' as View, label: t('viewMarket') },
           { value: 'feed' as View, label: t('viewFeed') },
@@ -103,19 +98,92 @@ export function ResultsHistoryView() {
         />
       </div>
 
+      {view === 'hanoi' && <HanoiHistory needle={needle} />}
       {view === 'day' && <DailyBoard needle={needle} onOpenHistory={openHistory} />}
       {view === 'market' && (
         <MarketTable needle={needle} code={marketCode} onPick={setMarketCode} />
       )}
-      {view === 'feed' && <DateFeed needle={needle} onOpenHistory={openHistory} />}
+      {view === 'feed' && (
+        <DateFeed needle={needle} onOpenHistory={openHistory} onOpenHanoi={() => setView('hanoi')} />
+      )}
     </div>
   );
 }
 
 /* -------------------------------------------------------------------------- *
- * Day board: pick a day, see every market that drew on it.
- * Data: lotto/results?from_date=D&to_date=D
+ * Hanoi A/B/C/D: draw days, newest first, loaded a page at a time.
+ * Data: lotto/hanoi-abcd/results/history
  * -------------------------------------------------------------------------- */
+
+function HanoiHistory({ needle }: { needle: string }) {
+  const t = useTranslations('lottery.resultsHistory');
+  const locale = useLocale();
+  const { data, isLoading, isError, hasNextPage, isFetchingNextPage, fetchNextPage } =
+    useHanoiHistory();
+
+  const days = (data?.pages ?? [])
+    .flatMap((page) => page.days)
+    .map((day) => ({
+      ...day,
+      rounds: day.rounds.filter((r) => !needle || r.marketName.toLowerCase().includes(needle)),
+    }))
+    .filter((day) => day.rounds.length > 0);
+
+  if (isLoading) return <Skeleton height={360} radius={16} />;
+  // A failed "load more" keeps the days already on screen.
+  if (isError && !data) return <EmptyState title={t('error')} />;
+
+  return (
+    <div className={styles.feed}>
+      {days.length === 0 && <EmptyState title={t('empty')} />}
+      {days.map((day) => (
+        <section key={day.date} className={styles.feedSection}>
+          <h2 className={styles.feedDate}>
+            {weekday(day.date, locale, 'long')} {formatDrawDate(day.date)}
+            <span className={styles.feedCount}>{day.rounds.length}</span>
+          </h2>
+          <div className={styles.hanoiGrid}>
+            {day.rounds.map((round) => (
+              <HanoiRoundCard key={round.marketId} round={round} />
+            ))}
+          </div>
+        </section>
+      ))}
+      {isError && <EmptyState title={t('error')} />}
+      {hasNextPage && (
+        <Button variant="outline" disabled={isFetchingNextPage} onClick={() => fetchNextPage()}>
+          {t('loadMore')}
+        </Button>
+      )}
+    </div>
+  );
+}
+
+function HanoiRoundCard({ round }: { round: ResultMarket }) {
+  const tResults = useTranslations('lottery.results');
+  return (
+    <article className={styles.hanoiCard}>
+      <header>
+        <div className={styles.mName}>{round.marketName}</div>
+        <div className={styles.hanoiTime}>{round.drawLabel}</div>
+      </header>
+      {round.hanoi ? (
+        <HanoiResultTable result={round.hanoi} />
+      ) : (
+        <div className={styles.hanoiEmpty}>{tResults(round.emptyReason ?? 'pending')}</div>
+      )}
+    </article>
+  );
+}
+
+/* -------------------------------------------------------------------------- *
+ * Day board: pick a day, see every market that drew on it.
+ * Data: lotto/results/by-date, plus lotto/hanoi-abcd/results for the A/B/C/D rounds
+ * (`lotto/results` lags behind and carries no Hanoi A/B/C/D numbers).
+ * -------------------------------------------------------------------------- */
+
+/** `by-date` lists the A/B/C/D markets without numbers, so that group is swapped out. */
+const HANOI_GROUP = 'lotto-hanoi';
 
 function DailyBoard({
   needle,
@@ -129,22 +197,26 @@ function DailyBoard({
   const today = bangkokToday();
 
   const [date, setDate] = useState(today);
-  const [family, setFamily] = useState<ArchiveFamily | null>(null);
+  const [groupCode, setGroupCode] = useState<string | null>(null);
 
-  const { data, isLoading, isError } = useArchiveRange(date, date);
+  const listing = useResultsByDate(date, date === today);
+  const hanoi = useHanoiResults(date, date === today);
 
+  const byName = (market: ResultMarket) =>
+    !needle || market.marketName.toLowerCase().includes(needle);
   // While searching, groups with no match drop out so the tabs only show where results are.
-  const groups = useMemo(() => {
-    const rows = (data ?? []).filter((d) => matches(d.marketCode, needle));
-    return ARCHIVE_FAMILY_ORDER.map((f) => ({
-      family: f,
-      draws: rows.filter((d) => archiveMarketFamily(d.marketCode) === f).sort(byLabel),
-    })).filter((g) => g.draws.length > 0);
-  }, [data, needle]);
+  const groups = [
+    ...(listing.data ?? []).filter((g) => g.groupCode !== HANOI_GROUP),
+    { groupCode: HANOI_GROUP, groupName: t('viewHanoi'), markets: hanoi.data ?? [] },
+  ]
+    .map((g) => ({ ...g, markets: g.markets.filter(byName) }))
+    .filter((g) => g.markets.length > 0);
 
-  const activeFamily =
-    family && groups.some((g) => g.family === family) ? family : (groups[0]?.family ?? null);
-  const active = groups.find((g) => g.family === activeFamily) ?? null;
+  const active = groups.find((g) => g.groupCode === groupCode) ?? groups[0] ?? null;
+  // Wait for both sources so the default tab doesn't jump, and report a failure
+  // even when the other source still has something to show.
+  const isLoading = listing.isLoading || hanoi.isLoading;
+  const isError = (listing.isError && !listing.data) || (hanoi.isError && !hanoi.data);
 
   const strip = useMemo(
     () => Array.from({ length: 14 }, (_, i) => shiftDate(today, -i)),
@@ -201,20 +273,22 @@ function DailyBoard({
           {dayName(date, 'long')} {formatDrawDate(date)}
           {date === today && <Badge tone="accent">{t('today')}</Badge>}
         </div>
-        {groups.length > 0 && activeFamily && (
+        {!isLoading && active && (
           <Tabs
             items={groups.map((g) => ({
-              value: g.family,
-              label: t(`family.${g.family}`),
-              count: g.draws.length,
+              value: g.groupCode,
+              label: g.groupName,
+              count: g.markets.length,
             }))}
-            value={activeFamily}
-            onChange={setFamily}
+            value={active.groupCode}
+            onChange={setGroupCode}
             ariaLabel={t('title')}
             className={styles.groupTabs}
           />
         )}
       </div>
+
+      {isError && !isLoading && <EmptyState title={t('error')} />}
 
       {isLoading ? (
         <div className={styles.cardGrid}>
@@ -222,14 +296,18 @@ function DailyBoard({
             <Skeleton key={i} height={92} radius={14} />
           ))}
         </div>
-      ) : isError ? (
-        <EmptyState title={t('error')} />
       ) : !active ? (
-        <EmptyState title={t('empty')} />
+        !isError && <EmptyState title={t('empty')} />
+      ) : active.groupCode === HANOI_GROUP ? (
+        <div className={styles.hanoiGrid}>
+          {active.markets.map((round) => (
+            <HanoiRoundCard key={round.marketId} round={round} />
+          ))}
+        </div>
       ) : (
         <div className={styles.cardGrid}>
-          {active.draws.map((d) => (
-            <MarketCard key={d.marketCode} draw={d} onOpenHistory={onOpenHistory} />
+          {active.markets.map((market) => (
+            <MarketCard key={market.marketId} market={market} onOpenHistory={onOpenHistory} />
           ))}
         </div>
       )}
@@ -238,39 +316,51 @@ function DailyBoard({
 }
 
 function MarketCard({
-  draw,
+  market,
   onOpenHistory,
 }: {
-  draw: ArchiveDraw;
+  market: ResultMarket;
   onOpenHistory: (code: string) => void;
 }) {
   const t = useTranslations('lottery.resultsHistory');
-  const label = archiveMarketLabel(draw.marketCode);
+  const tResults = useTranslations('lottery.results');
+  const code = archiveMarketCode(market.marketName);
+  const body = (
+    <>
+      <header className={styles.mHead}>
+        <span className={styles.mName}>{market.marketName}</span>
+        {code && <ChevronRight size={14} className={styles.mChevron} aria-hidden />}
+      </header>
+      {market.hasResult ? (
+        <div className={styles.mNums}>
+          <div className={cn(styles.mNum, styles.mNumMain)}>
+            <span className={styles.mLabel}>{t('col3top')}</span>
+            <span className={styles.mValue}>{market.numbers['3top'] ?? '-'}</span>
+          </div>
+          <div className={styles.mNum}>
+            <span className={styles.mLabel}>{t('col2top')}</span>
+            <span className={styles.mValue}>{market.numbers['2top'] ?? '-'}</span>
+          </div>
+          <div className={styles.mNum}>
+            <span className={styles.mLabel}>{t('col2bottom')}</span>
+            <span className={styles.mValue}>{market.numbers['2bottom'] ?? '-'}</span>
+          </div>
+        </div>
+      ) : (
+        <div className={styles.hanoiEmpty}>{tResults('pending')}</div>
+      )}
+    </>
+  );
+
+  if (!code) return <article className={styles.mCard}>{body}</article>;
   return (
     <button
       type="button"
       className={cn(styles.mCard, styles.mCardLink)}
-      onClick={() => onOpenHistory(draw.marketCode)}
-      aria-label={`${label} · ${t('viewHistory')}`}
+      onClick={() => onOpenHistory(code)}
+      aria-label={`${market.marketName} · ${t('viewHistory')}`}
     >
-      <header className={styles.mHead}>
-        <span className={styles.mName}>{label}</span>
-        <ChevronRight size={14} className={styles.mChevron} aria-hidden />
-      </header>
-      <div className={styles.mNums}>
-        <div className={cn(styles.mNum, styles.mNumMain)}>
-          <span className={styles.mLabel}>{t('col3top')}</span>
-          <span className={styles.mValue}>{draw.top3 ?? '-'}</span>
-        </div>
-        <div className={styles.mNum}>
-          <span className={styles.mLabel}>{t('col2top')}</span>
-          <span className={styles.mValue}>{draw.top2 ?? '-'}</span>
-        </div>
-        <div className={styles.mNum}>
-          <span className={styles.mLabel}>{t('col2bottom')}</span>
-          <span className={styles.mValue}>{draw.bottom2 ?? '-'}</span>
-        </div>
-      </div>
+      {body}
     </button>
   );
 }
@@ -429,8 +519,8 @@ function MarketTable({
 }
 
 /* -------------------------------------------------------------------------- *
- * Feed: the last few days, grouped by date.
- * Data: lotto/results?from_date&to_date
+ * Feed: the last few days, grouped by date. Days appear as their requests land.
+ * Data: lotto/results/by-date per day, plus lotto/hanoi-abcd/results/history
  * -------------------------------------------------------------------------- */
 
 const FEED_RANGES = [1, 3, 7] as const;
@@ -438,30 +528,41 @@ const FEED_RANGES = [1, 3, 7] as const;
 function DateFeed({
   needle,
   onOpenHistory,
+  onOpenHanoi,
 }: {
   needle: string;
   onOpenHistory: (code: string) => void;
+  onOpenHanoi: () => void;
 }) {
   const t = useTranslations('lottery.resultsHistory');
   const locale = useLocale();
   const today = bangkokToday();
 
   const [days, setDays] = useState<(typeof FEED_RANGES)[number]>(3);
-  const { data, isLoading, isFetching, isError } = useArchiveRange(
-    shiftDate(today, -(days - 1)),
-    today,
-  );
+  const dates = Array.from({ length: days }, (_, i) => shiftDate(today, -i));
+  const listings = useResultsByDates(dates, today);
+  // The first history page is 7 draw days, which always covers the widest range here.
+  const hanoi = useHanoiHistory();
 
-  const sections = useMemo(() => {
-    const byDate = new Map<string, ArchiveDraw[]>();
-    for (const d of data ?? []) {
-      if (!matches(d.marketCode, needle)) continue;
-      byDate.set(d.date, [...(byDate.get(d.date) ?? []), d]);
-    }
-    return [...byDate.entries()]
-      .sort(([a], [b]) => (a < b ? 1 : -1))
-      .map(([date, items]) => ({ date, items: items.sort(byLabel) }));
-  }, [data, needle]);
+  const byName = (a: ResultMarket, b: ResultMarket) =>
+    a.marketName.localeCompare(b.marketName, 'th');
+  const shown = (market: ResultMarket) =>
+    market.hasResult && (!needle || market.marketName.toLowerCase().includes(needle));
+
+  const sections = dates
+    .map((date, i) => {
+      const listed = (listings[i]?.data ?? [])
+        .filter((g) => g.groupCode !== HANOI_GROUP)
+        .flatMap((g) => g.markets);
+      const rounds =
+        hanoi.data?.pages.flatMap((page) => page.days).find((d) => d.date === date)?.rounds ?? [];
+      return { date, items: [...listed.filter(shown).sort(byName), ...rounds.filter(shown)] };
+    })
+    .filter((section) => section.items.length > 0);
+
+  const isLoading = hanoi.isLoading || listings.some((q) => q.isLoading);
+  const isError =
+    (hanoi.isError && !hanoi.data) || listings.some((q) => q.isError && !q.data);
 
   return (
     <>
@@ -480,40 +581,55 @@ function DateFeed({
         </div>
       </div>
 
-      {isLoading ? (
-        <Skeleton height={360} radius={16} />
-      ) : isError ? (
-        <EmptyState title={t('error')} />
-      ) : sections.length === 0 ? (
-        <EmptyState title={t('empty')} />
-      ) : (
-        <div className={cn(styles.feed, isFetching && styles.dim)}>
-          {sections.map((s) => (
-            <section key={s.date} className={styles.feedSection}>
-              <h2 className={styles.feedDate}>
-                {weekday(s.date, locale, 'long')} {formatDrawDate(s.date)}
-                <span className={styles.feedCount}>{s.items.length}</span>
-              </h2>
-              <ul className={styles.feedList}>
-                {s.items.map((r) => (
-                  <li key={r.marketCode}>
+      {isError && <EmptyState title={t('error')} />}
+
+      <div className={styles.feed}>
+        {sections.map((s) => (
+          <section key={s.date} className={styles.feedSection}>
+            <h2 className={styles.feedDate}>
+              {weekday(s.date, locale, 'long')} {formatDrawDate(s.date)}
+              <span className={styles.feedCount}>{s.items.length}</span>
+            </h2>
+            <ul className={styles.feedList}>
+              {s.items.map((r) => {
+                const code = r.hanoi ? undefined : archiveMarketCode(r.marketName);
+                const open = r.hanoi
+                  ? onOpenHanoi
+                  : code
+                    ? () => onOpenHistory(code)
+                    : undefined;
+                return (
+                  <li key={`${r.hanoi ? 'draw' : 'market'}-${r.marketId}`}>
                     <button
                       type="button"
                       className={styles.feedRow}
-                      onClick={() => onOpenHistory(r.marketCode)}
+                      disabled={!open}
+                      onClick={open}
                     >
-                      <span className={styles.feedName}>{archiveMarketLabel(r.marketCode)}</span>
+                      <span className={styles.feedName}>{r.marketName}</span>
                       <span className={styles.feedNums}>
-                        <span className={styles.feedMain}>{r.top3 ?? '-'}</span>
-                        <span className={styles.feedUnder}>{r.bottom2 ?? '-'}</span>
+                        {r.hanoi ? (
+                          <span className={styles.feedMain}>{r.hanoi.special || '-'}</span>
+                        ) : (
+                          <>
+                            <span className={styles.feedMain}>{r.numbers['3top'] ?? '-'}</span>
+                            <span className={styles.feedUnder}>{r.numbers['2bottom'] ?? '-'}</span>
+                          </>
+                        )}
                       </span>
                     </button>
                   </li>
-                ))}
-              </ul>
-            </section>
-          ))}
-        </div>
+                );
+              })}
+            </ul>
+          </section>
+        ))}
+      </div>
+
+      {isLoading ? (
+        <Skeleton height={sections.length > 0 ? 96 : 360} radius={16} />
+      ) : (
+        sections.length === 0 && !isError && <EmptyState title={t('empty')} />
       )}
     </>
   );
