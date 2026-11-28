@@ -89,7 +89,7 @@ export function TicketDetailModal({
                 {draw.hanoi ? (
                   <HanoiResultTable result={draw.hanoi} />
                 ) : (
-                  <p className={styles.pending}>{tResults('pending')}</p>
+                  <p className={styles.pending}>{tResults(draw.emptyReason ?? 'pending')}</p>
                 )}
               </div>
             )}
@@ -106,7 +106,18 @@ export function TicketDetailModal({
                     {item.hanoi ? (
                       <>
                         <div className={styles.itemType}>
-                          {item.betType.slice(6).toUpperCase()} · {tHanoi(`methods.${item.hanoi.method}`)}
+                          {/* `hanoi_a2` is channel A, 2 digits — not position A2. */}
+                          {item.betType.charAt(6).toUpperCase()} ·{' '}
+                          {tHanoi('digitsValue', { count: Number(item.betType.charAt(7)) })}
+                          {item.betType.charAt(6) === 'a' &&
+                            item.hanoi.position !== undefined &&
+                            ` · ${
+                              item.hanoi.position === null
+                                ? tHanoi('ticket.allPositions')
+                                : `A${item.hanoi.position}`
+                            }`}
+                          {' · '}
+                          {tHanoi(`methods.${item.hanoi.method}`)}
                           {item.hanoi.method !== 'straight' && ` ${item.hanoi.source}`}
                         </div>
                         <div className={styles.itemRate}>

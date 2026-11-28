@@ -48,7 +48,7 @@ export function ResultCard({
           ))}
         </div>
       ) : (
-        <div className={styles.pending}>{t('results.pending')}</div>
+        <div className={styles.pending}>{t(`results.${market.emptyReason ?? 'pending'}`)}</div>
       )}
 
       <button type="button" className={styles.checkButton} onClick={onCheck}>

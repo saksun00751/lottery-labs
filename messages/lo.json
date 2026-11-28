@@ -287,7 +287,9 @@
       "checkTicket": "ກວດໂພຍຂອງຂ້ອຍ",
       "noTicketsForDraw": "ທ່ານບໍ່ມີໂພຍໃນງວດນີ້",
       "hanoiSpecial": "ເລກພິເສດ 5 ຫຼັກ",
-      "hanoiTab": "ຫວຍຮານອຍ"
+      "hanoiTab": "ຫວຍຮານອຍ",
+      "noResult": "ບໍ່ມີຜົນ",
+      "refunded": "ຄືນເງິນແລ້ວ"
     },
     "package": {
       "title": "ເລືອກ Package",
@@ -340,7 +342,8 @@
         "mixLength": "Mix needs exactly 3 digits",
         "rangeOrder": "The end number can't be lower than the start",
         "rangeTooLarge": "A range can cover at most 1,000 numbers",
-        "tooMany": "This expands to more numbers than one line allows"
+        "tooMany": "This expands to more numbers than one line allows",
+        "slipFull": "ໂພຍນີ້ເກີນ {max} ແຖວ ກະລຸນາຫຼຸດຈຳນວນເລກ ຫຼື ແຍກໂພຍ"
       },
       "add": "Add to slip",
       "keyboardHint": "Type digits on your keyboard. Tab switches boxes, Backspace deletes, Enter adds",
@@ -386,10 +389,13 @@
         "HANOI_IDEMPOTENCY_CONFLICT": "This request was already sent with different items. Please confirm again"
       },
       "ticket": {
-        "matched": "{count} positions hit"
+        "matched": "{count} positions hit",
+        "allPositions": "ທຸກຕຳແໜ່ງ"
       }
     },
     "resultsHistory": {
+      "viewHanoi": "ຮານອຍ ABCD",
+      "loadMore": "ໂຫຼດເພີ່ມ",
       "title": "ເບິ່ງຜົນຫວຍຍ້ອນຫຼັງ",
       "subtitle": "ຄົ້ນຫາຜົນລາງວັນຍ້ອນຫຼັງຂອງທຸກຕະຫຼາດ",
       "viewDay": "ລາຍວັນ",

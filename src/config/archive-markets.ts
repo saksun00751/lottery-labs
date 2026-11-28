@@ -115,6 +115,14 @@ function guessFamily(code: string): ArchiveFamily {
   return 'stock';
 }
 
+/**
+ * Reverse lookup for sources that send only a display name (`results/by-date`).
+ * Exact label matches only — an unknown name simply has no archive history to open.
+ */
+export function archiveMarketCode(label: string): string | undefined {
+  return Object.keys(MARKETS).find((code) => MARKETS[code][0] === label.trim());
+}
+
 export function archiveMarketLabel(code: string): string {
   return (
     MARKETS[code]?.[0] ??

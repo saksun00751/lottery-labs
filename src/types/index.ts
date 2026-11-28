@@ -209,7 +209,10 @@ export interface HanoiSelection {
   right?: string;
   rangeStart?: string;
   rangeEnd?: string;
-  /** Channel A only: the A-positions picked (1-based). Omitted = every position. */
+  /**
+   * Channel A only: the A-positions picked (1-based). Omitted = every position.
+   * The API takes one `position` per item, so a slip line holds at most one.
+   */
   positions?: number[];
   /** Baht per unit, before multiplying by numbers and positions. */
   amount: number;
@@ -264,6 +267,8 @@ export interface HanoiTicketItem {
   source: string;
   unitAmount: number;
   unitCount: number;
+  /** Channel A: the one position bought, or `null` for all of them. Absent when not sent. */
+  position?: number | null;
   /** Positions that hit once the draw is settled. */
   matchedUnits?: number;
 }
@@ -322,6 +327,8 @@ export interface ResultMarket {
   numbers: Partial<Record<BetTypeId, string>>;
   /** Set for Hanoi A/B/C/D rounds, which are shown as a channel table instead of `numbers`. */
   hanoi?: HanoiResultNumbers;
+  /** Why there are no numbers, when it isn't simply "not drawn yet". */
+  emptyReason?: 'noResult' | 'refunded';
 }
 
 /** One A/B/C/D draw's numbers. A can hold several winning numbers; a cell with none is empty. */

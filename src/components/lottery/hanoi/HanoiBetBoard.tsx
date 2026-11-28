@@ -16,6 +16,7 @@ import { pushToast } from '@/lib/toast';
 import { cn } from '@/lib/utils/cn';
 import {
   HANOI_CHANNELS,
+  HANOI_MAX_LINES,
   HANOI_MAX_SELECTIONS,
   betTypesFor,
   expandSelection,
@@ -219,11 +220,21 @@ export function HanoiBetBoard({
   );
 
   const typed = Object.values(fields).some(Boolean);
+  // The 500-line cap covers the whole request, so what's already on the slip counts too.
+  const slipLineCount = useMemo(
+    () =>
+      lines.reduce((sum, line) => {
+        const e = expandSelection(line.sel, counts);
+        return sum + (e.ok ? e.lines : 0);
+      }, 0),
+    [lines, counts],
+  );
+  const overLineCap = draft.ok && slipLineCount + draft.lines > HANOI_MAX_LINES;
   const canAdd =
-    draft.ok && amountOk && open[channel] && lines.length + linesToAdd <= HANOI_MAX_SELECTIONS && !confirmOpen;
+    draft.ok && !overLineCap && amountOk && open[channel] && lines.length + linesToAdd <= HANOI_MAX_SELECTIONS && !confirmOpen;
 
   const add = useCallback(() => {
-    if (!draft.ok || !amountOk || !open[channel] || lines.length + linesToAdd > HANOI_MAX_SELECTIONS) return;
+    if (!draft.ok || overLineCap || !amountOk || !open[channel] || lines.length + linesToAdd > HANOI_MAX_SELECTIONS) return;
     const sel: HanoiSelection = {
       channel,
       digits,
@@ -240,7 +251,7 @@ export function HanoiBetBoard({
       : [{ id: nextId.current++, sel }];
     setLines((prev) => [...prev, ...added]);
     resetFields(method, digits);
-  }, [draft, amountOk, open, channel, lines.length, linesToAdd, digits, method, amount, fields, resetFields, aPositions]);
+  }, [draft, overLineCap, amountOk, open, channel, lines.length, linesToAdd, digits, method, amount, fields, resetFields, aPositions]);
 
   // An unsent slip is lost on leave. Reload/close can only use the browser's own prompt
   // (beforeunload); in-app links and Back/Forward open our own dialog instead.
@@ -416,6 +427,7 @@ export function HanoiBetBoard({
   /* -------------------------------- render -------------------------------- */
 
   const problemText = !draft.ok && draft.problem !== 'incomplete' ? t(`problems.${draft.problem}`) : null;
+  const lineCapText = overLineCap ? t('problems.slipFull', { max: HANOI_MAX_LINES }) : null;
   const draftEstimate = draft.ok && amountOk ? toMinor(draft.units * amount) : 0;
   const single = channel === 'ABCD' ? null : capability.limits[betTypesFor(channel, digits)[0]];
   const abcdClosed = !open.ABCD;
@@ -678,6 +690,9 @@ export function HanoiBetBoard({
                     {t('preview', { numbers: draft.numbers.length, positions: draft.positions, units: draft.units })}
                     {amountOk && <Money value={draftEstimate} size="md" tone="accent" />}
                   </div>
+                  {lineCapText && (
+                    <p className={cn(styles.previewHint, styles.problem)}>{lineCapText}</p>
+                  )}
                   <div className={styles.chips}>
                     {draft.numbers.slice(0, 48).map((n) => (
                       <span key={n} className={styles.chip}>

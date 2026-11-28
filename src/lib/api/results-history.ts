@@ -124,14 +124,6 @@ export const resultsHistoryApi = {
 
 /* ------------------------------- Hooks ----------------------------------- */
 
-/** All markets' draws in `[fromDate, toDate]` — a single day for the board, a few days for the feed. */
-export const useArchiveRange = (fromDate: string, toDate: string) =>
-  useQuery({
-    queryKey: ['lottery', 'archive', 'range', fromDate, toDate],
-    queryFn: () => resultsHistoryApi.range(fromDate, toDate),
-    placeholderData: keepPreviousData,
-  });
-
 /** Markets with a draw in the last 14 days — the list the market tab offers. */
 export const useArchiveMarketCodes = (today: string) =>
   useQuery({

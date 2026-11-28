@@ -57,7 +57,7 @@ export const onlyDigits = (value: string) => value.replace(/\D/g, '');
 export type ExpandProblem = 'incomplete' | 'mixLength' | 'rangeOrder' | 'rangeTooLarge' | 'tooMany';
 
 export type Expansion =
-  | { ok: true; numbers: string[]; positions: number; units: number }
+  | { ok: true; numbers: string[]; positions: number; units: number; lines: number }
   | { ok: false; problem: ExpandProblem };
 
 /** Every distinct ordered arrangement of `size` digits taken from `source`. */
@@ -110,8 +110,15 @@ export function expandSelection(
 
   if (sel.channel === 'A' && sel.positions?.length === 0) return { ok: false, problem: 'incomplete' };
   const positions = positionCount(sel.channel, digits, counts, sel.positions);
-  if (numbers.length * positions > HANOI_MAX_LINES) return { ok: false, problem: 'tooMany' };
-  return { ok: true, numbers, positions, units: numbers.length * positions };
+  // The server caps lines (number × bet type), not units: every A position behind one
+  // bet type is a single line. A positions picked one by one are separate slip lines.
+  const linesPerNumber =
+    sel.channel === 'A' && sel.positions
+      ? sel.positions.length
+      : betTypesFor(sel.channel, digits).length;
+  const lines = numbers.length * linesPerNumber;
+  if (lines > HANOI_MAX_LINES) return { ok: false, problem: 'tooMany' };
+  return { ok: true, numbers, positions, units: numbers.length * positions, lines };
 }
 
 /** "A1 A3" for an A line split by position; empty when the line covers every position. */
